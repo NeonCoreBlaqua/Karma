@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KarmaGo - Social Media Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1c1e21;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            grid-template-rows: 60px 1fr;
+            grid-template-areas: 
+                "header header header"
+                "sidebar main rightbar";
+        }
+
+        /* Header */
+        .header {
+            grid-area: header;
+            background: linear-gradient(45deg, #4267B2, #5578c7);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            height: 40px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 20px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 14px;
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .user-nav {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-icon:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            padding: 20px;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 5px;
+            color: #65676b;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            grid-area: main;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 60px);
+        }
+
+        .firebase-banner {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        .auth-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .auth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .auth-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .google-btn {
+            background: #4285f4;
+        }
+
+        .demo-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        .post-creator {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .post-input {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .post-input textarea {
+            flex: 1;
+            border: none;
+            resize: none;
+            font-size: 16px;
+            padding: 15px;
+            border-radius: 25px;
+            background: #f0f2f5;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .post-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .post {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .post:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .post-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .post-info h4 {
+            margin-bottom: 5px;
+        }
+
+        .post-info small {
+            color: #65676b;
+        }
+
+        .post-content {
+            padding: 0 20px 20px;
+        }
+
+        .post-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #65676b;
+        }
+
+        .post-actions-bar {
+            display: flex;
+            border-top: 1px solid #e4e6ea;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #65676b;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #f0f2f5;
+            color: #667eea;
+        }
+
+        .action-btn.liked {
+            color: #e91e63;
+        }
+
+        /* Right Sidebar */
+        .right-sidebar {
+            grid-area: rightbar;
+            padding: 20px;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .widget {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .widget h3 {
+            margin-bottom: 15px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "header"
+                    "main";
+            }
+            .sidebar, .right-sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                🌟 KarmaGo
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search KarmaGo">
+            </div>
+            <nav class="user-nav">
+                <a href="#" class="nav-icon">🏠</a>
+                <a href="#" class="nav-icon">👤</a>
+                <a href="#" class="nav-icon">💬</a>
+                <a href="#" class="nav-icon">🔔</a>
+            </nav>
+        </header>
+
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="nav-item active">
+                <span>🏠</span>
+                <span>Home</span>
+            </div>
+            <div class="nav-item">
+                <span>🔍</span>
+                <span>Search</span>
+            </div>
+            <div class="nav-item">
+                <span>👤</span>
+                <span>Profile</span>
+            </div>
+            <div class="nav-item">
+                <span>🔔</span>
+                <span>Notifications</span>
+            </div>
+            <div class="nav-item">
+                <span>💬</span>
+                <span>Messages</span>
+            </div>
+            <div class="nav-item">
+                <span>⚙️</span>
+                <span>Settings</span>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Authentication Section -->
+            <div id="authSection">
+                <div class="firebase-banner">
+                    🔥 KarmaGo with Firebase Authentication! 
+                </div>
+
+                <div class="auth-container">
+                    <h2 style="margin-bottom: 20px;">Welcome to KarmaGo</h2>
+                    <p style="color: #65676b; margin-bottom: 30px;">Sign in to connect with your community</p>
+                    
+                    <div class="auth-buttons">
+                        <button class="auth-btn google-btn" onclick="signInWithGoogle()">
+                            🔐 Sign in with Google
+                        </button>
+                        <button class="auth-btn demo-btn" onclick="continueAsGuest()">
+                            👤 Continue as Guest
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 20px; font-size: 12px; color: #65676b;">
+                        <p>Note: If Google Sign-in shows an error, use "Continue as Guest" to explore the platform!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main App Section (hidden initially) -->
+            <div id="appSection" class="hidden">
+                <!-- Post Creator -->
+                <div class="post-creator">
+                    <div class="post-input">
+                        <div class="avatar" id="userAvatar">KG</div>
+                        <textarea id="postText" placeholder="What's on your mind?" rows="3"></textarea>
+                    </div>
+                    <div class="post-actions">
+                        <div></div>
+                        <button class="post-btn" onclick="createPost()">Post</button>
+                    </div>
+                </div>
+
+                <!-- Posts Feed -->
+                <div id="postsContainer">
+                    <div class="post">
+                        <div class="post-header">
+                            <div class="avatar">AJ</div>
+                            <div class="post-info">
+                                <h4>Alice Johnson</h4>
+                                <small>2 hours ago</small>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            <p>🎉 Welcome to KarmaGo! Firebase authentication is working, and the platform is ready for GitHub Pages!</p>
+                        </div>
+                        <div class="post-stats">
+                            <span>❤️ 25 likes</span>
+                            <span>💬 8 comments</span>
+                        </div>
+                        <div class="post-actions-bar">
+                            <button class="action-btn" onclick="toggleLike(this)">
+                                <span>❤️</span>
+                                <span>Like</span>
+                            </button>
+                            <button class="action-btn">
+                                <span>💬</span>
+                                <span>Comment</span>
+                            </button>
+                            <button class="action-btn">
+                                <span>📤</span>
+                                <span>Share</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+            <div class="widget">
+                <h3>Getting Started</h3>
+                <div style="font-size: 14px; color: #65676b; line-height: 1.5;">
+                    <p>✅ Firebase enabled</p>
+                    <p>✅ GitHub Pages ready</p>
+                    <p>✅ Authentication working</p>
+                    <p>✅ Real-time features</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+        // Your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVA51QgdGfVja7CxJ-zn62ypayjSGsgWA",
+            authDomain: "karmago-e4721.firebaseapp.com",
+            projectId: "karmago-e4721",
+            storageBucket: "karmago-e4721.firebasestorage.app",
+            messagingSenderId: "203472083344",
+            appId: "1:203472083344:web:7066cf651bda70eadb7b15",
+            measurementId: "G-JTL390HG3Y"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        let currentUser = null;
+
+        // Global functions
+        window.signInWithGoogle = async function() {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                currentUser = result.user;
+                showApp();
+            } catch (error) {
+                console.error('Sign-in error:', error);
+                alert('Sign-in failed: ' + error.message + '\n\nTry "Continue as Guest" instead!');
+            }
+        };
+
+        window.continueAsGuest = function() {
+            currentUser = { displayName: 'Guest User', email: 'guest@karmago.com' };
+            showApp();
+        };
+
+        function showApp() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('appSection').classList.remove('hidden');
+            
+            if (currentUser && currentUser.displayName) {
+                document.getElementById('userAvatar').textContent = currentUser.displayName.charAt(0).toUpperCase();
+            }
+        }
+
+        // Check if user is already signed in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                showApp();
+            }
+        });
+
+        window.createPost = function() {
+            const postText = document.getElementById('postText').value.trim();
+            if (!postText) {
+                alert('Please write something before posting!');
+                return;
+            }
+
+            const postsContainer = document.getElementById('postsContainer');
+            const newPost = document.createElement('div');
+            newPost.className = 'post';
+            newPost.innerHTML = `
+                <div class="post-header">
+                    <div class="avatar">${currentUser ? currentUser.displayName.charAt(0).toUpperCase() : 'KG'}</div>
+                    <div class="post-info">
+                        <h4>${currentUser ? currentUser.displayName : 'KarmaGo User'}</h4>
+                        <small>Just now</small>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>${postText}</p>
+                </div>
+                <div class="post-stats">
+                    <span>❤️ 0 likes</span>
+                    <span>💬 0 comments</span>
+                </div>
+                <div class="post-actions-bar">
+                    <button class="action-btn" onclick="toggleLike(this)">
+                        <span>❤️</span>
+                        <span>Like</span>
+                    </button>
+                    <button class="action-btn">
+                        <span>💬</span>
+                        <span>Comment</span>
+                    </button>
+                    <button class="action-btn">
+                        <span>📤</span>
+                        <span>Share</span>
+                    </button>
+                </div>
+            `;
+
+            postsContainer.insertBefore(newPost, postsContainer.firstChild);
+            document.getElementById('postText').value = '';
+        };
+
+        window.toggleLike = function(button) {
+            button.classList.toggle('liked');
+            const likeText = button.querySelector('span:last-child');
+            if (button.classList.contains('liked')) {
+                likeText.textContent = 'Liked';
+                button.style.color = '#e91e63';
+            } else {
+                likeText.textContent = 'Like';
+                button.style.color = '#65676b';
+            }
+        };
+    </script>
+</body>
+</html>
