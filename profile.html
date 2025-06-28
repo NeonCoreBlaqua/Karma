@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - KarmaGo</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="images/KarmaGo.png" alt="KarmaGo Logo">
+            </div>
+            <div class="navigation">
+                <ul>
+                    <li><a href="index.html"><img src="images/home.png" alt="Home"><span>Home</span></a></li>
+                    <li><a href="#"><img src="images/search.png" alt="Search"><span>Search</span></a></li>
+                    <li><a href="#"><img src="images/notification.png" alt="Notifications"><span>Notifications</span></a></li>
+                    <li><a href="#"><img src="images/message.png" alt="Messages"><span>Messages</span></a></li>
+                    <li><a href="profile.html" class="active"><img src="images/profile.png" alt="Profile"><span>Profile</span></a></li>
+                    <li><a href="#" id="logout"><img src="images/logout.png" alt="Logout"><span>Logout</span></a></li>
+                </ul>
+            </div>
+            <div class="user-profile">
+                <img src="images/profile.png" alt="User Profile" id="sidebar-profile-image">
+                <div class="user-info">
+                    <p class="username" id="sidebar-username">Username</p>
+                    <p class="zodiac" id="sidebar-zodiac">Zodiac Sign</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="profile-header">
+                <div class="profile-picture">
+                    <img src="images/profile.png" alt="Profile Picture" id="profile-page-image">
+                </div>
+                <div class="profile-info">
+                    <h2 id="profile-page-username">Username</h2>
+                    <p id="profile-page-email">user@example.com</p>
+                    <p id="profile-page-zodiac">Zodiac Sign</p>
+                    <button id="edit-profile-btn">Edit Profile</button>
+                </div>
+            </div>
+            <div class="profile-posts">
+                <h3>Your Posts</h3>
+                <div class="posts-container" id="user-posts-container">
+                    <!-- User's posts will be dynamically loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - KarmaGo</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="logo">
+                <img src="images/KarmaGo.png" alt="KarmaGo Logo">
+                <span>KarmaGo</span>
+            </div>
+            <form id="login-form">
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Log In</button>
+            </form>
+            <div class="or-divider">
+                <span>OR</span>
+            </div>
+            <button id="google-signin">
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+                <span>Sign in with Google</span>
+            </button>
+            <p class="error-message" id="error-message"></p>
+            <div class="signup-link">
+                <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+            </div>
+        </div>
+    </div>
+    <script src="firebase-config.js" type="module"></script>
+    <script src="login.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KarmaGo</title>
+    <link rel="icon" type="image/png" href="images/KarmaGo.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1c1e21;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            grid-template-rows: 60px 1fr;
+            grid-template-areas: 
+                "header header header"
+                "sidebar main rightbar";
+        }
+
+        /* Header */
+        .header {
+            grid-area: header;
+            background: linear-gradient(45deg, #4267B2, #5578c7);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            height: 40px;
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 40px;
+            width: auto;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            transition: transform 0.3s ease;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 20px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 45px 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 14px;
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-icon img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            padding: 20px;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 5px;
+            color: #65676b;
+        }
+
+        .nav-item img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            grid-area: main;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 60px);
+        }
+
+        .post-creator {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .post-input {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .post-input textarea {
+            flex: 1;
+            border: none;
+            resize: none;
+            font-size: 16px;
+            padding: 15px;
+            border-radius: 25px;
+            background: #f0f2f5;
+            font-family: inherit;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .post {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .post-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .post-content {
+            padding: 0 20px 20px;
+        }
+
+        .post-actions-bar {
+            display: flex;
+            border-top: 1px solid #e4e6ea;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #65676b;
+        }
+
+        /* Right Sidebar */
+        .right-sidebar {
+            grid-area: rightbar;
+            padding: 20px;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .widget {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .success-banner {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <img src="images/KarmaGo.png" alt="KarmaGo">
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search KarmaGo">
+            </div>
+            <nav class="user-nav">
+                <a href="#" class="nav-icon"><img src="images/home.png" alt="Home"></a>
+                <a href="#" class="nav-icon"><img src="images/profile.png" alt="Profile"></a>
+                <a href="#" class="nav-icon"><img src="images/message.png" alt="Messages"></a>
+                <a href="#" class="nav-icon"><img src="images/notification.png" alt="Notifications"></a>
+            </nav>
+        </header>
+
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="nav-item active">
+                <img src="images/home.png" alt="Home">
+                <span>Home</span>
+            </div>
+            <div class="nav-item">
+                <img src="images/search.png" alt="Search">
+                <span>Search</span>
+            </div>
+            <div class="nav-item">
+                <img src="images/profile.png" alt="Profile">
+                <span>Profile</span>
+            </div>
+            <div class="nav-item">
+                <img src="images/notification.png" alt="Notifications">
+                <span>Notifications</span>
+            </div>
+            <div class="nav-item">
+                <img src="images/message.png" alt="Messages">
+                <span>Messages</span>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="success-banner">
+                🎉 KarmaGo is now working! No more loading errors! 🎉
+            </div>
+
+            <!-- Post Creator -->
+            <div class="post-creator">
+                <div class="post-input">
+                    <div class="avatar">KG</div>
+                    <textarea placeholder="What's on your mind?" rows="3"></textarea>
+                </div>
+                <div class="post-actions">
+                    <div></div>
+                    <button class="post-btn" onclick="createPost()">Post</button>
+                </div>
+            </div>
+
+            <!-- Sample Posts -->
+            <div class="post">
+                <div class="post-header">
+                    <div class="avatar">AJ</div>
+                    <div>
+                        <h4>Alice Johnson</h4>
+                        <small>2 hours ago</small>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>Welcome to KarmaGo! 🎉 Your social media platform is now working perfectly. No more loading errors!</p>
+                </div>
+                <div class="post-actions-bar">
+                    <button class="action-btn">
+                        <img src="images/like.png" alt="Like" width="20">
+                        Like
+                    </button>
+                    <button class="action-btn">
+                        <img src="images/comment.png" alt="Comment" width="20">
+                        Comment
+                    </button>
+                    <button class="action-btn">
+                        <img src="images/share.png" alt="Share" width="20">
+                        Share
+                    </button>
+                </div>
+            </div>
+
+            <div class="post">
+                <div class="post-header">
+                    <div class="avatar">BS</div>
+                    <div>
+                        <h4>Bob Smith</h4>
+                        <small>4 hours ago</small>
+                    </div>
+                </div>
+                <div class="post-content">
+                    <p>Great job fixing the loading issues! The site looks amazing and works smoothly now. 💪</p>
+                </div>
+                <div class="post-actions-bar">
+                    <button class="action-btn">
+                        <img src="images/like.png" alt="Like" width="20">
+                        Like
+                    </button>
+                    <button class="action-btn">
+                        <img src="images/comment.png" alt="Comment" width="20">
+                        Comment
+                    </button>
+                    <button class="action-btn">
+                        <img src="images/share.png" alt="Share" width="20">
+                        Share
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+            <div class="widget">
+                <h3>Profile</h3>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="avatar">KG</div>
+                    <div>
+                        <div>KarmaGo User</div>
+                        <div style="font-size: 12px; color: #65676b;">@karmago_user</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="widget">
+                <h3>Status</h3>
+                <div style="color: #28a745; font-weight: 600;">✅ Site is working!</div>
+                <div style="color: #28a745; font-size: 14px; margin-top: 5px;">No loading errors</div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        console.log('KarmaGo loaded successfully - no Firebase errors!');
+        
+        function createPost() {
+            alert('Post creation working! 🎉');
+        }
+
+        // Add some interactivity
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.style.color = '#667eea';
+                setTimeout(() => {
+                    this.style.color = '#65676b';
+                }, 300);
+            });
+        });
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

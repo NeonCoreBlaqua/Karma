@@ -1,0 +1,30 @@
+.zodiac-select-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#zodiac {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #2c2c2c;
+    color: #fff;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.zodiac-select-wrapper::after {
+    content: '▼';
+    font-size: 12px;
+    color: #8e8e8e;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
