@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KarmaGo - Urban Culture & Street Life</title>
+    <link rel="stylesheet" href="../css/karmago-prototype.css">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo-section">
+                <img src="../images/KarmaGo.png" alt="KarmaGo" class="logo-img">
+                <h1 class="brand-name">KarmaGo</h1>
+                <span class="tagline">Street Culture • Music • Life</span>
+            </div>
+            
+            <nav class="main-nav">
+                <a href="#" class="nav-item active" data-section="feed">
+                    <img src="../images/home.png" alt="Home">
+                    <span>Feed</span>
+                </a>
+                <a href="#" class="nav-item" data-section="music">
+                    <span class="icon">🎵</span>
+                    <span>Music</span>
+                </a>
+                <a href="#" class="nav-item" data-section="news">
+                    <img src="../images/notification.png" alt="News">
+                    <span>City News</span>
+                </a>
+                <a href="#" class="nav-item" data-section="fashion">
+                    <span class="icon">👕</span>
+                    <span>Fashion</span>
+                </a>
+                <a href="#" class="nav-item" data-section="food">
+                    <span class="icon">🍕</span>
+                    <span>Food</span>
+                </a>
+                <a href="#" class="nav-item" data-section="avatars">
+                    <img src="../images/profile.png" alt="Avatars">
+                    <span>Avatars</span>
+                </a>
+            </nav>
+            
+            <div class="header-actions">
+                <div class="search-box">
+                    <img src="../images/search.png" alt="Search">
+                    <input type="text" placeholder="Search KarmaGo...">
+                </div>
+                <button class="post-btn">
+                    <img src="../images/camera.png" alt="Post">
+                    Post
+                </button>
+                <div class="profile-menu">
+                    <img src="../images/profilem.png" alt="Profile" class="profile-pic">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Left Sidebar -->
+        <aside class="left-sidebar">
+            <div class="user-card">
+                <img src="../images/profilem.png" alt="User" class="user-avatar">
+                <div class="user-info">
+                    <h3>StreetKing_NYC</h3>
+                    <p>Brooklyn • 🔥 Verified</p>
+                    <div class="user-stats">
+                        <span>1.2K Followers</span>
+                        <span>850 Following</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-access">
+                <h4>Quick Access</h4>
+                <a href="#" class="quick-link">
+                    <span class="icon">🎤</span>
+                    <span>Live Events</span>
+                    <span class="badge">3</span>
+                </a>
+                <a href="#" class="quick-link">
+                    <span class="icon">🛍️</span>
+                    <span>Marketplace</span>
+                </a>
+                <a href="#" class="quick-link">
+                    <span class="icon">🎮</span>
+                    <span>Roleplay Hub</span>
+                </a>
+                <a href="#" class="quick-link">
+                    <img src="../images/message.png" alt="DMs">
+                    <span>Direct Messages</span>
+                    <span class="badge">7</span>
+                </a>
+            </div>
+            
+            <div class="trending-section">
+                <h4>Trending Now</h4>
+                <div class="trending-tags">
+                    <span class="tag">#BrooklynVibes</span>
+                    <span class="tag">#DrillMusic</span>
+                    <span class="tag">#StreetFashion</span>
+                    <span class="tag">#NYCEats</span>
+                    <span class="tag">#UrbanLife</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Feed Content -->
+        <section class="feed-container" id="feedContainer">
+            <!-- Story Bar -->
+            <div class="stories-bar">
+                <div class="story-item add-story">
+                    <div class="story-ring">
+                        <img src="../images/camera.png" alt="Add Story">
+                    </div>
+                    <span>Your Story</span>
+                </div>
+                <div class="story-item">
+                    <div class="story-ring active">
+                        <img src="../images/profilew.png" alt="Story">
+                    </div>
+                    <span>DJ_Kool_NYC</span>
+                </div>
+                <div class="story-item">
+                    <div class="story-ring">
+                        <img src="../images/profilem.png" alt="Story">
+                    </div>
+                    <span>FashionKilla</span>
+                </div>
+                <div class="story-item">
+                    <div class="story-ring">
+                        <img src="../images/profile.png" alt="Story">
+                    </div>
+                    <span>FoodieLife</span>
+                </div>
+            </div>
+
+            <!-- Post Creator -->
+            <div class="post-creator">
+                <div class="creator-header">
+                    <img src="../images/profilem.png" alt="User" class="creator-avatar">
+                    <input type="text" placeholder="What's happening in the streets?" class="post-input">
+                </div>
+                <div class="creator-actions">
+                    <button class="action-btn">
+                        <img src="../images/image.png" alt="Photo">
+                        Photo
+                    </button>
+                    <button class="action-btn">
+                        <span class="icon">🎵</span>
+                        Music
+                    </button>
+                    <button class="action-btn">
+                        <span class="icon">📍</span>
+                        Location
+                    </button>
+                    <button class="action-btn">
+                        <img src="../images/emoji.png" alt="Mood">
+                        Mood
+                    </button>
+                </div>
+            </div>
+
+            <!-- Posts Feed -->
+            <div class="posts-feed" id="postsFeed">
+                <!-- Posts will be dynamically loaded here -->
+            </div>
+        </section>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+            <!-- Live Events -->
+            <div class="sidebar-card">
+                <h4>🔴 Live Now</h4>
+                <div class="live-events">
+                    <div class="live-event">
+                        <img src="../images/profilew.png" alt="Live">
+                        <div class="event-info">
+                            <strong>Hip-Hop Cypher Battle</strong>
+                            <span>Times Square • 2.1K watching</span>
+                        </div>
+                    </div>
+                    <div class="live-event">
+                        <img src="../images/profilem.png" alt="Live">
+                        <div class="event-info">
+                            <strong>Street Fashion Show</strong>
+                            <span>Brooklyn • 890 watching</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- City News -->
+            <div class="sidebar-card">
+                <h4>🌆 City Pulse</h4>
+                <div class="news-items">
+                    <div class="news-item">
+                        <span class="news-tag">MUSIC</span>
+                        <p>New drill track drops tomorrow from BK's finest</p>
+                        <span class="news-time">2h ago</span>
+                    </div>
+                    <div class="news-item">
+                        <span class="news-tag">FOOD</span>
+                        <p>Best halal spots in Manhattan - Local guide</p>
+                        <span class="news-time">4h ago</span>
+                    </div>
+                    <div class="news-item">
+                        <span class="news-tag">EVENTS</span>
+                        <p>Block party this weekend in Harlem</p>
+                        <span class="news-time">6h ago</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suggested Connections -->
+            <div class="sidebar-card">
+                <h4>Connect With</h4>
+                <div class="suggestions">
+                    <div class="suggestion-item">
+                        <img src="../images/profilew.png" alt="User">
+                        <div class="suggestion-info">
+                            <strong>MC_Brooklyn</strong>
+                            <span>Hip-Hop Artist</span>
+                        </div>
+                        <button class="follow-btn">Follow</button>
+                    </div>
+                    <div class="suggestion-item">
+                        <img src="../images/profile.png" alt="User">
+                        <div class="suggestion-info">
+                            <strong>StreetChef_NYC</strong>
+                            <span>Food Blogger</span>
+                        </div>
+                        <button class="follow-btn">Follow</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-nav">
+        <a href="#" class="mobile-nav-item active">
+            <img src="../images/home.png" alt="Home">
+        </a>
+        <a href="#" class="mobile-nav-item">
+            <img src="../images/search.png" alt="Search">
+        </a>
+        <a href="#" class="mobile-nav-item">
+            <img src="../images/camera.png" alt="Post">
+        </a>
+        <a href="#" class="mobile-nav-item">
+            <img src="../images/notification.png" alt="Notifications">
+        </a>
+        <a href="#" class="mobile-nav-item">
+            <img src="../images/profile.png" alt="Profile">
+        </a>
+    </nav>
+
+    <script src="../javascript/karmago-prototype.js"></script>
+</body>
+</html>
