@@ -4,15 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KarmaGo - Urban Social Network</title>
-    <!-- Corrected Path -->
+    <!-- Correct, relative path to your CSS file -->
     <link rel="stylesheet" href="karmago-social.css">
-    <!-- Firebase SDK -->
+    
+    <!-- Load Firebase libraries the classic, reliable way -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-    <!-- Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <!-- Top Navigation Bar -->
@@ -20,56 +18,62 @@
         <div class="nav-container">
             <div class="nav-left">
                 <div class="logo">
-                    <img src="images/KarmaGo.png" alt="KarmaGo">
+                    <img src="/Karma/images/KarmaGo.png" alt="KarmaGo">
                     <span class="logo-text">KarmaGo</span>
                 </div>
             </div>
             <div class="nav-center">
                 <div class="search-container">
                     <input type="text" placeholder="Search KarmaGo..." class="search-input">
-                    <img src="images/search.png" alt="Search" class="search-icon">
+                    <img src="/Karma/images/search.png" alt="Search" class="search-icon">
                 </div>
             </div>
             <div class="nav-right">
                 <div class="nav-icons">
-                    <div class="nav-icon active" data-page="home"><img src="images/home.png" alt="Home"></div>
-                    <div class="nav-icon" data-page="map"><img src="images/map.png" alt="Map"></div>
-                    <div class="nav-icon" data-page="music"><span class="icon-text">🎵</span></div>
-                    <div class="nav-icon" data-page="messages"><img src="images/message.png" alt="Messages"><span class="notification-badge">3</span></div>
-                    <div class="nav-icon" data-page="notifications"><img src="images/notification.png" alt="Activity"><span class="notification-badge">12</span></div>
+                    <div class="nav-icon active" data-page="home"><img src="/Karma/images/home.png" alt="Home"></div>
+                    <div class="nav-icon" data-page="messages"><img src="/Karma/images/message.png" alt="Messages"><span class="notification-badge">3</span></div>
+                    <div class="nav-icon" data-page="notifications"><img src="/Karma/images/notification.png" alt="Activity"><span class="notification-badge">12</span></div>
                     
-                    <!-- ===== PROFILE DROPDOWN WE ADDED ===== -->
                     <div class="profile-dropdown-container">
                         <div class="nav-icon profile-menu" id="profileMenuBtn">
-                            <img src="images/profilem.png" alt="Profile" class="profile-pic">
+                            <img src="/Karma/images/profilem.png" alt="Profile" class="profile-pic" id="navProfilePic">
                         </div>
                         <div class="dropdown-menu" id="profileDropdown">
-                            <a href="#" class="dropdown-item" data-page="profile"><img src="images/profile.png" alt="Profile Icon"><span>Profile</span></a>
-                            <a href="#" class="dropdown-item" id="logoutBtn"><img src="images/logout.png" alt="Logout Icon"><span>Logout</span></a>
+                            <a href="#" class="dropdown-item" id="dropdownProfileLink">
+                                <img src="/Karma/images/profile.png" alt="Profile Icon" id="dropdownProfilePic">
+                                <span id="dropdownProfileName">Profile</span>
+                            </a>
+                            <a href="#" class="dropdown-item" id="logoutBtn">
+                                <img src="/Karma/images/logout.png" alt="Logout Icon">
+                                <span>Logout</span>
+                            </a>
                         </div>
                     </div>
-                    <!-- ===== END PROFILE DROPDOWN ===== -->
                 </div>
             </div>
         </div>
     </nav>
+
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Left Sidebar -->
+        <!-- ===== LEFT SIDEBAR (RESTORED) ===== -->
         <aside class="left-sidebar">
             <div class="user-profile-card">
-                <img src="images/profilem.png" alt="Your Profile" class="user-avatar">
-                <div class="user-info"><h3>StreetKing_NYC</h3><p>@streetking_nyc</p></div>
+                <img src="/Karma/images/profilem.png" alt="Your Profile" class="user-avatar" id="sidebarAvatar">
+                <div class="user-info">
+                    <h3 id="sidebarUsername">User</h3>
+                    <p id="sidebarUserHandle">@username</p>
+                </div>
             </div>
             <div class="sidebar-menu">
-                <a href="#" class="menu-item active" data-page="home"><img src="images/home.png" alt="Home"><span>Home</span></a>
-                <a href="#" class="menu-item" data-page="map"><img src="images/map.png" alt="Map"><span>Map</span></a>
+                <a href="#" class="menu-item active" data-page="home"><img src="/Karma/images/home.png" alt="Home"><span>Home</span></a>
+                <a href="#" class="menu-item" data-page="map"><img src="/Karma/images/map.png" alt="Map"><span>Map</span></a>
                 <a href="#" class="menu-item" data-page="music"><span class="menu-icon">🎵</span><span>Music</span></a>
-                <a href="#" class="menu-item" data-page="explore"><img src="images/search.png" alt="Explore"><span>Explore</span></a>
-                <a href="#" class="menu-item" data-page="notifications"><img src="images/notification.png" alt="Notifications"><span>Notifications</span><span class="menu-badge">12</span></a>
-                <a href="#" class="menu-item" data-page="messages"><img src="images/message.png" alt="Messages"><span>Messages</span><span class="menu-badge">3</span></a>
-                <a href="#" class="menu-item" data-page="profile"><img src="images/profile.png" alt="Profile"><span>Profile</span></a>
-                <a href="#" class="menu-item" data-page="settings"><img src="images/settings1.png" alt="Settings"><span>Settings</span></a>
+                <a href="#" class="menu-item" data-page="explore"><img src="/Karma/images/search.png" alt="Explore"><span>Explore</span></a>
+                <a href="#" class="menu-item" data-page="notifications"><img src="/Karma/images/notification.png" alt="Notifications"><span>Notifications</span><span class="menu-badge">12</span></a>
+                <a href="#" class="menu-item" data-page="messages"><img src="/Karma/images/message.png" alt="Messages"><span>Messages</span><span class="menu-badge">3</span></a>
+                <a href="#" class="menu-item" data-page="profile"><img src="/Karma/images/profile.png" alt="Profile"><span>Profile</span></a>
+                <a href="#" class="menu-item" data-page="settings"><img src="/Karma/images/settings1.png" alt="Settings"><span>Settings</span></a>
             </div>
             <div class="trending-section">
                 <h4>Trending in NYC</h4>
@@ -79,39 +83,30 @@
                 <div class="trending-item"><span class="trend-tag">#StreetFashion</span><span class="trend-count">22.3K posts</span></div>
             </div>
         </aside>
-        <!-- Center Feed -->
+
+        <!-- ===== CENTER FEED (RESTORED) ===== -->
         <section class="feed-section">
             <div id="homePage" class="page-content active">
                 <div class="stories-container">
-                    <div class="story-item your-story"><div class="story-avatar"><img src="images/profilem.png" alt="Your Story"><div class="add-story-btn">+</div></div><span class="story-username">Your Story</span></div>
-                    <div class="story-item"><div class="story-avatar has-story"><img src="images/profilew.png" alt="DJ_Kool"></div><span class="story-username">DJ_Kool</span></div>
-                    <div class="story-item"><div class="story-avatar has-story"><img src="images/profile.png" alt="FashionKilla"></div><span class="story-username">FashionKilla</span></div>
-                    <div class="story-item"><div class="story-avatar has-story"><img src="images/profilem.png" alt="StreetChef"></div><span class="story-username">StreetChef</span></div>
-                    <div class="story-item"><div class="story-avatar"><img src="images/profilew.png" alt="MC_Brooklyn"></div><span class="story-username">MC_Brooklyn</span></div>
+                    <div class="story-item your-story"><div class="story-avatar"><img src="/Karma/images/profilem.png" alt="Your Story" id="storyAvatar"><div class="add-story-btn">+</div></div><span class="story-username">Your Story</span></div>
+                    <div class="story-item"><div class="story-avatar has-story"><img src="/Karma/images/profilew.png" alt="DJ_Kool"></div><span class="story-username">DJ_Kool</span></div>
                 </div>
                 <div class="create-post-card">
-                    <div class="create-post-header"><img src="images/profilem.png" alt="Your Avatar" class="create-avatar"><input type="text" placeholder="What's happening in the streets?" class="create-input"></div>
-                    <div class="create-post-actions">
-                        <button class="action-button"><img src="images/image.png" alt="Photo">Photo</button>
-                        <button class="action-button"><img src="images/camera.png" alt="Video">Video</button>
-                        <button class="action-button"><span class="emoji">🎵</span>Music</button>
-                        <button class="action-button"><img src="images/emoji.png" alt="Feeling">Feeling</button>
-                    </div>
-                    <!-- ===== POST BUTTON WE ADDED ===== -->
+                    <div class="create-post-header"><img src="/Karma/images/profilem.png" alt="Your Avatar" class="create-avatar" id="createPostAvatar"><input type="text" placeholder="What's happening in the streets?" class="create-input"></div>
+                    <div class="create-post-actions"><button class="action-button"><img src="/Karma/images/image.png" alt="Photo">Photo</button><button class="action-button"><img src="/Karma/images/camera.png" alt="Video">Video</button><button class="action-button"><span class="emoji">🎵</span>Music</button><button class="action-button"><img src="/Karma/images/emoji.png" alt="Feeling">Feeling</button></div>
                     <div class="create-post-footer"><button class="post-btn" id="postBtn" disabled>Post</button></div>
                 </div>
                 <div class="posts-feed" id="postsContainer"></div>
             </div>
-            <!-- Other pages (Map, Music, etc.) would go here -->
         </section>
-        
-        <!-- ===== START: FULLY RESTORED RIGHT SIDEBAR ===== -->
+
+        <!-- ===== RIGHT SIDEBAR (RESTORED) ===== -->
         <aside class="right-sidebar">
             <div class="suggestions-card">
                 <div class="card-header"><h4>Suggested for you</h4><a href="#" class="see-all">See All</a></div>
-                <div class="suggestion-item"><img src="images/profilew.png" alt="MC_Brooklyn" class="suggestion-avatar"><div class="suggestion-info"><h5>MC_Brooklyn</h5><p>Hip-Hop Artist • Followed by DJ_Kool</p></div><button class="follow-btn">Follow</button></div>
-                <div class="suggestion-item"><img src="images/profile.png" alt="StreetChef_NYC" class="suggestion-avatar"><div class="suggestion-info"><h5>StreetChef_NYC</h5><p>Food Blogger • Followed by 5 friends</p></div><button class="follow-btn">Follow</button></div>
-                <div class="suggestion-item"><img src="images/profilem.png" alt="FashionKilla_BK" class="suggestion-avatar"><div class="suggestion-info"><h5>FashionKilla_BK</h5><p>Style Influencer • Popular in Brooklyn</p></div><button class="follow-btn">Follow</button></div>
+                <div class="suggestion-item"><img src="/Karma/images/profilew.png" alt="MC_Brooklyn" class="suggestion-avatar"><div class="suggestion-info"><h5>MC_Brooklyn</h5><p>Hip-Hop Artist • Followed by DJ_Kool</p></div><button class="follow-btn">Follow</button></div>
+                <div class="suggestion-item"><img src="/Karma/images/profile.png" alt="StreetChef_NYC" class="suggestion-avatar"><div class="suggestion-info"><h5>StreetChef_NYC</h5><p>Food Blogger • Followed by 5 friends</p></div><button class="follow-btn">Follow</button></div>
+                <div class="suggestion-item"><img src="/Karma/images/profilem.png" alt="FashionKilla_BK" class="suggestion-avatar"><div class="suggestion-info"><h5>FashionKilla_BK</h5><p>Style Influencer • Popular in Brooklyn</p></div><button class="follow-btn">Follow</button></div>
             </div>
             <div class="whats-happening-card">
                 <div class="card-header"><h4>What's happening</h4></div>
@@ -124,14 +119,19 @@
                 <div class="copyright">© 2025 KarmaGo</div>
             </div>
         </aside>
-        <!-- ===== END: FULLY RESTORED RIGHT SIDEBAR ===== -->
-        
     </main>
-    <!-- Mobile Nav will go here -->
-
-    <!-- Scripts -->
+    
+    <!-- SCRIPT CONFIGURATION AT THE END OF THE BODY -->
     <script>
-        // Your Firebase configuration...
+      const firebaseConfig = {
+        apiKey: "PASTE_YOUR_LATEST_RESTRICTED_API_KEY_HERE",
+        authDomain: "karmago-e4721.firebaseapp.com",
+        projectId: "karmago-e4721",
+        storageBucket: "karmago-e4721.appspot.com",
+        messagingSenderId: "203472083344",
+        appId: "1:203472083344:web:7066cf651bda70eadb7b15"
+      };
+      firebase.initializeApp(firebaseConfig);
     </script>
     <script src="karmago-social.js"></script>
 </body>
