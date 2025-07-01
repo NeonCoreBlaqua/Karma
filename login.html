@@ -68,7 +68,6 @@
     </div>
     
     <script>
-        // This function will run once the page is fully loaded
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 const firebaseConfig = {
@@ -79,38 +78,18 @@
                   messagingSenderId: "203472083344",
                   appId: "1:203472083344:web:7066cf651bda70eadb7b15"
                 };
-
                 firebase.initializeApp(firebaseConfig);
                 const auth = firebase.auth();
                 
                 const googleSignInBtn = document.getElementById('googleSignInBtn');
-                const createAccountBtn = document.getElementById('createAccountBtn');
-                const loginForm = document.getElementById('loginForm');
-                const errorMessageDiv = document.getElementById('errorMessage');
-
-                function showError(message) {
-                    errorMessageDiv.textContent = message;
-                    errorMessageDiv.style.display = 'block';
-                }
-
-                // --- Google Sign-In with Intelligent Error Handling ---
                 googleSignInBtn.addEventListener('click', () => {
                     const provider = new firebase.auth.GoogleAuthProvider();
                     auth.signInWithPopup(provider)
                         .then(() => { window.location.href = '/Karma/karmago-social.html'; })
-                        .catch((error) => {
-                            console.error("Google Sign-In Error:", error.code, error.message);
-                            if (error.code === 'auth/popup-closed-by-user') { return; }
-                            if (error.code === 'auth/operation-not-allowed') { showError('Sign-in method is not enabled in Firebase.'); }
-                            else { showError("An unexpected error occurred. Please try again."); }
-                        });
+                        .catch((error) => { console.error(error); });
                 });
-                
-                // Other button listeners would go here
-
             } catch (error) {
-                console.error("A critical error occurred:", error);
-                document.body.innerHTML = `<div style="color: red; padding: 20px;"><h1>Critical Error</h1><p>Something went wrong. Check the developer console (F12).</p></div>`;
+                console.error("Critical Error:", error);
             }
         });
     </script>
