@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - KarmaGo</title>
     
-    <!-- All CSS is embedded directly in the HTML file -->
+    <!-- === STEP 1: LOAD THE FIREBASE LIBRARIES (THE CLASSIC, RELIABLE WAY) === -->
+    <!-- This "compat" version makes the global 'firebase' object available -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <!-- === CSS IS EMBEDDED DIRECTLY === -->
     <style>
         :root {
             --bg-color: #1a1a1a; --card-color: #2c2c2c; --input-bg-color: #3a3a3a;
@@ -44,7 +49,6 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            <!-- Using a confirmed correct absolute path -->
             <img src="/Karma/images/KarmaGo.png" alt="KarmaGo Logo" class="logo">
             <h2>Login to Your Account</h2>
         </div>
@@ -64,87 +68,78 @@
         <button class="btn btn-secondary" id="createAccountBtn">Create New Account</button>
     </div>
     
-    <script type="module">
-        // The entire script is wrapped in a try...catch block.
-        // If anything fails, it will be logged to the console instead of showing a white screen.
-        try {
-            console.log("Script execution started.");
+    <!-- === STEP 2: APPLICATION SCRIPT (NO LONGER A MODULE) === -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                // === STEP 3: YOUR FIREBASE CONFIGURATION ===
+                const firebaseConfig = {
+                  apiKey: "PASTE_YOUR_LATEST_RESTRICTED_API_KEY_HERE",
+                  authDomain: "karmago-e4721.firebaseapp.com",
+                  projectId: "karmago-e4721",
+                  storageBucket: "karmago-e4721.appspot.com",
+                  messagingSenderId: "203472083344",
+                  appId: "1:203472083344:web:7066cf651bda70eadb7b15"
+                };
 
-            // Import Firebase functions directly from the CDN
-            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
-            const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
+                // Use the global 'firebase' object provided by the scripts in the <head>
+                firebase.initializeApp(firebaseConfig);
+                const auth = firebase.auth();
+                
+                console.log("Firebase initialized successfully using compat libraries.");
 
-            console.log("Firebase SDKs imported successfully.");
+                // Get all the elements from the page
+                const googleSignInBtn = document.getElementById('googleSignInBtn');
+                const createAccountBtn = document.getElementById('createAccountBtn');
+                const loginForm = document.getElementById('loginForm');
+                const errorMessageDiv = document.getElementById('errorMessage');
 
-            // --- PASTE YOUR FIREBASE CONFIG HERE ---
-            const firebaseConfig = {
-              apiKey: "PASTE_YOUR_LATEST_RESTRICTED_API_KEY_HERE",
-              authDomain: "karmago-e4721.firebaseapp.com",
-              projectId: "karmago-e4721",
-              storageBucket: "karmago-e4721.appspot.com",
-              messagingSenderId: "203472083344",
-              appId: "1:203472083344:web:7066cf651bda70eadb7b15"
-            };
-
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            console.log("Firebase initialized successfully.");
-
-            // Get all the elements we need from the page
-            const googleSignInBtn = document.getElementById('googleSignInBtn');
-            const createAccountBtn = document.getElementById('createAccountBtn');
-            const loginForm = document.getElementById('loginForm');
-            const errorMessageDiv = document.getElementById('errorMessage');
-
-            function showError(message) {
-                errorMessageDiv.textContent = message;
-                errorMessageDiv.style.display = 'block';
-            }
-
-            // --- Google Sign-In ---
-            googleSignInBtn.addEventListener('click', () => {
-                const provider = new GoogleAuthProvider();
-                signInWithPopup(auth, provider)
-                    .then(() => { window.location.href = '/Karma/karmago-social.html'; })
-                    .catch((error) => {
-                        console.error("Google Sign-In Error:", error);
-                        showError("Login failed. Please check for popup blockers.");
-                    });
-            });
-
-            // --- Create Account ---
-             createAccountBtn.addEventListener('click', () => {
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                if (!email || !password) {
-                    showError('Please enter email and password to create an account.');
-                    return;
+                function showError(message) {
+                    errorMessageDiv.textContent = message;
+                    errorMessageDiv.style.display = 'block';
                 }
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then(() => { window.location.href = '/Karma/karmago-social.html'; })
-                    .catch((error) => {
-                        if (error.code === 'auth/email-already-in-use') { showError('Email is already in use.'); }
-                        else { showError('Failed to create account.'); }
-                    });
-            });
 
-            // --- Email Login ---
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                signInWithEmailAndPassword(auth, email, password)
-                    .then(() => { window.location.href = '/Karma/karmago-social.html'; })
-                    .catch(() => { showError('Login failed. Check credentials.'); });
-            });
-            
-            console.log("All event listeners attached successfully.");
+                // --- Google Sign-In ---
+                googleSignInBtn.addEventListener('click', () => {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    auth.signInWithPopup(provider)
+                        .then(() => { window.location.href = '/Karma/karmago-social.html'; })
+                        .catch((error) => {
+                            console.error("Google Sign-In Error:", error);
+                            showError("Login failed. Please allow popups and try again.");
+                        });
+                });
 
-        } catch (error) {
-            // This will catch ANY error during initialization and display it.
-            console.error("A critical error occurred:", error);
-            document.body.innerHTML = `<div style="color: red; padding: 20px;"><h1>Critical Error</h1><p>Something went wrong loading the page. Please check the developer console (F12) for details.</p><pre>${error.stack}</pre></div>`;
-        }
+                // --- Create Account ---
+                createAccountBtn.addEventListener('click', () => {
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .then(() => { window.location.href = '/Karma/karmago-social.html'; })
+                        .catch((error) => {
+                            if (error.code === 'auth/email-already-in-use') { showError('Email is already in use.'); }
+                            else { showError('Failed to create account.'); }
+                        });
+                });
+                
+                // --- Email Login ---
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    auth.signInWithEmailAndPassword(email, password)
+                        .then(() => { window.location.href = '/Karma/karmago-social.html'; })
+                        .catch(() => { showError('Login failed. Check credentials.'); });
+                });
+
+                console.log("All event listeners attached.");
+
+            } catch (error) {
+                // This will catch any error during initialization and display it.
+                console.error("A critical error occurred:", error);
+                document.body.innerHTML = `<div style="color: red; padding: 20px;"><h1>Critical Error</h1><p>Something went wrong. Check the developer console (F12) for details.</p><pre>${error.stack}</pre></div>`;
+            }
+        });
     </script>
 </body>
 </html>
