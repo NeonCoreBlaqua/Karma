@@ -1,27 +1,32 @@
-// karmago-social.js
+// karmago-social.js (Definitive, Complete Version)
 
-// This function will hold all the logic for your main application page.
-// It will only run if the user is confirmed to be logged in.
+// This function holds all the logic for your main application page.
 function initializeApp(user) {
-    console.log("Welcome! App is initializing for user:", user.displayName);
+    console.log("Welcome! Initializing app for user:", user.displayName);
 
-    // --- Logout Functionality ---
+    // --- 1. Update UI with User Info ---
+    const defaultAvatar = '/Karma/images/profilem.png'; // A fallback image
+    const userAvatar = user.photoURL || defaultAvatar;
+    const userName = user.displayName || 'KarmaGo User';
+    
+    document.getElementById('navProfilePic').src = userAvatar;
+    document.getElementById('dropdownProfilePic').src = userAvatar;
+    document.getElementById('sidebarAvatar').src = userAvatar;
+    document.getElementById('createPostAvatar').src = userAvatar;
+    document.getElementById('storyAvatar').src = userAvatar;
+    document.getElementById('sidebarUsername').textContent = userName;
+    document.getElementById('dropdownProfileName').textContent = userName;
+
+    // --- 2. Logout Functionality ---
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (event) => {
-            event.preventDefault(); // Stop the link from trying to navigate
-            
-            // Use the signOut method from the Firebase auth object
-            firebase.auth().signOut().then(() => {
-                console.log('User signed out successfully.');
-                // The onAuthStateChanged listener below will automatically handle the redirect.
-            }).catch((error) => {
-                console.error('Sign Out Error', error);
-            });
+            event.preventDefault();
+            firebase.auth().signOut().catch((error) => console.error('Sign Out Error', error));
         });
     }
 
-    // --- Profile Dropdown Menu Functionality ---
+    // --- 3. Profile Dropdown Menu ---
     const profileMenuBtn = document.getElementById('profileMenuBtn');
     const profileDropdown = document.getElementById('profileDropdown');
     if (profileMenuBtn && profileDropdown) {
@@ -35,32 +40,30 @@ function initializeApp(user) {
             }
         });
     }
-
-    // ... All of your other app logic (like creating posts) will go here in the future ...
+    
+    // ... Any other app functionality (like creating posts) will go here ...
 }
 
-
 // --- THE AUTH GUARD ---
-// This code runs immediately. It checks the user's login state.
-// We are using the reliable "compat" library syntax.
+// This runs immediately and protects your page.
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                // User is signed in.
-                // We can now safely run the main application logic.
-                initializeApp(user);
-            } else {
-                // No user is signed in.
-                // Redirect them to the login page.
-                console.log("No user is signed in. Redirecting to login page.");
-                // Use the full path for a reliable redirect.
-                window.location.replace('/Karma/login.html');
-            }
-        });
+        if (firebase) {
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    // User is signed in, so run the app.
+                    initializeApp(user);
+                } else {
+                    // No user signed in, so redirect to login.
+                    window.location.replace('/Karma/login.html');
+                }
+            });
+        } else {
+            console.error("Firebase is not defined. Redirecting to login.");
+            window.location.replace('/Karma/login.html');
+        }
     } catch (error) {
-        console.error("Firebase not initialized or other critical error:", error);
-        // If Firebase fails to load, redirect to login to be safe.
+        console.error("Critical error during Firebase auth check:", error);
         window.location.replace('/Karma/login.html');
     }
 });
