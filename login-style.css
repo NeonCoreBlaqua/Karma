@@ -1,0 +1,157 @@
+/* login-style.css (V4 - Professional Dark Theme) */
+
+/* --- Color & Style Variables based on your blueprint --- */
+:root {
+    --bg-color: #121212;
+    --card-color: #1E1E1E;
+    --input-bg-color: #2b2d31;
+    --border-color: #36393F;
+    --text-primary: #f2f3f5;
+    --text-secondary: #b8b9bf;
+    --accent-blue: #0D6EFD;      /* The exact blue from your light-mode button */
+    --accent-green: #198754;    /* The exact green from your light-mode button */
+    --error-bg: #da373c20;
+    --error-text: #f19ea1;
+    --error-border: #da373c50;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+.login-container {
+    background-color: var(--card-color);
+    padding: 40px;
+    border-radius: 8px; /* Matching the blueprint's sharper corners */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+}
+
+.login-header {
+    margin-bottom: 24px;
+}
+
+.login-header h2 {
+    font-size: 1.5rem; /* Matching the blueprint's font size */
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.form-group {
+    text-align: left;
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--input-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    color: var(--text-primary);
+    box-sizing: border-box;
+}
+
+.form-footer {
+    text-align: right;
+    margin-top: 12px;
+    margin-bottom: 24px;
+}
+
+.form-footer a {
+    color: var(--accent-blue);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn:hover {
+    filter: brightness(0.9);
+}
+
+.btn-primary {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: var(--accent-green);
+    color: white;
+}
+
+.btn-google {
+    background-color: var(--input-bg-color);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-google svg {
+    width: 20px;
+    height: 20px;
+}
+
+.separator {
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+    margin: 24px 0;
+    font-size: 0.9rem;
+}
+
+.separator::before, .separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.separator span {
+    padding: 0 15px;
+}
+
+.error-message {
+    display: none;
+    background-color: var(--error-bg);
+    color: var(--error-text);
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 1px solid var(--error-border);
+    font-size: 0.9rem;
+    font-weight: 500;
+}

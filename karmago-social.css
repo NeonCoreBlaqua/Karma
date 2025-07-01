@@ -1,0 +1,377 @@
+/* karmago-social.css */
+
+/* --- 1. Global Styles & Variables --- */
+:root {
+    --primary-bg: #121212;
+    --secondary-bg: #1E1E1E; /* For cards and containers */
+    --tertiary-bg: #282828;  /* For hover states and inputs */
+    --primary-text: #E0E0E0;
+    --secondary-text: #A0A0A0;
+    --accent-primary: #0D6EFD; /* New Energetic Blue */
+    --accent-secondary: #0D6EFD; /* Consistent Blue for all actions */
+    --link-hover: #FFFFFF;
+    --border-color: #333;
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --border-radius-lg: 12px;
+    --border-radius-md: 8px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+    margin: 0;
+    padding-top: 65px; /* Space for fixed top nav */
+}
+
+a {
+    color: var(--primary-text);
+    text-decoration: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* --- 2. Main Layout --- */
+.main-content {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    gap: 25px;
+    max-width: 1300px;
+    margin: 25px auto;
+    padding: 0 20px;
+}
+
+/* --- 3. Top Navigation Bar --- */
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 65px;
+    background-color: var(--primary-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    z-index: 1000;
+}
+
+.logo img {
+    height: 36px;
+    width: 36px;
+    background-color: var(--accent-primary); /* Will now be blue */
+    border-radius: 50%;
+    padding: 4px;
+    box-sizing: border-box;
+}
+
+/* ... Other nav styles remain the same ... */
+
+.notification-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background-color: var(--accent-secondary); /* Will now be blue */
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 1px solid var(--primary-bg);
+}
+
+/* --- 4. Sidebars (Left & Right) --- */
+.left-sidebar, .right-sidebar {
+    position: sticky;
+    top: 90px;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar-menu .menu-item.active {
+    background-color: var(--tertiary-bg);
+    color: var(--link-hover);
+    font-weight: 600;
+}
+
+.menu-badge {
+    margin-left: auto;
+    background-color: var(--accent-secondary); /* Will now be blue */
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.follow-btn {
+    margin-left: auto;
+    background-color: var(--accent-secondary); /* Will now be blue */
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+.follow-btn:hover {
+    background-color: #0b5ed7; /* Darker blue on hover */
+}
+
+/* --- 5. Center Feed Section --- */
+.feed-section { display: flex; flex-direction: column; gap: 20px; }
+.page-content.active { display: flex; flex-direction: column; gap: 20px; }
+
+/* Stories */
+.story-avatar.has-story {
+    background: linear-gradient(45deg, #0D6EFD, #0DCAF0); /* Blue gradient for stories */
+    padding: 3px;
+}
+
+.add-story-btn {
+    background-color: var(--accent-primary); /* Will now be blue */
+}
+
+/* Create Post */
+.create-post-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+}
+
+.post-btn {
+    background-color: var(--accent-secondary); /* Will now be blue */
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.post-btn:hover:not(:disabled) {
+    background-color: #0b5ed7; /* Darker blue on hover */
+}
+
+.post-btn:disabled {
+    background-color: #282828;
+    color: #555;
+    cursor: not-allowed;
+}
+
+/* --- Add the rest of your original CSS below --- */
+/* (For brevity, only the changed or most relevant rules are shown above. The full set of original rules should follow) */
+.nav-container { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1300px; margin: 0 auto; padding: 0 20px; }
+.nav-left .logo { display: flex; align-items: center; gap: 12px; }
+.logo-text { font-size: 1.6rem; font-weight: bold; }
+.search-container { position: relative; width: 350px; }
+.search-input { width: 100%; padding: 10px 15px 10px 40px; background-color: var(--tertiary-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); color: var(--primary-text); font-size: 1rem; }
+.search-input::placeholder { color: var(--secondary-text); }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); height: 20px; opacity: 0.6; }
+.nav-right .nav-icons { display: flex; align-items: center; gap: 25px; }
+.nav-icon { position: relative; cursor: pointer; font-size: 24px; }
+.nav-icon img { height: 24px; }
+.nav-icon .icon-text { font-size: 24px; }
+.nav-icon img, .nav-icon .icon-text { opacity: 0.7; }
+.nav-icon:hover img, .nav-icon:hover .icon-text { opacity: 1; }
+.nav-icon.active img, .nav-icon.active .icon-text { opacity: 1; }
+.profile-pic { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.user-profile-card, .sidebar-menu, .trending-section, .suggestions-card, .whats-happening-card { background-color: var(--secondary-bg); border-radius: var(--border-radius-lg); padding: 20px; }
+.user-profile-card { display: flex; align-items: center; gap: 15px; }
+.user-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+.user-info h3 { margin: 0; font-size: 1.1rem; }
+.user-info p { margin: 0; color: var(--secondary-text); font-size: 0.9rem; }
+.sidebar-menu { padding: 10px; }
+.sidebar-menu .menu-item { display: flex; align-items: center; gap: 15px; padding: 12px 15px; border-radius: var(--border-radius-md); transition: background-color 0.2s ease; font-size: 1rem; font-weight: 500; color: var(--secondary-text); }
+.sidebar-menu .menu-item img, .sidebar-menu .menu-item .menu-icon { height: 22px; width: 22px; font-size: 22px; opacity: 0.7; }
+.sidebar-menu .menu-item:hover { background-color: var(--tertiary-bg); color: var(--link-hover); }
+.sidebar-menu .menu-item.active img, .sidebar-menu .menu-item.active .menu-icon { opacity: 1; }
+.trending-section h4, .suggestions-card h4, .whats-happening-card h4 { margin: -5px 0 15px 0; font-size: 1.2rem; }
+.trending-item { padding: 8px 0; }
+.trend-tag { font-weight: bold; font-size: 1rem; }
+.trend-count { display: block; font-size: 0.85rem; color: var(--secondary-text); margin-top: 2px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; }
+.see-all { color: var(--secondary-text); font-size: 0.9rem; font-weight: bold; }
+.suggestion-item { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+.suggestion-avatar { width: 45px; height: 45px; border-radius: 50%; }
+.suggestion-info h5 { margin: 0; font-size: 1rem; }
+.suggestion-info p { margin: 2px 0 0; font-size: 0.8rem; color: var(--secondary-text); }
+.happening-item { padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+.happening-item:last-child { border-bottom: none; }
+.happening-category, .happening-stats { font-size: 0.85rem; color: var(--secondary-text); }
+.happening-title { font-weight: bold; font-size: 1rem; margin: 5px 0; }
+.footer-links { font-size: 0.8rem; color: var(--secondary-text); margin-top: 10px; }
+.footer-links a { color: var(--secondary-text); margin-right: 10px; }
+.copyright { margin-top: 10px; }
+.stories-container { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; }
+.story-item { text-align: center; flex-shrink: 0; width: 70px; }
+.story-avatar { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; margin: 0 auto; }
+.story-avatar.has-story img { border: 3px solid var(--secondary-bg); }
+.your-story .story-avatar { border: 2px dashed var(--secondary-text); }
+.story-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.add-story-btn { position: absolute; bottom: 0; right: 0; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; border: 2px solid var(--secondary-bg); }
+.story-username { font-size: 0.8rem; margin-top: 8px; display: block; }
+.create-post-card { background-color: var(--secondary-bg); border-radius: var(--border-radius-lg); padding: 20px; }
+.create-post-header { display: flex; align-items: center; gap: 15px; padding-bottom: 20px; }
+.create-avatar { width: 45px; height: 45px; border-radius: 50%; }
+.create-input { flex-grow: 1; background-color: transparent; border: none; color: var(--primary-text); font-size: 1.2rem; outline: none; width: 100%; }
+.create-input::placeholder { color: var(--secondary-text); font-weight: 500; }
+.create-post-actions { display: flex; justify-content: space-around; padding-top: 15px; border-top: 1px solid var(--border-color); }
+.action-button { background: none; border: none; color: var(--secondary-text); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; padding: 8px 12px; border-radius: var(--border-radius-md); }
+.action-button:hover { color: var(--link-hover); }
+.action-button img { height: 20px; }
+.action-button .emoji { font-size: 20px; }
+.bottom-nav, #mapPage, #musicPage { display: none; }
+@media (max-width: 1200px) { .main-content { grid-template-columns: 260px 1fr; } .right-sidebar { display: none; } }
+@media (max-width: 992px) { .left-sidebar { display: none; } .main-content { grid-template-columns: 1fr; max-width: 680px; } .nav-center { display: none; } }
+@media (max-width: 768px) { body { padding-top: 60px; padding-bottom: 60px; } .top-nav { height: 60px; } .main-content { margin: 10px auto; padding: 0 10px; } .nav-right .nav-icon:not(.profile-menu) { display: none; } .nav-right .nav-icons { gap: 20px; } .bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background-color: var(--primary-bg); border-top: 1px solid var(--border-color); justify-content: space-around; align-items: center; z-index: 1000; } }
+
+/* --- 6. Post Feed & Cards --- */
+.posts-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.post-card {
+    background-color: var(--secondary-bg);
+    border-radius: var(--border-radius-lg);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.post-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.post-user-info h5 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.post-user-info p {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    color: var(--secondary-text);
+}
+
+.post-content {
+    font-size: 1rem;
+    line-height: 1.5;
+    /* Allows for line breaks in the post */
+    white-space: pre-wrap; 
+}
+
+.post-actions {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.post-action-btn {
+    background: none;
+    border: none;
+    color: var(--secondary-text);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: var(--border-radius-md);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.post-action-btn:hover {
+    background-color: var(--tertiary-bg);
+    color: var(--link-hover);
+}
+/* --- Icon Styling Adjustments --- */
+.post-action-btn img {
+    height: 18px; /* Adjust size as needed */
+    width: 18px;
+    vertical-align: middle; /* Helps with alignment */
+}
+
+.sidebar-menu .menu-item img {
+    height: 22px;
+    width: 22px;
+}
+
+.nav-icon img {
+    height: 24px;
+    width: 24px;
+}
+/* --- 7. Profile Dropdown Menu --- */
+.profile-dropdown-container {
+    position: relative; /* This is the anchor for the dropdown */
+}
+
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 130%; /* Position it below the profile icon */
+    right: 0;
+    background-color: var(--secondary-bg);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--box-shadow);
+    min-width: 180px;
+    z-index: 1001;
+    padding: 8px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* This class will be added by JavaScript to show the menu */
+.dropdown-menu.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 15px;
+    color: var(--primary-text);
+    text-decoration: none;
+    font-size: 0.95rem;
+    border-radius: var(--border-radius-md);
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: var(--tertiary-bg);
+}
+
+.dropdown-item img {
+    height: 20px;
+    width: 20px;
+}
