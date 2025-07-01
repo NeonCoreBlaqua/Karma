@@ -8,7 +8,7 @@ import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-s
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCVA51QgdGfVja7CxJ-zn62ypayjSGsgWA", // IMPORTANT: Paste your actual API key here
+  apiKey: "AIzaSyAiPon9dE-Vy7n5Ngf0xPCLIMgcqeNnVgk", // IMPORTANT: Paste your actual API key here
   authDomain: "karmago-e4721.firebaseapp.com",
   projectId: "karmago-e4721",
   storageBucket: "karmago-e4721.appspot.com", // Corrected this based on documentation [4]
