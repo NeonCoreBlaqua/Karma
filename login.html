@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - KarmaGo</title>
+    
+    <!-- Load Firebase libraries the classic, reliable way -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <!-- All CSS is embedded directly in the HTML file -->
+    <style>
+        :root {
+            --bg-color: #1a1a1a; --card-color: #2c2c2c; --input-bg-color: #3a3a3a;
+            --text-primary: #ffffff; --text-secondary: #a0a0a0; --accent-purple: #8A2BE2;
+            --accent-green: #20c997; --border-color: #444;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color); color: var(--text-primary); display: flex;
+            justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px;
+        }
+        .login-container {
+            background-color: var(--card-color); padding: 30px 35px; border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); width: 100%; max-width: 400px;
+            text-align: center; border: 1px solid var(--border-color);
+        }
+        .login-header .logo { width: 120px; height: auto; margin-bottom: 20px; }
+        .login-header h2 { font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin: 0 0 30px 0; }
+        .form-group { text-align: left; margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; color: var(--text-secondary); }
+        .form-group input { width: 100%; padding: 14px; background-color: var(--input-bg-color); border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; color: var(--text-primary); box-sizing: border-box; }
+        .form-footer { text-align: right; margin-top: 12px; margin-bottom: 24px; }
+        .form-footer a { color: var(--accent-purple); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: filter 0.2s ease; display: flex; justify-content: center; align-items: center; gap: 12px; }
+        .btn:hover { filter: brightness(0.9); }
+        .btn-primary { background-color: var(--accent-purple); color: white; }
+        .btn-secondary { background-color: var(--accent-green); color: white; }
+        .btn-google { background-color: var(--card-color); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-google svg { width: 20px; height: 20px; }
+        .separator { display: flex; align-items: center; color: var(--text-secondary); margin: 24px 0; font-size: 0.85rem; }
+        .separator::before, .separator::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
+        .separator span { padding: 0 15px; }
+        .error-message { display: none; background-color: #ff4d4d20; color: #ff8a8a; padding: 12px; border-radius: 6px; margin-bottom: 20px; text-align: center; border: 1px solid #ff4d4d50; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="/Karma/images/KarmaGo.png" alt="KarmaGo Logo" class="logo">
+            <h2>Login to Your Account</h2>
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+        <form id="loginForm" novalidate>
+            <div class="form-group"><label for="email">Email</label><input type="email" id="email" placeholder="Enter email address" required></div>
+            <div class="form-group"><label for="password">Password</label><input type="password" id="password" placeholder="Enter your password" required></div>
+            <button type="submit" class="btn btn-primary">Log In</button>
+            <div class="form-footer"><a href="#">Forgot Password?</a></div>
+        </form>
+        <div class="separator"><span>or</span></div>
+        <button class="btn btn-google" id="googleSignInBtn">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.42-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>
+            <span>Sign in with Google</span>
+        </button>
+        <div class="separator"><span>or</span></div>
+        <button class="btn btn-secondary" id="createAccountBtn">Create New Account</button>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const firebaseConfig = {
+                  apiKey: "AIzaSyDklkAPvixNktJIO4sbdzOMInQdAycRLBs",
+                  authDomain: "karmago-e4721.firebaseapp.com",
+                  projectId: "karmago-e4721",
+                  storageBucket: "karmago-e4721.appspot.com",
+                  messagingSenderId: "203472083344",
+                  appId: "1:203472083344:web:7066cf651bda70eadb7b15"
+                };
+                firebase.initializeApp(firebaseConfig);
+                const auth = firebase.auth();
+                
+                const googleSignInBtn = document.getElementById('googleSignInBtn');
+                googleSignInBtn.addEventListener('click', () => {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    auth.signInWithPopup(provider)
+                        .then(() => { window.location.href = '/Karma/karmago-social.html'; })
+                        .catch((error) => { console.error(error); });
+                });
+            } catch (error) {
+                console.error("Critical Error:", error);
+            }
+        });
+    </script>
+</body>
+</html>
