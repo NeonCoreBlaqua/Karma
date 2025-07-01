@@ -1,18 +1,14 @@
-/* login-style.css (V4 - Professional Dark Theme) */
+/* login-style.css (Purple Theme - Final) */
 
-/* --- Color & Style Variables based on your blueprint --- */
 :root {
-    --bg-color: #121212;
-    --card-color: #1E1E1E;
-    --input-bg-color: #2b2d31;
-    --border-color: #36393F;
-    --text-primary: #f2f3f5;
-    --text-secondary: #b8b9bf;
-    --accent-blue: #0D6EFD;      /* The exact blue from your light-mode button */
-    --accent-green: #198754;    /* The exact green from your light-mode button */
-    --error-bg: #da373c20;
-    --error-text: #f19ea1;
-    --error-border: #da373c50;
+    --bg-color: #1a1a1a;
+    --card-color: #2c2c2c;
+    --input-bg-color: #3a3a3a;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --accent-purple: #8A2BE2;  /* Vibrant Purple for primary actions */
+    --accent-green: #20c997;   /* Vibrant Green for secondary actions */
+    --border-color: #444;
 }
 
 body {
@@ -29,23 +25,26 @@ body {
 
 .login-container {
     background-color: var(--card-color);
-    padding: 40px;
-    border-radius: 8px; /* Matching the blueprint's sharper corners */
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    padding: 30px 35px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
     width: 100%;
-    max-width: 420px;
+    max-width: 400px;
     text-align: center;
+    border: 1px solid var(--border-color);
 }
 
-.login-header {
-    margin-bottom: 24px;
+.login-header .logo {
+    width: 120px; /* Larger logo to match the screenshot */
+    height: auto;
+    margin-bottom: 20px;
 }
 
 .login-header h2 {
-    font-size: 1.5rem; /* Matching the blueprint's font size */
+    font-size: 1.25rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin: 0;
+    margin: 0 0 30px 0;
 }
 
 .form-group {
@@ -55,15 +54,16 @@ body {
 
 .form-group label {
     display: block;
-    font-weight: 600;
+    font-weight: 500;
     margin-bottom: 8px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
     color: var(--text-secondary);
 }
 
 .form-group input {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     background-color: var(--input-bg-color);
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -79,7 +79,7 @@ body {
 }
 
 .form-footer a {
-    color: var(--accent-blue);
+    color: var(--accent-purple);
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 500;
@@ -87,7 +87,7 @@ body {
 
 .btn {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     border: none;
     border-radius: 6px;
     font-size: 1rem;
@@ -97,7 +97,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .btn:hover {
@@ -105,7 +105,7 @@ body {
 }
 
 .btn-primary {
-    background-color: var(--accent-blue);
+    background-color: var(--accent-purple); /* Using the purple from your logo */
     color: white;
 }
 
@@ -115,7 +115,7 @@ body {
 }
 
 .btn-google {
-    background-color: var(--input-bg-color);
+    background-color: var(--card-color);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
 }
@@ -130,7 +130,7 @@ body {
     align-items: center;
     color: var(--text-secondary);
     margin: 24px 0;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .separator::before, .separator::after {
@@ -145,13 +145,12 @@ body {
 
 .error-message {
     display: none;
-    background-color: var(--error-bg);
-    color: var(--error-text);
+    background-color: #ff4d4d20;
+    color: #ff8a8a;
     padding: 12px;
     border-radius: 6px;
     margin-bottom: 20px;
     text-align: center;
-    border: 1px solid var(--error-border);
+    border: 1px solid #ff4d4d50;
     font-size: 0.9rem;
-    font-weight: 500;
 }
