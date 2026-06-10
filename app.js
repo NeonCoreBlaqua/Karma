@@ -9,7 +9,7 @@ function showView(name) {
   }
 
   for (const button of routeButtons) {
-    button.classList.toggle("active", button.dataset.target === viewName && button.closest(".dock"));
+    button.classList.toggle("active", button.dataset.target === viewName);
   }
 
   if (location.hash !== `#${viewName}`) {
