@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <main class="tablet" aria-label="Neuro-Link tablet interface">
@@ -55,46 +55,109 @@
 
       <section class="view" data-view="notifications">
         <button class="home-chip" type="button" data-target="home">Home</button>
-        <div class="page-title"><p>Notification Center</p><h2>Updates</h2></div>
+        <div class="page-title">
+          <p>Notification Center</p>
+          <h2>Updates</h2>
+        </div>
         <div class="notification-list">
-          <button type="button" data-target="messages"><span>Messages</span><strong>New message waiting</strong><em>Open Messages</em></button>
-          <button type="button" data-target="wallet"><span>Wallet</span><strong>G-Coin activity ready</strong><em>Open Wallet</em></button>
-          <button type="button" data-target="health"><span>Health</span><strong>Status check available</strong><em>Open Health</em></button>
+          <button type="button" data-target="messages">
+            <span>Messages</span>
+            <strong>New message waiting</strong>
+            <em>Open Messages</em>
+          </button>
+          <button type="button" data-target="wallet">
+            <span>Wallet</span>
+            <strong>G-Coin activity ready</strong>
+            <em>Open Wallet</em>
+          </button>
+          <button type="button" data-target="health">
+            <span>Health</span>
+            <strong>Status check available</strong>
+            <em>Open Health</em>
+          </button>
         </div>
       </section>
 
       <section class="view" data-view="messages">
         <button class="home-chip" type="button" data-target="home">Home</button>
-        <div class="page-title"><p>Messages</p><h2>Inbox</h2></div>
-        <div class="message-list"><article><span>Camden Falls</span><strong>System channel ready.</strong></article><article><span>Neuro-Link</span><strong>Message routing online.</strong></article></div>
+        <div class="page-title">
+          <p>Messages</p>
+          <h2>Inbox</h2>
+        </div>
+        <div class="message-list">
+          <article>
+            <span>Camden Falls</span>
+            <strong>System channel ready.</strong>
+          </article>
+          <article>
+            <span>Neuro-Link</span>
+            <strong>Message routing online.</strong>
+          </article>
+        </div>
       </section>
 
       <section class="view" data-view="profile">
         <button class="home-chip" type="button" data-target="home">Home</button>
-        <div class="page-title"><p>Profile</p><h2>Identity</h2></div>
-        <div class="info-grid"><article><span>Name</span><strong>Not set</strong></article><article><span>Title</span><strong>Resident</strong></article><article><span>Location</span><strong>Camden Falls</strong></article><article><span>Sync</span><strong>Local</strong></article></div>
+        <div class="page-title">
+          <p>Profile</p>
+          <h2>Identity</h2>
+        </div>
+        <div class="info-grid">
+          <article><span>Name</span><strong>Not set</strong></article>
+          <article><span>Title</span><strong>Resident</strong></article>
+          <article><span>Location</span><strong>Camden Falls</strong></article>
+          <article><span>Sync</span><strong>Local</strong></article>
+        </div>
       </section>
 
       <section class="view" data-view="wallet">
         <button class="home-chip" type="button" data-target="home">Home</button>
-        <div class="page-title"><p>Wallet</p><h2>G-Coin</h2></div>
-        <div class="balance-card"><span>Available Balance</span><strong>GC 0</strong></div>
-        <div class="action-row"><button type="button">Send</button><button type="button">Request</button><button type="button">History</button></div>
+        <div class="page-title">
+          <p>Wallet</p>
+          <h2>G-Coin</h2>
+        </div>
+        <div class="balance-card">
+          <span>Available Balance</span>
+          <strong>GC 0</strong>
+        </div>
+        <div class="action-row">
+          <button type="button">Send</button>
+          <button type="button">Request</button>
+          <button type="button">History</button>
+        </div>
       </section>
 
       <section class="view" data-view="health">
         <button class="home-chip" type="button" data-target="home">Home</button>
-        <div class="page-title"><p>Health</p><h2>Status</h2></div>
-        <div class="meters"><label>Health <span></span></label><label>Energy <span></span></label><label>Hydration <span></span></label><label>Mood <span></span></label></div>
+        <div class="page-title">
+          <p>Health</p>
+          <h2>Status</h2>
+        </div>
+        <div class="meters">
+          <label>Health <span></span></label>
+          <label>Energy <span></span></label>
+          <label>Hydration <span></span></label>
+          <label>Mood <span></span></label>
+        </div>
       </section>
 
       <section class="view" data-view="settings">
         <button class="home-chip" type="button" data-target="home">Home</button>
-        <div class="page-title"><p>Settings</p><h2>Controls</h2></div>
-        <div class="settings-list"><button type="button">Refresh Sync</button><button type="button">Privacy</button><button type="button">Display</button><button type="button">About Neuro-Link</button></div>
+        <div class="page-title">
+          <p>Settings</p>
+          <h2>Controls</h2>
+        </div>
+        <div class="settings-list">
+          <button type="button">Refresh Sync</button>
+          <button type="button">Privacy</button>
+          <button type="button">Display</button>
+          <button type="button">About Neuro-Link</button>
+        </div>
       </section>
     </section>
+
   </main>
+
   <script src="app.js?v=5"></script>
 </body>
 </html>
