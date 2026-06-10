@@ -1,19 +1,31 @@
 const views = Array.from(document.querySelectorAll(".view"));
-const navButtons = Array.from(document.querySelectorAll(".dock button"));
+const routeButtons = Array.from(document.querySelectorAll("[data-target]"));
 
 function showView(name) {
+  const viewName = views.some((view) => view.dataset.view === name) ? name : "home";
+
   for (const view of views) {
-    view.classList.toggle("active", view.dataset.view === name);
+    view.classList.toggle("active", view.dataset.view === viewName);
   }
 
-  for (const button of navButtons) {
-    button.classList.toggle("active", button.dataset.target === name);
+  for (const button of routeButtons) {
+    button.classList.toggle("active", button.dataset.target === viewName && button.closest(".dock"));
+  }
+
+  if (location.hash !== `#${viewName}`) {
+    history.replaceState(null, "", `#${viewName}`);
   }
 }
 
-for (const button of navButtons) {
+for (const button of routeButtons) {
   button.addEventListener("click", () => showView(button.dataset.target));
 }
+
+window.addEventListener("hashchange", () => {
+  showView(location.hash.replace("#", "") || "home");
+});
+
+showView(location.hash.replace("#", "") || "home");
 
 window.NeuroLink = {
   showView
