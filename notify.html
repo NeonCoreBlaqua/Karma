@@ -4,23 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link Notifications</title>
-  <link rel="stylesheet" href="notify.css?v=1">
+  <link rel="stylesheet" href="notify.css?v=2">
 </head>
 <body>
   <main class="notify-bar" aria-label="Neuro-Link notification bar">
     <div class="brand">
       <img src="images/neuro logo.png" alt="">
-      <span>Neuro-Link</span>
     </div>
-    <div class="notice">
+    <button class="notice" type="button" aria-label="Open notifications">
       <span class="bell" aria-hidden="true"></span>
-      <strong>1 update</strong>
-      <em>Tap for notifications</em>
-    </div>
+      <span class="dot" aria-hidden="true"></span>
+    </button>
     <div class="status">
       <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       <span class="wifi" aria-hidden="true"></span>
-      <span class="battery">100%</span>
+      <span class="battery" aria-label="Battery full"></span>
     </div>
   </main>
 </body>
