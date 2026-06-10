@@ -4,31 +4,70 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
   <main class="tablet" aria-label="Neuro-Link tablet interface">
-    <header class="status-bar">
-      <div class="brand">
-        <img class="brand-mark" src="images/neuro logo.png" alt="">
-        <span>Neuro-Link</span>
-      </div>
-      <div class="status-icons" aria-label="Device status">
-        <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-        <span class="wifi" aria-hidden="true"></span>
-        <span class="battery">100%</span>
-      </div>
-    </header>
-
     <section class="screen" id="screen" aria-live="polite">
-      <section class="view active" data-view="home">
+      <section class="view active home-view" data-view="home">
         <div class="wallpaper">
           <img class="watermark-image" src="images/neuro trans.png" alt="" aria-hidden="true">
-          <div class="home-copy">
+          <div class="home-header">
             <img class="home-logo" src="images/neuro banner.png" alt="Neuro-Link">
-            <h1>Ready</h1>
-            <p>Camden Falls life system online.</p>
+            <div>
+              <h1>Home</h1>
+              <p>Camden Falls life system online.</p>
+            </div>
           </div>
+          <div class="app-grid" aria-label="Apps">
+            <button type="button" data-target="profile"><span>ME</span><strong>Profile</strong></button>
+            <button type="button" data-target="messages"><span>IM</span><strong>Messages</strong></button>
+            <button type="button" data-target="wallet"><span>GC</span><strong>Wallet</strong></button>
+            <button type="button" data-target="health"><span>HL</span><strong>Health</strong></button>
+            <button type="button" data-target="notifications"><span>AL</span><strong>Alerts</strong></button>
+            <button type="button" data-target="settings"><span>ST</span><strong>Settings</strong></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view="notifications">
+        <div class="page-title">
+          <p>Notification Center</p>
+          <h2>Updates</h2>
+        </div>
+        <div class="notification-list">
+          <button type="button" data-target="messages">
+            <span>Messages</span>
+            <strong>New message waiting</strong>
+            <em>Open Messages</em>
+          </button>
+          <button type="button" data-target="wallet">
+            <span>Wallet</span>
+            <strong>G-Coin activity ready</strong>
+            <em>Open Wallet</em>
+          </button>
+          <button type="button" data-target="health">
+            <span>Health</span>
+            <strong>Status check available</strong>
+            <em>Open Health</em>
+          </button>
+        </div>
+      </section>
+
+      <section class="view" data-view="messages">
+        <div class="page-title">
+          <p>Messages</p>
+          <h2>Inbox</h2>
+        </div>
+        <div class="message-list">
+          <article>
+            <span>Camden Falls</span>
+            <strong>System channel ready.</strong>
+          </article>
+          <article>
+            <span>Neuro-Link</span>
+            <strong>Message routing online.</strong>
+          </article>
         </div>
       </section>
 
@@ -91,12 +130,12 @@
     <nav class="dock" aria-label="Neuro-Link apps">
       <button class="active" type="button" data-target="home">Home</button>
       <button type="button" data-target="profile">Profile</button>
+      <button type="button" data-target="messages">Messages</button>
       <button type="button" data-target="wallet">Wallet</button>
-      <button type="button" data-target="health">Health</button>
-      <button type="button" data-target="settings">Settings</button>
+      <button type="button" data-target="notifications">Alerts</button>
     </nav>
   </main>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
