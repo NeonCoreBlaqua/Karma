@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
   <main class="tablet" aria-label="Neuro-Link tablet interface">
@@ -20,17 +20,18 @@
             </div>
           </div>
           <div class="app-grid" aria-label="Apps">
-            <button type="button" data-target="profile"><span>ME</span><strong>Profile</strong></button>
-            <button type="button" data-target="messages"><span>IM</span><strong>Messages</strong></button>
-            <button type="button" data-target="wallet"><span>GC</span><strong>Wallet</strong></button>
-            <button type="button" data-target="health"><span>HL</span><strong>Health</strong></button>
-            <button type="button" data-target="notifications"><span>AL</span><strong>Alerts</strong></button>
-            <button type="button" data-target="settings"><span>ST</span><strong>Settings</strong></button>
+            <button class="app-icon profile-app" type="button" data-target="profile"><span>ME</span><strong>Profile</strong></button>
+            <button class="app-icon messages-app" type="button" data-target="messages"><span>IM</span><strong>Messages</strong></button>
+            <button class="app-icon wallet-app" type="button" data-target="wallet"><span>GC</span><strong>Wallet</strong></button>
+            <button class="app-icon health-app" type="button" data-target="health"><span>HL</span><strong>Health</strong></button>
+            <button class="app-icon alerts-app" type="button" data-target="notifications"><span>AL</span><strong>Alerts</strong></button>
+            <button class="app-icon settings-app" type="button" data-target="settings"><span>ST</span><strong>Settings</strong></button>
           </div>
         </div>
       </section>
 
       <section class="view" data-view="notifications">
+        <button class="home-chip" type="button" data-target="home">Home</button>
         <div class="page-title">
           <p>Notification Center</p>
           <h2>Updates</h2>
@@ -55,6 +56,7 @@
       </section>
 
       <section class="view" data-view="messages">
+        <button class="home-chip" type="button" data-target="home">Home</button>
         <div class="page-title">
           <p>Messages</p>
           <h2>Inbox</h2>
@@ -72,6 +74,7 @@
       </section>
 
       <section class="view" data-view="profile">
+        <button class="home-chip" type="button" data-target="home">Home</button>
         <div class="page-title">
           <p>Profile</p>
           <h2>Identity</h2>
@@ -85,6 +88,7 @@
       </section>
 
       <section class="view" data-view="wallet">
+        <button class="home-chip" type="button" data-target="home">Home</button>
         <div class="page-title">
           <p>Wallet</p>
           <h2>G-Coin</h2>
@@ -101,6 +105,7 @@
       </section>
 
       <section class="view" data-view="health">
+        <button class="home-chip" type="button" data-target="home">Home</button>
         <div class="page-title">
           <p>Health</p>
           <h2>Status</h2>
@@ -114,6 +119,7 @@
       </section>
 
       <section class="view" data-view="settings">
+        <button class="home-chip" type="button" data-target="home">Home</button>
         <div class="page-title">
           <p>Settings</p>
           <h2>Controls</h2>
@@ -127,15 +133,8 @@
       </section>
     </section>
 
-    <nav class="dock" aria-label="Neuro-Link apps">
-      <button class="active" type="button" data-target="home">Home</button>
-      <button type="button" data-target="profile">Profile</button>
-      <button type="button" data-target="messages">Messages</button>
-      <button type="button" data-target="wallet">Wallet</button>
-      <button type="button" data-target="notifications">Alerts</button>
-    </nav>
   </main>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
