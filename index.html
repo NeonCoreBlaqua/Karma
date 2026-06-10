@@ -1,138 +1,104 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KarmaGo - Urban Social Network</title>
-    <!-- Correct, relative path to your CSS file -->
-    <link rel="stylesheet" href="karmago-social.css">
-    
-    <!-- Load Firebase libraries the classic, reliable way -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neuro-Link HUD</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Top Navigation Bar -->
-    <nav class="top-nav">
-        <div class="nav-container">
-            <div class="nav-left">
-                <div class="logo">
-                    <img src="/Karma/images/KarmaGo.png" alt="KarmaGo">
-                    <span class="logo-text">KarmaGo</span>
-                </div>
-            </div>
-            <div class="nav-center">
-                <div class="search-container">
-                    <input type="text" placeholder="Search KarmaGo..." class="search-input">
-                    <img src="/Karma/images/search.png" alt="Search" class="search-icon">
-                </div>
-            </div>
-            <div class="nav-right">
-                <div class="nav-icons">
-                    <div class="nav-icon active" data-page="home"><img src="/Karma/images/home.png" alt="Home"></div>
-                    <div class="nav-icon" data-page="messages"><img src="/Karma/images/message.png" alt="Messages"><span class="notification-badge">3</span></div>
-                    <div class="nav-icon" data-page="notifications"><img src="/Karma/images/notification.png" alt="Activity"><span class="notification-badge">12</span></div>
-                    
-                    <div class="profile-dropdown-container">
-                        <div class="nav-icon profile-menu" id="profileMenuBtn">
-                            <img src="/Karma/images/profilem.png" alt="Profile" class="profile-pic" id="navProfilePic">
-                        </div>
-                        <div class="dropdown-menu" id="profileDropdown">
-                            <a href="#" class="dropdown-item" id="dropdownProfileLink">
-                                <img src="/Karma/images/profile.png" alt="Profile Icon" id="dropdownProfilePic">
-                                <span id="dropdownProfileName">Profile</span>
-                            </a>
-                            <a href="#" class="dropdown-item" id="logoutBtn">
-                                <img src="/Karma/images/logout.png" alt="Logout Icon">
-                                <span>Logout</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <main class="tablet" aria-label="Neuro-Link tablet interface">
+    <header class="status-bar">
+      <div class="brand">
+        <span class="signal-dot"></span>
+        <span>Neuro Wi-Fi</span>
+      </div>
+      <div class="status-icons" aria-label="Device status">
+        <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="wifi" aria-hidden="true"></span>
+        <span class="battery">100%</span>
+      </div>
+    </header>
+
+    <section class="screen" id="screen" aria-live="polite">
+      <section class="view active" data-view="home">
+        <div class="wallpaper">
+          <div class="lotus-mark" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="home-copy">
+            <p class="eyebrow">Neuro-Link</p>
+            <h1>Ready</h1>
+            <p>Camden Falls life system online.</p>
+          </div>
         </div>
+      </section>
+
+      <section class="view" data-view="profile">
+        <div class="page-title">
+          <p>Profile</p>
+          <h2>Identity</h2>
+        </div>
+        <div class="info-grid">
+          <article><span>Name</span><strong>Not set</strong></article>
+          <article><span>Title</span><strong>Resident</strong></article>
+          <article><span>Location</span><strong>Camden Falls</strong></article>
+          <article><span>Sync</span><strong>Local</strong></article>
+        </div>
+      </section>
+
+      <section class="view" data-view="wallet">
+        <div class="page-title">
+          <p>Wallet</p>
+          <h2>G-Coin</h2>
+        </div>
+        <div class="balance-card">
+          <span>Available Balance</span>
+          <strong>GC 0</strong>
+        </div>
+        <div class="action-row">
+          <button type="button">Send</button>
+          <button type="button">Request</button>
+          <button type="button">History</button>
+        </div>
+      </section>
+
+      <section class="view" data-view="health">
+        <div class="page-title">
+          <p>Health</p>
+          <h2>Status</h2>
+        </div>
+        <div class="meters">
+          <label>Health <span></span></label>
+          <label>Energy <span></span></label>
+          <label>Hydration <span></span></label>
+          <label>Mood <span></span></label>
+        </div>
+      </section>
+
+      <section class="view" data-view="settings">
+        <div class="page-title">
+          <p>Settings</p>
+          <h2>Controls</h2>
+        </div>
+        <div class="settings-list">
+          <button type="button">Refresh Sync</button>
+          <button type="button">Privacy</button>
+          <button type="button">Display</button>
+          <button type="button">About Neuro-Link</button>
+        </div>
+      </section>
+    </section>
+
+    <nav class="dock" aria-label="Neuro-Link apps">
+      <button class="active" type="button" data-target="home">Home</button>
+      <button type="button" data-target="profile">Profile</button>
+      <button type="button" data-target="wallet">Wallet</button>
+      <button type="button" data-target="health">Health</button>
+      <button type="button" data-target="settings">Settings</button>
     </nav>
+  </main>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- ===== LEFT SIDEBAR (RESTORED) ===== -->
-        <aside class="left-sidebar">
-            <div class="user-profile-card">
-                <img src="/Karma/images/profilem.png" alt="Your Profile" class="user-avatar" id="sidebarAvatar">
-                <div class="user-info">
-                    <h3 id="sidebarUsername">User</h3>
-                    <p id="sidebarUserHandle">@username</p>
-                </div>
-            </div>
-            <div class="sidebar-menu">
-                <a href="#" class="menu-item active" data-page="home"><img src="/Karma/images/home.png" alt="Home"><span>Home</span></a>
-                <a href="#" class="menu-item" data-page="map"><img src="/Karma/images/map.png" alt="Map"><span>Map</span></a>
-                <a href="#" class="menu-item" data-page="music"><span class="menu-icon">🎵</span><span>Music</span></a>
-                <a href="#" class="menu-item" data-page="explore"><img src="/Karma/images/search.png" alt="Explore"><span>Explore</span></a>
-                <a href="#" class="menu-item" data-page="notifications"><img src="/Karma/images/notification.png" alt="Notifications"><span>Notifications</span><span class="menu-badge">12</span></a>
-                <a href="#" class="menu-item" data-page="messages"><img src="/Karma/images/message.png" alt="Messages"><span>Messages</span><span class="menu-badge">3</span></a>
-                <a href="#" class="menu-item" data-page="profile"><img src="/Karma/images/profile.png" alt="Profile"><span>Profile</span></a>
-                <a href="#" class="menu-item" data-page="settings"><img src="/Karma/images/settings1.png" alt="Settings"><span>Settings</span></a>
-            </div>
-            <div class="trending-section">
-                <h4>Trending in NYC</h4>
-                <div class="trending-item"><span class="trend-tag">#BrooklynVibes</span><span class="trend-count">12.5K posts</span></div>
-                <div class="trending-item"><span class="trend-tag">#DrillMusic</span><span class="trend-count">8.2K posts</span></div>
-                <div class="trending-item"><span class="trend-tag">#NYCEats</span><span class="trend-count">15.1K posts</span></div>
-                <div class="trending-item"><span class="trend-tag">#StreetFashion</span><span class="trend-count">22.3K posts</span></div>
-            </div>
-        </aside>
-
-        <!-- ===== CENTER FEED (RESTORED) ===== -->
-        <section class="feed-section">
-            <div id="homePage" class="page-content active">
-                <div class="stories-container">
-                    <div class="story-item your-story"><div class="story-avatar"><img src="/Karma/images/profilem.png" alt="Your Story" id="storyAvatar"><div class="add-story-btn">+</div></div><span class="story-username">Your Story</span></div>
-                    <div class="story-item"><div class="story-avatar has-story"><img src="/Karma/images/profilew.png" alt="DJ_Kool"></div><span class="story-username">DJ_Kool</span></div>
-                </div>
-                <div class="create-post-card">
-                    <div class="create-post-header"><img src="/Karma/images/profilem.png" alt="Your Avatar" class="create-avatar" id="createPostAvatar"><input type="text" placeholder="What's happening in the streets?" class="create-input"></div>
-                    <div class="create-post-actions"><button class="action-button"><img src="/Karma/images/image.png" alt="Photo">Photo</button><button class="action-button"><img src="/Karma/images/camera.png" alt="Video">Video</button><button class="action-button"><span class="emoji">🎵</span>Music</button><button class="action-button"><img src="/Karma/images/emoji.png" alt="Feeling">Feeling</button></div>
-                    <div class="create-post-footer"><button class="post-btn" id="postBtn" disabled>Post</button></div>
-                </div>
-                <div class="posts-feed" id="postsContainer"></div>
-            </div>
-        </section>
-
-        <!-- ===== RIGHT SIDEBAR (RESTORED) ===== -->
-        <aside class="right-sidebar">
-            <div class="suggestions-card">
-                <div class="card-header"><h4>Suggested for you</h4><a href="#" class="see-all">See All</a></div>
-                <div class="suggestion-item"><img src="/Karma/images/profilew.png" alt="MC_Brooklyn" class="suggestion-avatar"><div class="suggestion-info"><h5>MC_Brooklyn</h5><p>Hip-Hop Artist • Followed by DJ_Kool</p></div><button class="follow-btn">Follow</button></div>
-                <div class="suggestion-item"><img src="/Karma/images/profile.png" alt="StreetChef_NYC" class="suggestion-avatar"><div class="suggestion-info"><h5>StreetChef_NYC</h5><p>Food Blogger • Followed by 5 friends</p></div><button class="follow-btn">Follow</button></div>
-                <div class="suggestion-item"><img src="/Karma/images/profilem.png" alt="FashionKilla_BK" class="suggestion-avatar"><div class="suggestion-info"><h5>FashionKilla_BK</h5><p>Style Influencer • Popular in Brooklyn</p></div><button class="follow-btn">Follow</button></div>
-            </div>
-            <div class="whats-happening-card">
-                <div class="card-header"><h4>What's happening</h4></div>
-                <div class="happening-item"><div class="happening-category">Music • Trending</div><div class="happening-title">New drill track drops tonight</div><div class="happening-stats">15.2K people talking about this</div></div>
-                <div class="happening-item"><div class="happening-category">NYC • Live</div><div class="happening-title">Block party in Harlem</div><div class="happening-stats">8.5K people talking about this</div></div>
-                <div class="happening-item"><div class="happening-category">Food • Trending</div><div class="happening-title">Best halal spots revealed</div><div class="happening-stats">22.1K people talking about this</div></div>
-            </div>
-            <div class="footer-links">
-                <a href="#">About</a> <a href="#">Help</a> <a href="#">Press</a> <a href="#">API</a> <a href="#">Jobs</a> <a href="#">Privacy</a> <a href="#">Terms</a>
-                <div class="copyright">© 2025 KarmaGo</div>
-            </div>
-        </aside>
-    </main>
-    
-    <!-- SCRIPT CONFIGURATION AT THE END OF THE BODY -->
-    <script>
-      const firebaseConfig = {
-        apiKey: "PASTE_YOUR_LATEST_RESTRICTED_API_KEY_HERE",
-        authDomain: "karmago-e4721.firebaseapp.com",
-        projectId: "karmago-e4721",
-        storageBucket: "karmago-e4721.appspot.com",
-        messagingSenderId: "203472083344",
-        appId: "1:203472083344:web:7066cf651bda70eadb7b15"
-      };
-      firebase.initializeApp(firebaseConfig);
-    </script>
-    <script src="karmago-social.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
