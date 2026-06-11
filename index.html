@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
   <main class="tablet" aria-label="Neuro-Link tablet interface">
@@ -101,6 +101,26 @@
           <p>Profile</p>
           <h2>Identity</h2>
         </div>
+        <section class="profile-summary hidden" id="profileSummary">
+          <div class="profile-summary-avatar">
+            <img id="profileViewAvatar" src="images/neuro logo.png" alt="">
+          </div>
+          <div class="profile-summary-info">
+            <p id="profileViewTitle">Resident</p>
+            <h3 id="profileViewName">Not set</h3>
+            <div class="profile-summary-grid">
+              <article><span>Age</span><strong id="profileViewAge">Not set</strong></article>
+              <article><span>Sex</span><strong id="profileViewSex">Not set</strong></article>
+              <article><span>Location</span><strong id="profileViewLocation">Eden Palms</strong></article>
+              <article><span>Health</span><strong id="profileViewHealth">Not synced</strong></article>
+            </div>
+            <article class="profile-summary-bio">
+              <span>Bio</span>
+              <strong id="profileViewBio">No bio set.</strong>
+            </article>
+            <button class="primary-action edit-profile-action" type="button" id="editProfileButton">Edit profile</button>
+          </div>
+        </section>
         <form class="profile-editor" id="profileForm">
           <section class="profile-card profile-main">
             <label>Title
@@ -128,12 +148,7 @@
               </select>
             </label>
             <label>My health status
-              <select name="healthStatus">
-                <option>Healthy</option>
-                <option>Stable</option>
-                <option>Needs care</option>
-                <option>Offline</option>
-              </select>
+              <input id="profileHealthStatus" name="healthStatus" value="Syncing" readonly>
             </label>
             <label class="profile-bio">Bio
               <textarea name="bio" rows="4" placeholder="Write a short profile bio."></textarea>
@@ -202,6 +217,6 @@
 
   </main>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
