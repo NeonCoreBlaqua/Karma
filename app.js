@@ -185,6 +185,9 @@ function syncProfileToSlBridge(profile) {
   const ping = new Image();
   ping.alt = "";
   ping.src = url;
+  window.__neuroLinkProfilePings = window.__neuroLinkProfilePings || [];
+  window.__neuroLinkProfilePings.push(ping);
+  window.setTimeout(() => window.__neuroLinkProfilePings.shift(), 8000);
 
   return Promise.resolve({ ok: true, skipped: false, beacon: true });
 }
