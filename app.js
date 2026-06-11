@@ -7,6 +7,7 @@ const editProfileButton = document.querySelector("#editProfileButton");
 const profileSyncStatus = document.querySelector("#profileSyncStatus");
 const profileHealthStatus = document.querySelector("#profileHealthStatus");
 const useSlProfileButton = document.querySelector("#useSlProfile");
+const resetProfileButton = document.querySelector("#resetProfile");
 const profileViewAvatar = document.querySelector("#profileViewAvatar");
 const profileViewTitle = document.querySelector("#profileViewTitle");
 const profileViewName = document.querySelector("#profileViewName");
@@ -20,8 +21,11 @@ const PROFILE_PENDING_SYNC_KEY = "neuroLinkProfilePendingSync";
 const HEALTH_STATUS_KEY = "neuroLinkHealthStatus";
 const PROFILE_ENDPOINT_KEY = "neuroLinkProfileEndpoint";
 const DEFAULT_PROFILE_IMAGE = "images/neuro logo.png";
-const DEFAULT_MALE_PROFILE_IMAGE = "images/profile-male.svg";
-const DEFAULT_FEMALE_PROFILE_IMAGE = "images/profile-female.svg";
+const DEFAULT_MALE_PROFILE_IMAGE = "images/neuro logo.png";
+const DEFAULT_FEMALE_PROFILE_IMAGE = "images/neuro logo.png";
+const VALID_LOCATIONS = ["Eden Palms", "Chi-Core"];
+const VALID_SEXES = ["Female", "Male", "Non-binary", "Private"];
+const HEALTH_EMOJIS = ["😁", "😔", "😷", "😐", "😒", "😃"];
 
 const urlParams = new URLSearchParams(location.search);
 const configuredEndpoint = urlParams.get("profileEndpoint") || localStorage.getItem(PROFILE_ENDPOINT_KEY) || "";
@@ -67,10 +71,44 @@ function getProfileFormData() {
   if (!profileForm) return {};
 
   const data = Object.fromEntries(new FormData(profileForm).entries());
+  data.location = VALID_LOCATIONS.includes(data.location) ? data.location : "";
+  data.sex = VALID_SEXES.includes(data.sex) ? data.sex : "";
   data.healthStatus = getHealthStatus();
   data.profileImage = defaultProfileImage(data.sex);
   data.updatedAt = new Date().toISOString();
   return data;
+}
+
+function normalizeProfile(profile = {}) {
+  return {
+    title: cleanLoadedValue(profile.title, "Resident"),
+    displayName: cleanLoadedValue(profile.displayName, "Not set"),
+    age: cleanLoadedValue(profile.age, "Not set"),
+    sex: VALID_SEXES.includes(profile.sex) ? profile.sex : "",
+    location: VALID_LOCATIONS.includes(profile.location) ? profile.location : "",
+    bio: cleanLoadedValue(profile.bio, "No bio set."),
+    healthStatus: healthEmoji(profile.healthStatus),
+    profileImage: defaultProfileImage(profile.sex),
+    updatedAt: profile.updatedAt || new Date().toISOString()
+  };
+}
+
+function cleanLoadedValue(value, placeholder) {
+  const clean = String(value || "").trim();
+  return clean === placeholder ? "" : clean;
+}
+
+function healthEmoji(value = "") {
+  const clean = String(value || "").trim();
+  if (HEALTH_EMOJIS.includes(clean)) return clean;
+
+  const lowered = clean.toLowerCase();
+  if (lowered.includes("happy") || lowered.includes("good") || lowered.includes("great")) return "😃";
+  if (lowered.includes("sad") || lowered.includes("low")) return "😔";
+  if (lowered.includes("sick") || lowered.includes("ill")) return "😷";
+  if (lowered.includes("annoy") || lowered.includes("mad")) return "😒";
+  if (lowered.includes("not") || lowered.includes("sync")) return "😐";
+  return "😐";
 }
 
 function defaultProfileImage(sex = "") {
@@ -92,29 +130,30 @@ function getProfileFromUrl() {
 
   const hasIdentity = identityKeys.some((key) => profile[key] && profile[key] !== "Not set" && profile[key] !== "No bio set.");
   if (!hasIdentity) {
-    if (profile.healthStatus) localStorage.setItem(HEALTH_STATUS_KEY, profile.healthStatus);
+    if (profile.healthStatus) localStorage.setItem(HEALTH_STATUS_KEY, healthEmoji(profile.healthStatus));
     return null;
   }
 
-  profile.profileImage = defaultProfileImage(profile.sex);
   profile.updatedAt = urlParams.get("updatedAt") || new Date().toISOString();
-  return profile;
+  return normalizeProfile(profile);
 }
 
 function applyProfileData(profile) {
   if (!profileForm || !profile) return;
+  const normalized = normalizeProfile(profile);
 
-  for (const [key, value] of Object.entries(profile)) {
+  for (const [key, value] of Object.entries(normalized)) {
     const field = profileForm.elements[key];
     if (field && key !== "profileImage") field.value = value;
   }
 
-  if (profileAvatar) profileAvatar.src = defaultProfileImage(profile.sex);
+  if (profileAvatar) profileAvatar.src = defaultProfileImage(normalized.sex);
   renderHealthStatus();
-  renderProfileSummary(profile);
+  renderProfileSummary(normalized);
 }
 
 function renderProfileSummary(profile = getProfileFormData()) {
+  profile = normalizeProfile(profile);
   const fallback = "Not set";
   const health = getHealthStatus();
 
@@ -124,17 +163,17 @@ function renderProfileSummary(profile = getProfileFormData()) {
   if (profileViewAge) profileViewAge.textContent = profile.age || fallback;
   if (profileViewSex) profileViewSex.textContent = profile.sex || fallback;
   if (profileViewLocation) profileViewLocation.textContent = profile.location || "Eden Palms";
-  if (profileViewHealth) profileViewHealth.textContent = health;
+  if (profileViewHealth) profileViewHealth.textContent = healthEmoji(health);
   if (profileViewBio) profileViewBio.textContent = profile.bio || "No bio set.";
 }
 
 function getHealthStatus() {
   const health = window.NeuroLinkHealth || {};
-  return health.status || localStorage.getItem(HEALTH_STATUS_KEY) || "Not synced";
+  return healthEmoji(health.status || localStorage.getItem(HEALTH_STATUS_KEY) || "😐");
 }
 
 function renderHealthStatus() {
-  if (profileHealthStatus) profileHealthStatus.value = getHealthStatus();
+  if (profileHealthStatus) profileHealthStatus.textContent = getHealthStatus();
   if (profileViewHealth) profileViewHealth.textContent = getHealthStatus();
 }
 
@@ -142,7 +181,7 @@ function loadProfile() {
   try {
     const urlProfile = getProfileFromUrl();
     if (urlProfile) {
-      if (urlProfile.healthStatus) localStorage.setItem(HEALTH_STATUS_KEY, urlProfile.healthStatus);
+      if (urlProfile.healthStatus) localStorage.setItem(HEALTH_STATUS_KEY, healthEmoji(urlProfile.healthStatus));
       localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(urlProfile));
       applyProfileData(urlProfile);
       showProfileMode("view");
@@ -152,7 +191,7 @@ function loadProfile() {
 
     const saved = localStorage.getItem(PROFILE_STORAGE_KEY);
     if (saved) {
-      const profile = JSON.parse(saved);
+      const profile = normalizeProfile(JSON.parse(saved));
       applyProfileData(profile);
       showProfileMode("view");
       setProfileStatus("Local profile loaded");
@@ -181,16 +220,16 @@ async function syncProfileToServer(profile) {
   return { ok: response.ok, skipped: false };
 }
 
-function syncProfileToSlBridge(profile) {
+function syncProfileToSlBridge(profile, op = "save") {
   const payload = new URLSearchParams();
-  payload.set("op", "save");
+  payload.set("op", op);
   payload.set("displayName", profile.displayName || "");
   payload.set("age", profile.age || "");
   payload.set("sex", profile.sex || "");
   payload.set("location", profile.location || "");
   payload.set("title", profile.title || "");
   payload.set("bio", profile.bio || "");
-  payload.set("healthStatus", getHealthStatus());
+  payload.set("healthStatus", healthEmoji(getHealthStatus()));
   payload.set("updatedAt", profile.updatedAt || new Date().toISOString());
 
   const separator = configuredEndpoint.includes("?") ? "&" : "?";
@@ -203,6 +242,32 @@ function syncProfileToSlBridge(profile) {
   window.setTimeout(() => window.__neuroLinkProfilePings.shift(), 8000);
 
   return Promise.resolve({ ok: true, skipped: false, beacon: true });
+}
+
+function clearProfileForm() {
+  if (profileForm) profileForm.reset();
+  localStorage.removeItem(PROFILE_STORAGE_KEY);
+  localStorage.removeItem(PROFILE_PENDING_SYNC_KEY);
+  if (profileAvatar) profileAvatar.src = DEFAULT_PROFILE_IMAGE;
+  renderHealthStatus();
+  renderProfileSummary({});
+  showProfileMode("edit");
+}
+
+async function resetProfile() {
+  clearProfileForm();
+  setProfileStatus("Profile reset locally. Clearing Neuro server...");
+
+  try {
+    if (configuredEndpoint && profileBridge === "sl") {
+      await syncProfileToSlBridge({}, "clear");
+      setProfileStatus("Profile reset. Save again to rebuild server profile.");
+    } else {
+      setProfileStatus("Profile reset locally.");
+    }
+  } catch (error) {
+    setProfileStatus("Profile reset locally. Server clear failed.");
+  }
 }
 
 async function saveProfile() {
@@ -246,6 +311,10 @@ useSlProfileButton?.addEventListener("click", () => {
   setProfileStatus("Using default profile icon");
 });
 
+resetProfileButton?.addEventListener("click", () => {
+  resetProfile();
+});
+
 editProfileButton?.addEventListener("click", () => {
   showProfileMode("edit");
 });
@@ -257,9 +326,10 @@ window.NeuroLink = {
   showView,
   getProfile: getProfileFormData,
   saveProfile,
+  resetProfile,
   syncProfileToServer,
   setHealthStatus(status) {
-    localStorage.setItem(HEALTH_STATUS_KEY, status || "Not synced");
+    localStorage.setItem(HEALTH_STATUS_KEY, healthEmoji(status));
     renderHealthStatus();
     renderProfileSummary();
   },
