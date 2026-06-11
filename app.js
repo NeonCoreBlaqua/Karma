@@ -23,6 +23,7 @@ const DEFAULT_PROFILE_IMAGE = "images/neuro logo.png";
 
 const urlParams = new URLSearchParams(location.search);
 const configuredEndpoint = urlParams.get("profileEndpoint") || localStorage.getItem(PROFILE_ENDPOINT_KEY) || "";
+const profileBridge = urlParams.get("profileBridge") || "";
 
 function showView(name) {
   const viewName = views.some((view) => view.dataset.view === name) ? name : "home";
@@ -71,6 +72,22 @@ function getProfileFormData() {
   return data;
 }
 
+function getProfileFromUrl() {
+  const keys = ["title", "displayName", "age", "sex", "location", "bio", "healthStatus"];
+  const profile = {};
+
+  for (const key of keys) {
+    const value = urlParams.get(key);
+    if (value !== null && value !== "") profile[key] = value;
+  }
+
+  if (Object.keys(profile).length === 0) return null;
+
+  profile.profileImage = localStorage.getItem(`${PROFILE_STORAGE_KEY}:image`) || DEFAULT_PROFILE_IMAGE;
+  profile.updatedAt = urlParams.get("updatedAt") || new Date().toISOString();
+  return profile;
+}
+
 function applyProfileData(profile) {
   if (!profileForm || !profile) return;
 
@@ -110,6 +127,16 @@ function renderHealthStatus() {
 
 function loadProfile() {
   try {
+    const urlProfile = getProfileFromUrl();
+    if (urlProfile) {
+      if (urlProfile.healthStatus) localStorage.setItem(HEALTH_STATUS_KEY, urlProfile.healthStatus);
+      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(urlProfile));
+      applyProfileData(urlProfile);
+      showProfileMode("view");
+      setProfileStatus("Loaded from Neuro server");
+      return;
+    }
+
     const saved = localStorage.getItem(PROFILE_STORAGE_KEY);
     if (saved) {
       const profile = JSON.parse(saved);
@@ -128,6 +155,10 @@ function loadProfile() {
 async function syncProfileToServer(profile) {
   if (!configuredEndpoint) return { ok: false, skipped: true };
 
+  if (profileBridge === "sl") {
+    return syncProfileToSlBridge(profile);
+  }
+
   const response = await fetch(configuredEndpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -135,6 +166,27 @@ async function syncProfileToServer(profile) {
   });
 
   return { ok: response.ok, skipped: false };
+}
+
+function syncProfileToSlBridge(profile) {
+  const payload = new URLSearchParams();
+  payload.set("op", "save");
+  payload.set("displayName", profile.displayName || "");
+  payload.set("age", profile.age || "");
+  payload.set("sex", profile.sex || "");
+  payload.set("location", profile.location || "");
+  payload.set("title", profile.title || "");
+  payload.set("bio", profile.bio || "");
+  payload.set("healthStatus", getHealthStatus());
+  payload.set("updatedAt", profile.updatedAt || new Date().toISOString());
+
+  const separator = configuredEndpoint.includes("?") ? "&" : "?";
+  const url = `${configuredEndpoint}${separator}${payload.toString()}`;
+  const ping = new Image();
+  ping.alt = "";
+  ping.src = url;
+
+  return Promise.resolve({ ok: true, skipped: false, beacon: true });
 }
 
 async function saveProfile() {
@@ -148,8 +200,8 @@ async function saveProfile() {
   try {
     const result = await syncProfileToServer(profile);
     if (result.ok) {
-      localStorage.removeItem(PROFILE_PENDING_SYNC_KEY);
-      setProfileStatus("Saved in Neuro server");
+      if (!result.beacon) localStorage.removeItem(PROFILE_PENDING_SYNC_KEY);
+      setProfileStatus(result.beacon ? "Sent to SL Neuro server" : "Saved in Neuro server");
     } else if (result.skipped) {
       setProfileStatus("Saved locally. Connect Neuro server to sync.");
     }
@@ -171,6 +223,7 @@ if (profileForm) {
     const reader = new FileReader();
     reader.addEventListener("load", () => {
       profileAvatar.src = reader.result;
+      localStorage.setItem(`${PROFILE_STORAGE_KEY}:image`, reader.result);
       setProfileStatus("Profile image ready");
     });
     reader.readAsDataURL(file);
@@ -179,6 +232,7 @@ if (profileForm) {
 
 useSlProfileButton?.addEventListener("click", () => {
   if (profileAvatar) profileAvatar.src = DEFAULT_PROFILE_IMAGE;
+  localStorage.removeItem(`${PROFILE_STORAGE_KEY}:image`);
   setProfileStatus("Using SL default profile image");
 });
 
