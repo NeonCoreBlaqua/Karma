@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
   <link rel="stylesheet" href="style.css?v=19">
-  <link rel="stylesheet" href="profile.css?v=4">
+  <link rel="stylesheet" href="profile.css?v=5">
   <style>
     body { font-family: Arial, Helvetica, sans-serif; }
   </style>
@@ -84,6 +84,11 @@
       </section>
 
       <section class="view" data-view="messages">
+        <nav class="section-nav" aria-label="Profile app navigation">
+          <button type="button" data-target="profile">Profile</button>
+          <button type="button" data-target="wallet">Wallet</button>
+          <button type="button" data-target="messages">DMs</button>
+        </nav>
         <div class="page-title">
           <p>Messages</p>
           <h2>Inbox</h2>
@@ -101,6 +106,11 @@
       </section>
 
       <section class="view profile-view" data-view="profile">
+        <nav class="section-nav" aria-label="Profile app navigation">
+          <button type="button" data-target="profile">Profile</button>
+          <button type="button" data-target="wallet">Wallet</button>
+          <button type="button" data-target="messages">DMs</button>
+        </nav>
         <div class="page-title">
           <p>Profile</p>
           <h2>Identity</h2>
@@ -179,6 +189,11 @@
       </section>
 
       <section class="view" data-view="wallet">
+        <nav class="section-nav" aria-label="Profile app navigation">
+          <button type="button" data-target="profile">Profile</button>
+          <button type="button" data-target="wallet">Wallet</button>
+          <button type="button" data-target="messages">DMs</button>
+        </nav>
         <div class="page-title">
           <p>Wallet</p>
           <h2>G-Coin</h2>
