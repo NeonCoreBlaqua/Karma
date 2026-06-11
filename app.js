@@ -20,6 +20,8 @@ const PROFILE_PENDING_SYNC_KEY = "neuroLinkProfilePendingSync";
 const HEALTH_STATUS_KEY = "neuroLinkHealthStatus";
 const PROFILE_ENDPOINT_KEY = "neuroLinkProfileEndpoint";
 const DEFAULT_PROFILE_IMAGE = "images/neuro logo.png";
+const DEFAULT_MALE_PROFILE_IMAGE = "images/profile-male.svg";
+const DEFAULT_FEMALE_PROFILE_IMAGE = "images/profile-female.svg";
 
 const urlParams = new URLSearchParams(location.search);
 const configuredEndpoint = urlParams.get("profileEndpoint") || localStorage.getItem(PROFILE_ENDPOINT_KEY) || "";
@@ -65,11 +67,17 @@ function getProfileFormData() {
   if (!profileForm) return {};
 
   const data = Object.fromEntries(new FormData(profileForm).entries());
-  delete data.profileImage;
   data.healthStatus = getHealthStatus();
-  data.profileImage = profileAvatar?.getAttribute("src") || DEFAULT_PROFILE_IMAGE;
+  data.profileImage = defaultProfileImage(data.sex);
   data.updatedAt = new Date().toISOString();
   return data;
+}
+
+function defaultProfileImage(sex = "") {
+  const normalized = String(sex).toLowerCase();
+  if (normalized === "male") return DEFAULT_MALE_PROFILE_IMAGE;
+  if (normalized === "female") return DEFAULT_FEMALE_PROFILE_IMAGE;
+  return DEFAULT_PROFILE_IMAGE;
 }
 
 function getProfileFromUrl() {
@@ -88,7 +96,7 @@ function getProfileFromUrl() {
     return null;
   }
 
-  profile.profileImage = localStorage.getItem(`${PROFILE_STORAGE_KEY}:image`) || DEFAULT_PROFILE_IMAGE;
+  profile.profileImage = defaultProfileImage(profile.sex);
   profile.updatedAt = urlParams.get("updatedAt") || new Date().toISOString();
   return profile;
 }
@@ -101,7 +109,7 @@ function applyProfileData(profile) {
     if (field && key !== "profileImage") field.value = value;
   }
 
-  if (profile.profileImage && profileAvatar) profileAvatar.src = profile.profileImage;
+  if (profileAvatar) profileAvatar.src = defaultProfileImage(profile.sex);
   renderHealthStatus();
   renderProfileSummary(profile);
 }
@@ -110,7 +118,7 @@ function renderProfileSummary(profile = getProfileFormData()) {
   const fallback = "Not set";
   const health = getHealthStatus();
 
-  if (profileViewAvatar) profileViewAvatar.src = profile.profileImage || DEFAULT_PROFILE_IMAGE;
+  if (profileViewAvatar) profileViewAvatar.src = defaultProfileImage(profile.sex);
   if (profileViewTitle) profileViewTitle.textContent = profile.title || "Resident";
   if (profileViewName) profileViewName.textContent = profile.displayName || fallback;
   if (profileViewAge) profileViewAge.textContent = profile.age || fallback;
@@ -224,24 +232,18 @@ if (profileForm) {
     saveProfile();
   });
 
-  profileForm.elements.profileImage?.addEventListener("change", (event) => {
-    const file = event.target.files?.[0];
-    if (!file || !profileAvatar) return;
-
-    const reader = new FileReader();
-    reader.addEventListener("load", () => {
-      profileAvatar.src = reader.result;
-      localStorage.setItem(`${PROFILE_STORAGE_KEY}:image`, reader.result);
-      setProfileStatus("Profile image ready");
-    });
-    reader.readAsDataURL(file);
+  profileForm.elements.sex?.addEventListener("change", () => {
+    const profile = getProfileFormData();
+    if (profileAvatar) profileAvatar.src = defaultProfileImage(profile.sex);
+    renderProfileSummary(profile);
   });
 }
 
 useSlProfileButton?.addEventListener("click", () => {
-  if (profileAvatar) profileAvatar.src = DEFAULT_PROFILE_IMAGE;
-  localStorage.removeItem(`${PROFILE_STORAGE_KEY}:image`);
-  setProfileStatus("Using SL default profile image");
+  const profile = getProfileFormData();
+  if (profileAvatar) profileAvatar.src = defaultProfileImage(profile.sex);
+  renderProfileSummary(profile);
+  setProfileStatus("Using default profile icon");
 });
 
 editProfileButton?.addEventListener("click", () => {
