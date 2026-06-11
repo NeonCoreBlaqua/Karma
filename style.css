@@ -209,64 +209,28 @@ button {
   display: none;
   padding: 98px 36px 20px;
   background:
-    radial-gradient(circle at 50% 34%, rgba(57, 184, 202, 0.15), transparent 27%),
-    linear-gradient(140deg, rgba(255, 255, 255, 0.11), transparent 16%),
+    linear-gradient(180deg, rgba(3, 8, 10, 0.45), rgba(3, 8, 10, 0.78)),
+    url("images/Mr Neuro.png") center / cover no-repeat,
     linear-gradient(160deg, #102328, #071113 62%, #04090a);
 }
 
 .view.active { display: block; }
 
-.wallpaper {
+.home-view {
+  padding: 0;
+  background:
+    linear-gradient(180deg, rgba(3, 8, 10, 0.12), rgba(3, 8, 10, 0.42)),
+    url("images/Neon Neuro Wallpaper.png") center / cover no-repeat,
+    #071113;
+}
+
+.home-wallpaper {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  padding: 98px 36px 20px;
-}
-
-.wallpaper::after {
-  content: "";
-  position: absolute;
-  left: -20%;
-  bottom: 1%;
-  width: 140%;
-  height: 36%;
-  border-top: 2px solid rgba(88, 230, 255, 0.56);
-  border-radius: 50%;
-  filter: drop-shadow(0 0 18px rgba(88, 230, 255, 0.45));
-  transform: rotate(-8deg);
-}
-
-.watermark-image {
-  position: absolute;
-  left: 50%;
-  bottom: 14%;
-  width: 23%;
-  max-width: 210px;
-  transform: translateX(-50%);
-  opacity: 0.12;
-  mix-blend-mode: screen;
-  pointer-events: none;
-}
-
-.home-brand {
-  position: relative;
-  z-index: 1;
+  padding: 116px 54px 42px;
   display: grid;
-  justify-items: center;
-  gap: 4px;
-}
-
-.home-mark {
-  width: 76px;
-  height: 76px;
-  object-fit: contain;
-}
-
-.home-logo {
-  width: min(40vw, 320px);
-  max-height: 48px;
-  object-fit: contain;
-  opacity: 0.92;
+  align-items: center;
 }
 
 .app-grid {
@@ -274,36 +238,37 @@ button {
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 18px 24px;
-  margin: 18px auto 0;
-  width: min(84vw, 800px);
+  gap: 30px;
+  width: min(82vw, 780px);
+  margin: 0 auto;
 }
 
 .app-icon {
   aspect-ratio: 1;
-  min-height: 132px;
+  min-height: 146px;
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 10px;
-  padding: 12px;
-  border-radius: 24px;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 30px;
   color: var(--cyan);
   text-align: center;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.18), transparent 34%),
-    rgba(10, 26, 31, 0.78);
-  border: 1px solid rgba(100, 225, 255, 0.24);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.2), transparent 38%),
+    rgba(6, 18, 22, 0.56);
+  border: 1px solid rgba(100, 225, 255, 0.3);
+  backdrop-filter: blur(10px);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 0 26px rgba(88, 230, 255, 0.12),
-    0 20px 45px rgba(0, 0, 0, 0.35);
+    0 0 28px rgba(88, 230, 255, 0.14),
+    0 24px 52px rgba(0, 0, 0, 0.42);
   transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
 }
 
 .app-icon svg {
-  width: 62px;
-  height: 62px;
+  width: 70px;
+  height: 70px;
   fill: none;
   stroke: currentColor;
   stroke-width: 4.8;
@@ -314,7 +279,7 @@ button {
 
 .app-icon strong {
   color: var(--text);
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 800;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
 }
@@ -339,56 +304,6 @@ button {
 .alerts-app { color: var(--alert); }
 .settings-app { color: #f4fbff; }
 .connect-app { color: #6be9ff; }
-
-.ready-card {
-  position: relative;
-  z-index: 1;
-  width: min(58vw, 500px);
-  margin: 18px auto 0;
-  overflow: hidden;
-  border: 1px solid rgba(88, 230, 255, 0.28);
-  border-radius: 18px;
-  background: rgba(7, 18, 22, 0.78);
-  box-shadow: 0 0 26px rgba(88, 230, 255, 0.12);
-  text-align: center;
-}
-
-.ready-card div {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
-  border-bottom: 1px solid rgba(88, 230, 255, 0.24);
-  color: var(--text);
-  font-size: 16px;
-  font-weight: 700;
-  text-align: left;
-}
-
-.ready-card div span {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--good);
-  box-shadow: 0 0 14px var(--good);
-}
-
-.ready-card div strong {
-  margin-left: auto;
-  color: var(--good);
-}
-
-.ready-card h1 {
-  margin: 8px 0 2px;
-  font-size: 40px;
-  line-height: 1;
-}
-
-.ready-card p {
-  margin: 0 0 12px;
-  color: var(--muted);
-  font-size: 16px;
-}
 
 .home-chip {
   position: absolute;
