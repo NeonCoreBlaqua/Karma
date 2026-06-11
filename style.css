@@ -201,7 +201,7 @@ button {
   position: absolute;
   inset: 0;
   display: none;
-  padding: 98px 36px 20px;
+  padding: 98px 36px 62px;
   background:
     linear-gradient(180deg, rgba(3, 8, 10, 0.38), rgba(3, 8, 10, 0.74)),
     url("images/Mr Neuro.png") center / cover no-repeat,
@@ -319,16 +319,46 @@ button {
 .connect-app { color: #6be9ff; }
 
 .home-chip {
+  display: none;
+}
+
+.bottom-home {
   position: absolute;
-  right: 38px;
-  top: 30px;
-  min-width: 116px;
-  height: 56px;
+  z-index: 8;
+  left: 50%;
+  bottom: 20px;
+  width: 150px;
+  height: 18px;
   border-radius: 999px;
-  background: rgba(88, 230, 255, 0.12);
-  color: var(--text);
-  font-weight: 800;
-  box-shadow: inset 0 0 0 1px rgba(88, 230, 255, 0.3);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.34)),
+    rgba(255, 255, 255, 0.74);
+  box-shadow:
+    0 0 18px rgba(255, 255, 255, 0.22),
+    0 8px 22px rgba(0, 0, 0, 0.38);
+  transform: translateX(-50%);
+  transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease;
+}
+
+.bottom-home span {
+  display: none;
+}
+
+.bottom-home:hover,
+.bottom-home:focus-visible {
+  transform: translateX(-50%) scale(1.04);
+  box-shadow:
+    0 0 24px rgba(88, 230, 255, 0.34),
+    0 8px 22px rgba(0, 0, 0, 0.38);
+  outline: none;
+}
+
+.bottom-home:active {
+  transform: translateX(-50%) scale(0.94);
+}
+
+.home-view.active ~ .bottom-home {
+  display: none;
 }
 
 .page-title p {
