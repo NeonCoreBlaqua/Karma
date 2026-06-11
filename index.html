@@ -4,11 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
   <main class="tablet" aria-label="Neuro-Link tablet interface">
     <section class="screen" id="screen" aria-live="polite">
+      <nav class="screen-status" aria-label="Tablet status">
+        <img src="images/neuro logo.png" alt="" aria-hidden="true">
+        <button class="status-bell" type="button" data-target="notifications" aria-label="Open notifications">
+          <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 46h24l-4-6V28c0-12-16-12-16 0v12Z"/><path d="M28 52h8"/></svg>
+          <span></span>
+        </button>
+        <div class="status-icons" aria-label="Connection and battery">
+          <span class="signal" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="wifi-icon" aria-hidden="true"></span>
+          <span class="battery-icon" aria-label="Battery full"></span>
+        </div>
+      </nav>
       <section class="view active home-view" data-view="home">
         <div class="wallpaper">
           <img class="watermark-image" src="images/neuro trans.png" alt="" aria-hidden="true">
