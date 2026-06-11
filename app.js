@@ -2,9 +2,19 @@ const views = Array.from(document.querySelectorAll(".view"));
 const routeButtons = Array.from(document.querySelectorAll("[data-target]"));
 const profileForm = document.querySelector("#profileForm");
 const profileAvatar = document.querySelector("#profileAvatar img");
+const profileSummary = document.querySelector("#profileSummary");
+const editProfileButton = document.querySelector("#editProfileButton");
 const profileSyncStatus = document.querySelector("#profileSyncStatus");
 const profileHealthStatus = document.querySelector("#profileHealthStatus");
 const useSlProfileButton = document.querySelector("#useSlProfile");
+const profileViewAvatar = document.querySelector("#profileViewAvatar");
+const profileViewTitle = document.querySelector("#profileViewTitle");
+const profileViewName = document.querySelector("#profileViewName");
+const profileViewAge = document.querySelector("#profileViewAge");
+const profileViewSex = document.querySelector("#profileViewSex");
+const profileViewLocation = document.querySelector("#profileViewLocation");
+const profileViewHealth = document.querySelector("#profileViewHealth");
+const profileViewBio = document.querySelector("#profileViewBio");
 const PROFILE_STORAGE_KEY = "neuroLinkProfile";
 const PROFILE_PENDING_SYNC_KEY = "neuroLinkProfilePendingSync";
 const HEALTH_STATUS_KEY = "neuroLinkHealthStatus";
@@ -44,6 +54,12 @@ function setProfileStatus(message) {
   if (profileSyncStatus) profileSyncStatus.textContent = message;
 }
 
+function showProfileMode(mode) {
+  const isView = mode === "view";
+  profileSummary?.classList.toggle("hidden", !isView);
+  profileForm?.classList.toggle("hidden", isView);
+}
+
 function getProfileFormData() {
   if (!profileForm) return {};
 
@@ -65,6 +81,21 @@ function applyProfileData(profile) {
 
   if (profile.profileImage && profileAvatar) profileAvatar.src = profile.profileImage;
   renderHealthStatus();
+  renderProfileSummary(profile);
+}
+
+function renderProfileSummary(profile = getProfileFormData()) {
+  const fallback = "Not set";
+  const health = getHealthStatus();
+
+  if (profileViewAvatar) profileViewAvatar.src = profile.profileImage || DEFAULT_PROFILE_IMAGE;
+  if (profileViewTitle) profileViewTitle.textContent = profile.title || "Resident";
+  if (profileViewName) profileViewName.textContent = profile.displayName || fallback;
+  if (profileViewAge) profileViewAge.textContent = profile.age || fallback;
+  if (profileViewSex) profileViewSex.textContent = profile.sex || fallback;
+  if (profileViewLocation) profileViewLocation.textContent = profile.location || "Eden Palms";
+  if (profileViewHealth) profileViewHealth.textContent = health;
+  if (profileViewBio) profileViewBio.textContent = profile.bio || "No bio set.";
 }
 
 function getHealthStatus() {
@@ -74,16 +105,22 @@ function getHealthStatus() {
 
 function renderHealthStatus() {
   if (profileHealthStatus) profileHealthStatus.value = getHealthStatus();
+  if (profileViewHealth) profileViewHealth.textContent = getHealthStatus();
 }
 
 function loadProfile() {
   try {
     const saved = localStorage.getItem(PROFILE_STORAGE_KEY);
     if (saved) {
-      applyProfileData(JSON.parse(saved));
+      const profile = JSON.parse(saved);
+      applyProfileData(profile);
+      showProfileMode("view");
       setProfileStatus("Local profile loaded");
+    } else {
+      showProfileMode("edit");
     }
   } catch (error) {
+    showProfileMode("edit");
     setProfileStatus("Local profile could not load");
   }
 }
@@ -104,6 +141,8 @@ async function saveProfile() {
   const profile = getProfileFormData();
   localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
   localStorage.setItem(PROFILE_PENDING_SYNC_KEY, JSON.stringify(profile));
+  renderProfileSummary(profile);
+  showProfileMode("view");
   setProfileStatus("Saved locally. Neuro server sync pending.");
 
   try {
@@ -143,6 +182,10 @@ useSlProfileButton?.addEventListener("click", () => {
   setProfileStatus("Using SL default profile image");
 });
 
+editProfileButton?.addEventListener("click", () => {
+  showProfileMode("edit");
+});
+
 loadProfile();
 renderHealthStatus();
 
@@ -154,6 +197,7 @@ window.NeuroLink = {
   setHealthStatus(status) {
     localStorage.setItem(HEALTH_STATUS_KEY, status || "Not synced");
     renderHealthStatus();
+    renderProfileSummary();
   },
   setProfileEndpoint(endpoint) {
     localStorage.setItem(PROFILE_ENDPOINT_KEY, endpoint || "");
