@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
   <main class="tablet" aria-label="Neuro-Link tablet interface">
@@ -98,18 +98,63 @@
         </div>
       </section>
 
-      <section class="view" data-view="profile">
+      <section class="view profile-view" data-view="profile">
         <button class="home-chip" type="button" data-target="home">Home</button>
         <div class="page-title">
           <p>Profile</p>
           <h2>Identity</h2>
         </div>
-        <div class="info-grid">
-          <article><span>Name</span><strong>Not set</strong></article>
-          <article><span>Title</span><strong>Resident</strong></article>
-          <article><span>Location</span><strong>Camden Falls</strong></article>
-          <article><span>Sync</span><strong>Local</strong></article>
-        </div>
+        <form class="profile-editor" id="profileForm">
+          <section class="profile-card profile-main">
+            <label>Title
+              <input name="title" autocomplete="off" placeholder="Resident">
+            </label>
+            <label>Display name
+              <input name="displayName" autocomplete="name" placeholder="Not set">
+            </label>
+            <label>Age
+              <input name="age" inputmode="numeric" autocomplete="off" placeholder="18+">
+            </label>
+            <label>Sex
+              <select name="sex">
+                <option value="">Choose</option>
+                <option>Female</option>
+                <option>Male</option>
+                <option>Non-binary</option>
+                <option>Private</option>
+              </select>
+            </label>
+            <label>Location
+              <select name="location">
+                <option>Eden Palms</option>
+                <option>Chi-Core</option>
+              </select>
+            </label>
+            <label>My health status
+              <select name="healthStatus">
+                <option>Healthy</option>
+                <option>Stable</option>
+                <option>Needs care</option>
+                <option>Offline</option>
+              </select>
+            </label>
+            <label class="profile-bio">Bio
+              <textarea name="bio" rows="4" placeholder="Write a short profile bio."></textarea>
+            </label>
+          </section>
+          <section class="profile-card profile-media">
+            <div class="profile-avatar" id="profileAvatar">
+              <img src="images/neuro logo.png" alt="">
+            </div>
+            <label class="profile-upload">
+              <span>Upload image</span>
+              <input type="file" name="profileImage" accept="image/*">
+            </label>
+            <button class="secondary-action" type="button" id="useSlProfile">Use SL default</button>
+            <button class="primary-action" type="submit">Save profile</button>
+            <p class="sync-status" id="profileSyncStatus">Local profile ready</p>
+          </section>
+        </form>
       </section>
 
       <section class="view" data-view="wallet">
@@ -160,6 +205,6 @@
 
   </main>
 
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>
