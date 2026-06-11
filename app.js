@@ -73,7 +73,8 @@ function getProfileFormData() {
 }
 
 function getProfileFromUrl() {
-  const keys = ["title", "displayName", "age", "sex", "location", "bio", "healthStatus"];
+  const identityKeys = ["title", "displayName", "age", "sex", "location", "bio"];
+  const keys = [...identityKeys, "healthStatus"];
   const profile = {};
 
   for (const key of keys) {
@@ -81,7 +82,11 @@ function getProfileFromUrl() {
     if (value !== null && value !== "") profile[key] = value;
   }
 
-  if (Object.keys(profile).length === 0) return null;
+  const hasIdentity = identityKeys.some((key) => profile[key] && profile[key] !== "Not set" && profile[key] !== "No bio set.");
+  if (!hasIdentity) {
+    if (profile.healthStatus) localStorage.setItem(HEALTH_STATUS_KEY, profile.healthStatus);
+    return null;
+  }
 
   profile.profileImage = localStorage.getItem(`${PROFILE_STORAGE_KEY}:image`) || DEFAULT_PROFILE_IMAGE;
   profile.updatedAt = urlParams.get("updatedAt") || new Date().toISOString();
