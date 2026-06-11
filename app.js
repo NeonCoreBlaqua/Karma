@@ -3,10 +3,16 @@ const routeButtons = Array.from(document.querySelectorAll("[data-target]"));
 const profileForm = document.querySelector("#profileForm");
 const profileAvatar = document.querySelector("#profileAvatar img");
 const profileSyncStatus = document.querySelector("#profileSyncStatus");
+const profileHealthStatus = document.querySelector("#profileHealthStatus");
 const useSlProfileButton = document.querySelector("#useSlProfile");
 const PROFILE_STORAGE_KEY = "neuroLinkProfile";
+const PROFILE_PENDING_SYNC_KEY = "neuroLinkProfilePendingSync";
+const HEALTH_STATUS_KEY = "neuroLinkHealthStatus";
+const PROFILE_ENDPOINT_KEY = "neuroLinkProfileEndpoint";
 const DEFAULT_PROFILE_IMAGE = "images/neuro logo.png";
-const NEURO_LINK_PROFILE_ENDPOINT = "";
+
+const urlParams = new URLSearchParams(location.search);
+const configuredEndpoint = urlParams.get("profileEndpoint") || localStorage.getItem(PROFILE_ENDPOINT_KEY) || "";
 
 function showView(name) {
   const viewName = views.some((view) => view.dataset.view === name) ? name : "home";
@@ -43,6 +49,7 @@ function getProfileFormData() {
 
   const data = Object.fromEntries(new FormData(profileForm).entries());
   delete data.profileImage;
+  data.healthStatus = getHealthStatus();
   data.profileImage = profileAvatar?.getAttribute("src") || DEFAULT_PROFILE_IMAGE;
   data.updatedAt = new Date().toISOString();
   return data;
@@ -57,6 +64,16 @@ function applyProfileData(profile) {
   }
 
   if (profile.profileImage && profileAvatar) profileAvatar.src = profile.profileImage;
+  renderHealthStatus();
+}
+
+function getHealthStatus() {
+  const health = window.NeuroLinkHealth || {};
+  return health.status || localStorage.getItem(HEALTH_STATUS_KEY) || "Not synced";
+}
+
+function renderHealthStatus() {
+  if (profileHealthStatus) profileHealthStatus.value = getHealthStatus();
 }
 
 function loadProfile() {
@@ -72,9 +89,9 @@ function loadProfile() {
 }
 
 async function syncProfileToServer(profile) {
-  if (!NEURO_LINK_PROFILE_ENDPOINT) return { ok: false, skipped: true };
+  if (!configuredEndpoint) return { ok: false, skipped: true };
 
-  const response = await fetch(NEURO_LINK_PROFILE_ENDPOINT, {
+  const response = await fetch(configuredEndpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(profile)
@@ -86,13 +103,19 @@ async function syncProfileToServer(profile) {
 async function saveProfile() {
   const profile = getProfileFormData();
   localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
-  setProfileStatus("Saved locally. Server sync pending.");
+  localStorage.setItem(PROFILE_PENDING_SYNC_KEY, JSON.stringify(profile));
+  setProfileStatus("Saved locally. Neuro server sync pending.");
 
   try {
     const result = await syncProfileToServer(profile);
-    if (result.ok) setProfileStatus("Saved and synced to Neuro-Link");
+    if (result.ok) {
+      localStorage.removeItem(PROFILE_PENDING_SYNC_KEY);
+      setProfileStatus("Saved in Neuro server");
+    } else if (result.skipped) {
+      setProfileStatus("Saved locally. Connect Neuro server to sync.");
+    }
   } catch (error) {
-    setProfileStatus("Saved locally. Server offline.");
+    setProfileStatus("Saved locally. Neuro server offline.");
   }
 }
 
@@ -121,10 +144,18 @@ useSlProfileButton?.addEventListener("click", () => {
 });
 
 loadProfile();
+renderHealthStatus();
 
 window.NeuroLink = {
   showView,
   getProfile: getProfileFormData,
   saveProfile,
-  syncProfileToServer
+  syncProfileToServer,
+  setHealthStatus(status) {
+    localStorage.setItem(HEALTH_STATUS_KEY, status || "Not synced");
+    renderHealthStatus();
+  },
+  setProfileEndpoint(endpoint) {
+    localStorage.setItem(PROFILE_ENDPOINT_KEY, endpoint || "");
+  }
 };
