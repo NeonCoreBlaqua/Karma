@@ -51,12 +51,12 @@
 
   function normalizeProfile(profile = {}) {
     return {
-      title: cleanLoadedValue(profile.title, "Resident"),
+      title: cleanLoadedValue(profile.title, "Title"),
       displayName: cleanLoadedValue(profile.displayName, "Not set"),
       age: cleanLoadedValue(profile.age, "Not set"),
       sex: VALID_SEXES.includes(profile.sex) ? profile.sex : "",
       location: VALID_LOCATIONS.includes(profile.location) ? profile.location : "",
-      bio: cleanLoadedValue(profile.bio, "No bio set."),
+      bio: cleanLoadedValue(profile.bio, "Tell me about you."),
       healthStatus: cleanLoadedValue(profile.healthStatus, "Not synced") || "Not synced",
       profileImage: defaultProfileImage(profile.sex),
       updatedAt: profile.updatedAt || new Date().toISOString()
@@ -80,13 +80,13 @@
     const health = getHealthStatus();
 
     if (profileViewAvatar) profileViewAvatar.src = defaultProfileImage(profile.sex);
-    if (profileViewTitle) profileViewTitle.textContent = profile.title || "Resident";
+    if (profileViewTitle) profileViewTitle.textContent = profile.title || "Title";
     if (profileViewName) profileViewName.textContent = profile.displayName || fallback;
     if (profileViewAge) profileViewAge.textContent = profile.age || fallback;
     if (profileViewSex) profileViewSex.textContent = profile.sex || fallback;
     if (profileViewLocation) profileViewLocation.textContent = profile.location || "Eden Palms";
     if (profileViewHealth) profileViewHealth.textContent = health;
-    if (profileViewBio) profileViewBio.textContent = profile.bio || "No bio set.";
+    if (profileViewBio) profileViewBio.textContent = profile.bio || "Tell me about you.";
     if (profileAvatar) profileAvatar.src = defaultProfileImage(profile.sex);
   }
 
