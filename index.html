@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=18">
-  <link rel="stylesheet" href="profile.css?v=3">
+  <link rel="stylesheet" href="style.css?v=19">
+  <link rel="stylesheet" href="profile.css?v=4">
   <style>
     body { font-family: Arial, Helvetica, sans-serif; }
   </style>
@@ -116,12 +116,21 @@
               <article><span>Age</span><strong id="profileViewAge">Not set</strong></article>
               <article><span>Sex</span><strong id="profileViewSex">Not set</strong></article>
               <article><span>Location</span><strong id="profileViewLocation">Eden Palms</strong></article>
-              <article><span>Health</span><strong id="profileViewHealth">Not synced</strong></article>
+              <article class="health-tile"><span>Health</span><strong id="profileViewHealth">😐</strong></article>
             </div>
             <article class="profile-summary-bio">
               <span>Bio</span>
               <strong id="profileViewBio">No bio set.</strong>
             </article>
+            <div class="profile-quick-actions">
+              <button type="button" data-target="wallet">G-Coin wallet</button>
+              <button type="button" data-target="messages">Direct messages</button>
+            </div>
+            <div class="profile-dm-preview">
+              <span>DM</span>
+              <strong>Neuro-Link channel ready.</strong>
+              <button type="button" data-target="messages">Reply</button>
+            </div>
             <button class="primary-action edit-profile-action" type="button" id="editProfileButton">Edit profile</button>
           </div>
         </section>
@@ -151,8 +160,8 @@
                 <option>Chi-Core</option>
               </select>
             </label>
-            <label>My health status
-              <input id="profileHealthStatus" name="healthStatus" value="Syncing" readonly>
+            <label>Health
+              <output id="profileHealthStatus" class="profile-health-readout" name="healthStatus">😐</output>
             </label>
             <label class="profile-bio">Bio
               <textarea name="bio" rows="4" placeholder="Write a short profile bio."></textarea>
@@ -217,6 +226,6 @@
 
   </main>
 
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>
