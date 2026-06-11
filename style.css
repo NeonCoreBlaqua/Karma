@@ -396,6 +396,150 @@ h2 {
   font-size: 38px;
 }
 
+.profile-view {
+  overflow-y: auto;
+}
+
+.profile-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 230px;
+  gap: 22px;
+  margin-top: 34px;
+  padding-bottom: 26px;
+}
+
+.profile-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.09), transparent 42%),
+    rgba(5, 20, 24, 0.76);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 20px 54px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(14px) saturate(1.1);
+}
+
+.profile-main {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 24px;
+}
+
+.profile-main label,
+.profile-upload {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.profile-main input,
+.profile-main select,
+.profile-main textarea {
+  width: 100%;
+  min-height: 58px;
+  border: 1px solid rgba(88, 230, 255, 0.22);
+  border-radius: 12px;
+  padding: 0 16px;
+  background: rgba(0, 6, 8, 0.58);
+  color: var(--text);
+  font: inherit;
+  font-size: 22px;
+  font-weight: 800;
+  outline: none;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.28);
+}
+
+.profile-main textarea {
+  min-height: 130px;
+  padding: 14px 16px;
+  resize: none;
+}
+
+.profile-main input:focus,
+.profile-main select:focus,
+.profile-main textarea:focus {
+  border-color: rgba(88, 230, 255, 0.74);
+  box-shadow:
+    inset 0 0 18px rgba(0, 0, 0, 0.28),
+    0 0 18px rgba(88, 230, 255, 0.22);
+}
+
+.profile-bio {
+  grid-column: 1 / -1;
+}
+
+.profile-media {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding: 22px;
+}
+
+.profile-avatar {
+  width: 170px;
+  aspect-ratio: 1;
+  margin: 0 auto 4px;
+  border-radius: 34px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.14), transparent),
+    rgba(0, 7, 10, 0.82);
+  border: 1px solid rgba(156, 255, 142, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 0 30px rgba(156, 255, 142, 0.14);
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-upload {
+  min-height: 58px;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--text);
+  background: rgba(88, 230, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(88, 230, 255, 0.28);
+}
+
+.profile-upload input {
+  display: none;
+}
+
+.primary-action,
+.secondary-action {
+  min-height: 58px;
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 900;
+  background: rgba(88, 230, 255, 0.13);
+  box-shadow: inset 0 0 0 1px rgba(88, 230, 255, 0.28);
+}
+
+.primary-action {
+  background:
+    linear-gradient(90deg, rgba(88, 230, 255, 0.32), rgba(156, 255, 142, 0.22)),
+    rgba(5, 20, 24, 0.72);
+}
+
+.sync-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.3;
+  text-align: center;
+}
+
 .notification-list { grid-template-columns: 1fr; }
 
 .notification-list button {
