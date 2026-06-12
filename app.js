@@ -50,8 +50,31 @@ function showView(name) {
   }
 }
 
+function sendSlBridgeOp(op) {
+  if (!configuredEndpoint || profileBridge !== "sl") return false;
+
+  const payload = new URLSearchParams();
+  payload.set("op", op);
+  payload.set("tick", String(Date.now()));
+
+  const separator = configuredEndpoint.includes("?") ? "&" : "?";
+  const ping = new Image();
+  ping.alt = "";
+  ping.src = `${configuredEndpoint}${separator}${payload.toString()}`;
+  window.__neuroLinkBridgePings = window.__neuroLinkBridgePings || [];
+  window.__neuroLinkBridgePings.push(ping);
+  window.setTimeout(() => window.__neuroLinkBridgePings.shift(), 8000);
+  return true;
+}
+
+function handleRouteButton(button) {
+  const target = button.dataset.target;
+  if (target === "health") sendSlBridgeOp("neuro-open");
+  showView(target);
+}
+
 for (const button of routeButtons) {
-  button.addEventListener("click", () => showView(button.dataset.target));
+  button.addEventListener("click", () => handleRouteButton(button));
 }
 
 window.addEventListener("hashchange", () => {
