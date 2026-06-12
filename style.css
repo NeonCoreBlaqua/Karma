@@ -272,15 +272,6 @@ button {
   font-style: normal;
 }
 
-.quick-notification-list b {
-  grid-column: 2 / -1;
-  justify-self: start;
-  margin-top: -3px;
-  color: #ffffff;
-  font-size: 11px;
-  text-transform: uppercase;
-}
-
 .empty-notifications {
   margin: 0;
   padding: 18px 10px;

@@ -186,7 +186,6 @@ function renderQuickNotifications() {
         <small>${item.message}</small>
       </span>
       <em>${formatNotificationTime(item.createdAt)}</em>
-      <b>${item.unread ? "unread" : "read"}</b>
     </button>
   `).join("") : `<p class="empty-notifications">No new alerts.</p>`;
 
@@ -210,7 +209,7 @@ function renderAlertHistory() {
     <button type="button" data-alert-id="${item.id}" class="${item.unread ? "unread" : ""}">
       <span>${item.title}</span>
       <strong>${item.message}</strong>
-      <em>${formatNotificationTime(item.createdAt)} - ${item.unread ? "Unread" : "Read"}</em>
+      <em>${formatNotificationTime(item.createdAt)}</em>
     </button>
   `).join("");
 
