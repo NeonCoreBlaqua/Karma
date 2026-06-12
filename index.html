@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
   <link rel="stylesheet" href="style.css?v=19">
-  <link rel="stylesheet" href="profile.css?v=5">
+  <link rel="stylesheet" href="profile.css?v=7">
   <style>
     body { font-family: Arial, Helvetica, sans-serif; }
   </style>
@@ -116,32 +116,62 @@
           <h2>Identity</h2>
         </div>
         <section class="profile-summary hidden" id="profileSummary">
-          <div class="profile-summary-avatar">
-            <img id="profileViewAvatar" src="images/neuro logo.png" alt="">
+          <button class="primary-action edit-profile-action" type="button" id="editProfileButton">
+            <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 48l4 4 13-3 24-24-14-14-24 24Z"/><path d="M35 15l14 14"/></svg>
+            <span>Edit profile</span>
+          </button>
+          <div class="profile-summary-hero">
+            <div class="profile-summary-avatar">
+              <img id="profileViewAvatar" src="images/neuro logo.png" alt="">
+              <span><i></i>Online</span>
+            </div>
+            <div class="profile-summary-info">
+              <p id="profileViewTitle">Resident</p>
+              <h3 id="profileViewName">Not set</h3>
+              <strong class="profile-location-hero" id="profileViewLocationHero">Eden Palms</strong>
+              <div class="profile-meta-list">
+                <article>
+                  <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 56s18-16 18-32a18 18 0 0 0-36 0c0 16 18 32 18 32Z"/><circle cx="32" cy="24" r="6"/></svg>
+                  <span>Location</span>
+                  <strong id="profileViewLocation">Eden Palms</strong>
+                </article>
+                <article>
+                  <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8l6 18 18 6-18 6-6 18-6-18-18-6 18-6Z"/></svg>
+                  <span>Title</span>
+                  <strong id="profileViewTitleDetail">Resident</strong>
+                </article>
+              </div>
+              <div class="profile-summary-grid">
+                <article><span>Age</span><strong id="profileViewAge">Not set</strong></article>
+                <article><span>Sex</span><strong id="profileViewSex">Not set</strong></article>
+                <article class="health-tile"><span>Health</span><strong id="profileViewHealth">&#128528;</strong></article>
+              </div>
+            </div>
           </div>
-          <div class="profile-summary-info">
-            <p id="profileViewTitle">Resident</p>
-            <h3 id="profileViewName">Not set</h3>
-            <div class="profile-summary-grid">
-              <article><span>Age</span><strong id="profileViewAge">Not set</strong></article>
-              <article><span>Sex</span><strong id="profileViewSex">Not set</strong></article>
-              <article><span>Location</span><strong id="profileViewLocation">Eden Palms</strong></article>
-              <article class="health-tile"><span>Health</span><strong id="profileViewHealth">😐</strong></article>
-            </div>
-            <article class="profile-summary-bio">
-              <span>Bio</span>
-              <strong id="profileViewBio">No bio set.</strong>
-            </article>
-            <div class="profile-quick-actions">
-              <button type="button" data-target="wallet">G-Coin wallet</button>
-              <button type="button" data-target="messages">Direct messages</button>
-            </div>
-            <div class="profile-dm-preview">
+          <article class="profile-summary-bio">
+            <span>Bio</span>
+            <strong id="profileViewBio">No bio set.</strong>
+          </article>
+          <div class="profile-quick-actions">
+            <button class="profile-wallet-link" type="button" data-target="wallet">
+              <span>G</span>
+              <strong>G-Coin Wallet</strong>
+              <em>Open wallet app</em>
+              <i>&rsaquo;</i>
+            </button>
+            <button class="profile-dm-link" type="button" data-target="messages">
               <span>DM</span>
-              <strong>Neuro-Link channel ready.</strong>
-              <button type="button" data-target="messages">Reply</button>
-            </div>
-            <button class="primary-action edit-profile-action" type="button" id="editProfileButton">Edit profile</button>
+              <strong>Direct Messages</strong>
+              <em>Open DM app</em>
+              <i>&rsaquo;</i>
+            </button>
+          </div>
+          <div class="profile-dm-preview">
+            <span>Latest DM</span>
+            <em>2m ago</em>
+            <strong>Neuro-Link</strong>
+            <p>Neuro-Link channel ready.</p>
+            <button type="button" data-target="messages">Reply</button>
           </div>
         </section>
         <form class="profile-editor" id="profileForm">
@@ -171,7 +201,7 @@
               </select>
             </label>
             <label>Health
-              <output id="profileHealthStatus" class="profile-health-readout" name="healthStatus">😐</output>
+              <output id="profileHealthStatus" class="profile-health-readout" name="healthStatus">&#128528;</output>
             </label>
             <label class="profile-bio">Bio
               <textarea name="bio" rows="4" placeholder="Write a short profile bio."></textarea>
@@ -241,6 +271,6 @@
 
   </main>
 
-  <script src="app.js?v=14"></script>
+  <script src="app.js?v=15"></script>
 </body>
 </html>
