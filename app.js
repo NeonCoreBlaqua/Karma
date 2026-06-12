@@ -8,6 +8,10 @@ const profileSyncStatus = document.querySelector("#profileSyncStatus");
 const profileHealthStatus = document.querySelector("#profileHealthStatus");
 const useSlProfileButton = document.querySelector("#useSlProfile");
 const resetProfileButton = document.querySelector("#resetProfile");
+const homeClock = document.querySelector("#homeClock");
+const homeDate = document.querySelector("#homeDate");
+const timeModeButtons = Array.from(document.querySelectorAll("[data-time-mode]"));
+const wallpaperButtons = Array.from(document.querySelectorAll("[data-wallpaper]"));
 const profileViewAvatar = document.querySelector("#profileViewAvatar");
 const profileViewTitle = document.querySelector("#profileViewTitle");
 const profileViewTitleDetail = document.querySelector("#profileViewTitleDetail");
@@ -23,12 +27,23 @@ const PROFILE_PENDING_SYNC_KEY = "neuroLinkProfilePendingSync";
 const HEALTH_STATUS_KEY = "neuroLinkHealthStatus";
 const PROFILE_ENDPOINT_KEY = "neuroLinkProfileEndpoint";
 const PROFILE_LOCATION_KEY = "neuroLinkProfileLocation";
+const TIME_MODE_KEY = "neuroLinkTimeMode";
+const WALLPAPER_KEY = "neuroLinkWallpaper";
 const DEFAULT_PROFILE_IMAGE = "images/Male Avatar.png";
 const DEFAULT_MALE_PROFILE_IMAGE = "images/Male Avatar.png";
 const DEFAULT_FEMALE_PROFILE_IMAGE = "images/Female Avatar.png";
 const VALID_LOCATIONS = ["Eden Palms", "Chi-Core"];
 const VALID_SEXES = ["Female", "Male", "Non-binary", "Private"];
 const HEALTH_EMOJIS = ["\uD83D\uDE01", "\uD83D\uDE14", "\uD83D\uDE37", "\uD83D\uDE10", "\uD83D\uDE12", "\uD83D\uDE03"];
+const CDF_DAY_MS = 4 * 60 * 60 * 1000;
+const WALLPAPERS = {
+  "neuro-midnight": "images/wallpapers/neuro-midnight.png",
+  "city-signal": "images/wallpapers/city-signal.png",
+  "black-gold": "images/wallpapers/black-gold.png",
+  "velvet-night": "images/wallpapers/velvet-night.png",
+  "burple-tide": "images/wallpapers/burple-tide.png",
+  "emerald-horizon": "images/wallpapers/emerald-horizon.png"
+};
 
 const urlParams = new URLSearchParams(location.search);
 const configuredEndpoint = urlParams.get("profileEndpoint") || localStorage.getItem(PROFILE_ENDPOINT_KEY) || "";
@@ -77,11 +92,78 @@ for (const button of routeButtons) {
   button.addEventListener("click", () => handleRouteButton(button));
 }
 
+function formatTwelveHour(hours, minutes) {
+  const period = hours >= 12 ? "PM" : "AM";
+  const displayHour = hours % 12 || 12;
+  return `${displayHour}:${String(minutes).padStart(2, "0")} ${period}`;
+}
+
+function currentCdfTime(now = new Date()) {
+  const localMidnight = new Date(now);
+  localMidnight.setHours(0, 0, 0, 0);
+  const elapsedToday = (now - localMidnight) % CDF_DAY_MS;
+  const cdfMinutes = Math.floor((elapsedToday / CDF_DAY_MS) * 24 * 60) % (24 * 60);
+  return {
+    hours: Math.floor(cdfMinutes / 60),
+    minutes: cdfMinutes % 60
+  };
+}
+
+function updateClock() {
+  if (!homeClock || !homeDate) return;
+
+  const mode = localStorage.getItem(TIME_MODE_KEY) === "cdf" ? "cdf" : "rl";
+  const now = new Date();
+
+  if (mode === "cdf") {
+    const cdf = currentCdfTime(now);
+    homeClock.textContent = formatTwelveHour(cdf.hours, cdf.minutes);
+    homeDate.textContent = "Camden Falls Time";
+  } else {
+    homeClock.textContent = formatTwelveHour(now.getHours(), now.getMinutes());
+    homeDate.textContent = now.toLocaleDateString(undefined, {
+      weekday: "long",
+      month: "short",
+      day: "numeric"
+    });
+  }
+
+  for (const button of timeModeButtons) {
+    const active = button.dataset.timeMode === mode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  }
+}
+
+for (const button of timeModeButtons) {
+  button.addEventListener("click", () => {
+    localStorage.setItem(TIME_MODE_KEY, button.dataset.timeMode);
+    updateClock();
+  });
+}
+
+function applyWallpaper(name = localStorage.getItem(WALLPAPER_KEY) || "neuro-midnight") {
+  const wallpaperName = WALLPAPERS[name] ? name : "neuro-midnight";
+  document.documentElement.style.setProperty("--app-wallpaper", `url("${WALLPAPERS[wallpaperName]}")`);
+  localStorage.setItem(WALLPAPER_KEY, wallpaperName);
+
+  for (const button of wallpaperButtons) {
+    button.classList.toggle("active", button.dataset.wallpaper === wallpaperName);
+  }
+}
+
+for (const button of wallpaperButtons) {
+  button.addEventListener("click", () => applyWallpaper(button.dataset.wallpaper));
+}
+
 window.addEventListener("hashchange", () => {
   showView(location.hash.replace("#", "") || "home");
 });
 
 showView(location.hash.replace("#", "") || "home");
+applyWallpaper();
+updateClock();
+window.setInterval(updateClock, 10000);
 
 function setProfileStatus(message) {
   if (profileSyncStatus) profileSyncStatus.textContent = message;

@@ -9,6 +9,7 @@
   --leaf: #9cff8e;
   --alert: #fff18a;
   --good: #21ff82;
+  --app-wallpaper: url("images/wallpapers/neuro-midnight.png");
 }
 
 * { box-sizing: border-box; }
@@ -52,14 +53,62 @@ button {
   top: 0;
   height: 76px;
   display: grid;
-  grid-template-columns: auto auto 1fr;
+  grid-template-columns: auto auto minmax(210px, 1fr) auto auto;
   align-items: center;
-  column-gap: 18px;
+  column-gap: 14px;
   padding: 0 32px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent),
     rgba(0, 0, 0, 0.84);
   border-bottom: 1px solid rgba(88, 230, 255, 0.16);
+}
+
+.time-panel {
+  display: grid;
+  gap: 2px;
+  min-width: 142px;
+}
+
+.time-panel strong {
+  font-size: 29px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.time-panel span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.time-toggle {
+  justify-self: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: min(250px, 34vw);
+  min-height: 42px;
+  padding: 3px;
+  border: 1px solid rgba(156, 255, 142, 0.28);
+  border-radius: 999px;
+  background: rgba(0, 8, 10, 0.54);
+}
+
+.time-toggle button {
+  border-radius: 999px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.time-toggle button.active {
+  color: var(--leaf);
+  background: rgba(156, 255, 142, 0.12);
+  box-shadow:
+    inset 0 0 0 1px rgba(156, 255, 142, 0.38),
+    0 0 16px rgba(156, 255, 142, 0.14);
 }
 
 .screen-status img {
@@ -204,19 +253,14 @@ button {
   padding: 98px 36px 62px;
   background:
     linear-gradient(180deg, rgba(3, 8, 10, 0.38), rgba(3, 8, 10, 0.74)),
-    url("images/Mr Neuro.png") center / cover no-repeat,
+    var(--app-wallpaper) center / cover no-repeat,
     linear-gradient(160deg, #102328, #071113 62%, #04090a);
 }
 
 .view.active { display: block; }
 
 .view::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("images/Mr Neuro.png") center / contain no-repeat;
-  opacity: 0.76;
-  pointer-events: none;
+  display: none;
 }
 
 .view > * {
@@ -227,8 +271,8 @@ button {
 .home-view {
   padding: 0;
   background:
-    linear-gradient(180deg, rgba(3, 8, 10, 0.12), rgba(3, 8, 10, 0.42)),
-    url("images/Neon Neuro Wallpaper.png") center / cover no-repeat,
+    linear-gradient(180deg, rgba(3, 8, 10, 0.18), rgba(3, 8, 10, 0.55)),
+    var(--app-wallpaper) center / cover no-repeat,
     #071113;
 }
 
@@ -486,6 +530,10 @@ h2 {
   overflow-y: auto;
 }
 
+.view[data-view="settings"] {
+  overflow-y: auto;
+}
+
 .profile-editor {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 230px;
@@ -673,6 +721,67 @@ h2 {
   font-size: 26px;
   font-weight: 800;
 }
+
+.wallpaper-settings {
+  margin-top: 22px;
+}
+
+.wallpaper-settings h3 {
+  margin: 0 0 14px;
+  color: var(--cyan);
+  font-size: 21px;
+  text-transform: uppercase;
+}
+
+.wallpaper-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wallpaper-grid button {
+  position: relative;
+  min-height: 126px;
+  display: grid;
+  align-content: end;
+  overflow: hidden;
+  padding: 12px;
+  border-radius: 14px;
+  color: var(--text);
+  border: 1px solid rgba(88, 230, 255, 0.22);
+  background: rgba(0, 10, 12, 0.68);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.wallpaper-grid button span {
+  position: absolute;
+  inset: 0;
+  background: var(--thumb) center / cover no-repeat;
+  opacity: 0.72;
+}
+
+.wallpaper-grid button strong {
+  position: relative;
+  z-index: 1;
+  padding: 7px 9px;
+  border-radius: 9px;
+  background: rgba(0, 8, 10, 0.72);
+  font-size: 15px;
+}
+
+.wallpaper-grid button.active {
+  border-color: rgba(156, 255, 142, 0.74);
+  box-shadow:
+    inset 0 0 0 1px rgba(156, 255, 142, 0.36),
+    0 0 22px rgba(156, 255, 142, 0.18);
+}
+
+[data-wallpaper="neuro-midnight"] { --thumb: url("images/wallpapers/neuro-midnight.png"); }
+[data-wallpaper="city-signal"] { --thumb: url("images/wallpapers/city-signal.png"); }
+[data-wallpaper="black-gold"] { --thumb: url("images/wallpapers/black-gold.png"); }
+[data-wallpaper="velvet-night"] { --thumb: url("images/wallpapers/velvet-night.png"); }
+[data-wallpaper="burple-tide"] { --thumb: url("images/wallpapers/burple-tide.png"); }
+[data-wallpaper="emerald-horizon"] { --thumb: url("images/wallpapers/emerald-horizon.png"); }
 
 .meters {
   display: grid;

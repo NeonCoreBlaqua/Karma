@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=23">
+  <link rel="stylesheet" href="style.css?v=24">
   <link rel="stylesheet" href="profile.css?v=9">
   <style>
     body { font-family: Arial, Helvetica, sans-serif; }
@@ -15,6 +15,14 @@
     <section class="screen" id="screen" aria-live="polite">
       <nav class="screen-status" aria-label="Tablet status">
         <img src="images/neuro logo.png" alt="" aria-hidden="true">
+        <div class="time-panel" aria-live="polite">
+          <strong id="homeClock">--:-- --</strong>
+          <span id="homeDate">Loading</span>
+        </div>
+        <div class="time-toggle" role="group" aria-label="Time mode">
+          <button type="button" data-time-mode="rl" aria-pressed="true">RL Time</button>
+          <button type="button" data-time-mode="cdf" aria-pressed="false">CDF Time</button>
+        </div>
         <button class="status-bell" type="button" data-target="notifications" aria-label="Open notifications">
           <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 46h24l-4-6V28c0-12-16-12-16 0v12Z"/><path d="M28 52h8"/></svg>
           <span></span>
@@ -28,9 +36,6 @@
       <section class="view active home-view" data-view="home">
         <div class="home-wallpaper">
           <div class="app-grid" aria-label="Apps">
-            <button class="app-icon home-app" type="button" data-target="home">
-              <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 31 32 12l22 19v23H40V39H24v15H10Z"/></svg><strong>Home</strong>
-            </button>
             <button class="app-icon profile-app" type="button" data-target="profile">
               <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="22" r="10"/><path d="M14 54c3-13 33-13 36 0"/></svg><strong>Profile</strong>
             </button>
@@ -263,6 +268,17 @@
           <button type="button">Display</button>
           <button type="button">About Neuro-Link</button>
         </div>
+        <section class="wallpaper-settings" aria-label="Wallpaper settings">
+          <h3>Wallpapers</h3>
+          <div class="wallpaper-grid">
+            <button type="button" data-wallpaper="neuro-midnight"><span></span><strong>Neuro Midnight</strong></button>
+            <button type="button" data-wallpaper="city-signal"><span></span><strong>City Signal</strong></button>
+            <button type="button" data-wallpaper="black-gold"><span></span><strong>Black Gold</strong></button>
+            <button type="button" data-wallpaper="velvet-night"><span></span><strong>Velvet Night</strong></button>
+            <button type="button" data-wallpaper="burple-tide"><span></span><strong>Burple Tide</strong></button>
+            <button type="button" data-wallpaper="emerald-horizon"><span></span><strong>Emerald Horizon</strong></button>
+          </div>
+        </section>
       </section>
       <button class="bottom-home" type="button" data-target="home" aria-label="Home">
         <span></span>
@@ -271,6 +287,6 @@
 
   </main>
 
-  <script src="app.js?v=16"></script>
+  <script src="app.js?v=17"></script>
 </body>
 </html>
