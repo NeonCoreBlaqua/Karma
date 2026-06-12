@@ -125,21 +125,13 @@ button {
   display: grid;
   place-items: center;
   justify-self: start;
-  color: var(--alert);
-  background: transparent;
+  background: url("images/bell-icon.svg") center / 30px 30px no-repeat;
   box-shadow: none;
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
 .status-bell svg {
-  width: 30px;
-  height: 30px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 0 10px currentColor);
+  display: none;
 }
 
 .status-bell span {
@@ -160,17 +152,15 @@ button {
 }
 
 .status-bell.has-unread span {
-  background: var(--good);
-  box-shadow: 0 0 12px var(--good);
-}
-
-.status-bell.has-count span {
   right: 3px;
   top: 4px;
   min-width: 20px;
   height: 18px;
   padding: 0 5px;
   border-radius: 999px;
+  color: #ffffff;
+  background: #1f2933;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.52);
 }
 
 .status-bell:hover,
@@ -193,9 +183,7 @@ button {
   padding: 14px;
   border: 1px solid rgba(88, 230, 255, 0.26);
   border-radius: 18px;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.08), transparent 36%),
-    rgba(0, 10, 12, 0.9);
+  background: rgba(14, 18, 22, 0.96);
   backdrop-filter: blur(18px) saturate(1.12);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
@@ -222,8 +210,8 @@ button {
   min-height: 32px;
   padding: 0 12px;
   border-radius: 999px;
-  color: var(--leaf);
-  background: rgba(156, 255, 142, 0.1);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
   font-size: 13px;
   font-weight: 800;
 }
@@ -244,12 +232,12 @@ button {
   border-radius: 14px;
   color: var(--text);
   text-align: left;
-  background: rgba(8, 22, 26, 0.72);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .quick-notification-list button.unread {
-  border-color: rgba(156, 255, 142, 0.38);
-  box-shadow: inset 3px 0 0 rgba(33, 255, 130, 0.85);
+  border-color: rgba(255, 255, 255, 0.32);
+  box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.78);
 }
 
 .quick-notification-list i {
@@ -258,8 +246,8 @@ button {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  color: var(--leaf);
-  background: rgba(156, 255, 142, 0.12);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
   font-style: normal;
   font-weight: 900;
 }
@@ -288,7 +276,7 @@ button {
   grid-column: 2 / -1;
   justify-self: start;
   margin-top: -3px;
-  color: var(--leaf);
+  color: #ffffff;
   font-size: 11px;
   text-transform: uppercase;
 }

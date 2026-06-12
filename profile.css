@@ -7,8 +7,9 @@
   overflow-y: auto;
   font-family: Verdana, Tahoma, Arial, sans-serif;
   background:
-    linear-gradient(180deg, rgba(0, 3, 5, 0.99) 0%, rgba(1, 10, 12, 0.98) 48%, rgba(0, 4, 6, 0.99) 100%),
+    linear-gradient(180deg, rgba(0, 3, 5, 0.76) 0%, rgba(1, 10, 12, 0.72) 48%, rgba(0, 4, 6, 0.82) 100%),
     linear-gradient(120deg, rgba(88, 230, 255, 0.08), transparent 34%, rgba(33, 255, 130, 0.04) 70%, transparent),
+    var(--view-wallpaper, var(--app-wallpaper)) center / cover no-repeat,
     #020708 !important;
 }
 

@@ -141,8 +141,7 @@ function updateNotificationBadge() {
   const badge = notificationBell.querySelector("span");
   const count = unreadNotificationCount();
   notificationBell.classList.toggle("has-unread", count > 0);
-  notificationBell.classList.toggle("has-count", count >= 5);
-  if (badge) badge.textContent = count >= 5 ? String(count) : "";
+  if (badge) badge.textContent = count > 0 ? String(count) : "";
 }
 
 function renderQuickNotifications() {
