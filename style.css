@@ -253,7 +253,7 @@ button {
   padding: 98px 36px 62px;
   background:
     linear-gradient(180deg, rgba(3, 8, 10, 0.38), rgba(3, 8, 10, 0.74)),
-    var(--app-wallpaper) center / cover no-repeat,
+    var(--view-wallpaper, var(--app-wallpaper)) center / cover no-repeat,
     linear-gradient(160deg, #102328, #071113 62%, #04090a);
 }
 
@@ -272,7 +272,7 @@ button {
   padding: 0;
   background:
     linear-gradient(180deg, rgba(3, 8, 10, 0.18), rgba(3, 8, 10, 0.55)),
-    var(--app-wallpaper) center / cover no-repeat,
+    var(--view-wallpaper, var(--app-wallpaper)) center / cover no-repeat,
     #071113;
 }
 
@@ -534,6 +534,18 @@ h2 {
   overflow-y: auto;
 }
 
+.view[data-view="settings"] .page-title {
+  max-width: 720px;
+}
+
+.view[data-view="settings"] h2 {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
 .profile-editor {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 230px;
@@ -722,8 +734,179 @@ h2 {
   font-weight: 800;
 }
 
+.settings-shell {
+  display: grid;
+  grid-template-columns: 245px minmax(0, 1fr);
+  gap: 22px;
+  margin-top: 26px;
+}
+
+.settings-tabs,
+.settings-panels {
+  border: 1px solid rgba(88, 230, 255, 0.18);
+  border-radius: 14px;
+  background: rgba(0, 12, 14, 0.58);
+  backdrop-filter: blur(12px) saturate(1.1);
+  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.26);
+}
+
+.settings-tabs {
+  display: grid;
+  overflow: hidden;
+}
+
+.settings-tabs button,
+.settings-panel button {
+  color: var(--text);
+  text-align: left;
+  background: rgba(6, 18, 22, 0.38);
+}
+
+.settings-tabs button {
+  min-height: 74px;
+  display: grid;
+  gap: 5px;
+  align-content: center;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(88, 230, 255, 0.12);
+}
+
+.settings-tabs button:last-child {
+  border-bottom: 0;
+}
+
+.settings-tabs button strong,
+.settings-panel button strong {
+  font-size: 19px;
+}
+
+.settings-tabs button span,
+.settings-panel button span,
+.wallpaper-target {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.settings-tabs button.active {
+  background:
+    linear-gradient(90deg, rgba(33, 255, 130, 0.18), rgba(88, 230, 255, 0.04)),
+    rgba(6, 18, 22, 0.62);
+  box-shadow: inset 3px 0 0 rgba(33, 255, 130, 0.9);
+}
+
+.settings-panels {
+  min-height: 500px;
+  padding: 18px;
+}
+
+.settings-panel {
+  display: none;
+}
+
+.settings-panel.active {
+  display: grid;
+  gap: 14px;
+}
+
+.settings-panel h3 {
+  margin: 0 0 6px;
+  color: var(--leaf);
+  font-size: 20px;
+  text-transform: uppercase;
+}
+
+.settings-panel > button,
+.settings-action-grid button {
+  min-height: 72px;
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  padding: 0 20px;
+  border: 1px solid rgba(88, 230, 255, 0.18);
+  border-radius: 14px;
+}
+
+.settings-panel > button:hover,
+.settings-panel > button:focus-visible,
+.settings-action-grid button:hover,
+.settings-action-grid button:focus-visible,
+.settings-panel > button.active {
+  border-color: rgba(156, 255, 142, 0.5);
+  box-shadow: 0 0 20px rgba(156, 255, 142, 0.12);
+  outline: none;
+}
+
+.settings-panel > button[data-state]::after {
+  content: attr(data-state);
+  justify-self: end;
+  margin-top: -38px;
+  color: var(--leaf);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.settings-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wallpaper-target {
+  display: grid;
+  gap: 8px;
+  font-weight: 800;
+}
+
+.wallpaper-target select {
+  min-height: 44px;
+  border: 1px solid rgba(88, 230, 255, 0.28);
+  border-radius: 12px;
+  padding: 0 12px;
+  color: var(--text);
+  background: rgba(0, 8, 10, 0.78);
+  font: inherit;
+  font-size: 16px;
+}
+
+.settings-status {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.device-info {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(88, 230, 255, 0.18);
+  border-radius: 14px;
+  background: rgba(0, 8, 10, 0.45);
+}
+
+.device-info div {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(88, 230, 255, 0.12);
+}
+
+.device-info div:last-child {
+  border-bottom: 0;
+}
+
+.device-info dt {
+  color: var(--muted);
+}
+
+.device-info dd {
+  margin: 0;
+  color: var(--text);
+  text-align: right;
+}
+
 .wallpaper-settings {
-  margin-top: 22px;
+  margin-top: 0;
 }
 
 .wallpaper-settings h3 {

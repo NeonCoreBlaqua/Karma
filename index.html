@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=24">
+  <link rel="stylesheet" href="style.css?v=25">
   <link rel="stylesheet" href="profile.css?v=9">
   <style>
     body { font-family: Arial, Helvetica, sans-serif; }
@@ -260,25 +260,92 @@
       <section class="view" data-view="settings">
         <div class="page-title">
           <p>Settings</p>
-          <h2>Controls</h2>
+          <h2>Manage your Neuro-Link experience.</h2>
         </div>
-        <div class="settings-list">
-          <button type="button">Refresh Sync</button>
-          <button type="button">Privacy</button>
-          <button type="button">Display</button>
-          <button type="button">About Neuro-Link</button>
-        </div>
-        <section class="wallpaper-settings" aria-label="Wallpaper settings">
-          <h3>Wallpapers</h3>
-          <div class="wallpaper-grid">
-            <button type="button" data-wallpaper="neuro-midnight"><span></span><strong>Neuro Midnight</strong></button>
-            <button type="button" data-wallpaper="city-signal"><span></span><strong>City Signal</strong></button>
-            <button type="button" data-wallpaper="black-gold"><span></span><strong>Black Gold</strong></button>
-            <button type="button" data-wallpaper="velvet-night"><span></span><strong>Velvet Night</strong></button>
-            <button type="button" data-wallpaper="burple-tide"><span></span><strong>Burple Tide</strong></button>
-            <button type="button" data-wallpaper="emerald-horizon"><span></span><strong>Emerald Horizon</strong></button>
+        <div class="settings-shell">
+          <nav class="settings-tabs" aria-label="Settings sections">
+            <button class="active" type="button" data-settings-section="system"><strong>System</strong><span>General controls</span></button>
+            <button type="button" data-settings-section="display"><strong>Display</strong><span>Screen and wallpapers</span></button>
+            <button type="button" data-settings-section="privacy"><strong>Privacy</strong><span>Privacy and security</span></button>
+            <button type="button" data-settings-section="alerts"><strong>Alerts</strong><span>Notifications</span></button>
+            <button type="button" data-settings-section="connect"><strong>Connect</strong><span>Connections</span></button>
+            <button type="button" data-settings-section="account"><strong>Account</strong><span>Your settings</span></button>
+            <button type="button" data-settings-section="about"><strong>About</strong><span>Neuro-Link info</span></button>
+          </nav>
+
+          <div class="settings-panels">
+            <section class="settings-panel active" data-settings-panel="system">
+              <h3>System</h3>
+              <button type="button" data-settings-action="refresh-sync"><strong>Refresh Sync</strong><span>Sync profile and local state</span></button>
+              <div class="settings-action-grid">
+                <button type="button" data-settings-action="export-data"><strong>Export Data</strong><span>Save a local backup</span></button>
+                <button type="button" data-settings-action="diagnostics"><strong>Diagnostics</strong><span>Run a quick status check</span></button>
+                <button type="button" data-settings-action="clear-cache"><strong>Clear Cache</strong><span>Clear temporary HUD data</span></button>
+                <button type="button" data-settings-action="reset-neuro"><strong>Reset Neuro-Link</strong><span>Reset display settings</span></button>
+              </div>
+            </section>
+
+            <section class="settings-panel" data-settings-panel="display">
+              <h3>Display</h3>
+              <label class="wallpaper-target">Apply wallpaper to
+                <select id="wallpaperTarget">
+                  <option value="all">All Screens</option>
+                  <option value="home">Home</option>
+                  <option value="profile">Profile</option>
+                  <option value="wallet">Wallet</option>
+                  <option value="health">Health / Stats</option>
+                  <option value="messages">Messages</option>
+                  <option value="settings">Settings</option>
+                </select>
+              </label>
+              <section class="wallpaper-settings" aria-label="Wallpaper settings">
+                <h3>Wallpapers</h3>
+                <div class="wallpaper-grid">
+                  <button type="button" data-wallpaper="neuro-midnight"><span></span><strong>Neuro Midnight</strong></button>
+                  <button type="button" data-wallpaper="city-signal"><span></span><strong>City Signal</strong></button>
+                  <button type="button" data-wallpaper="black-gold"><span></span><strong>Black Gold</strong></button>
+                  <button type="button" data-wallpaper="velvet-night"><span></span><strong>Velvet Night</strong></button>
+                  <button type="button" data-wallpaper="burple-tide"><span></span><strong>Burple Tide</strong></button>
+                  <button type="button" data-wallpaper="emerald-horizon"><span></span><strong>Emerald Horizon</strong></button>
+                </div>
+              </section>
+            </section>
+
+            <section class="settings-panel" data-settings-panel="privacy">
+              <h3>Privacy</h3>
+              <button type="button" data-settings-toggle="privacyMode"><strong>Privacy Mode</strong><span>Hide personal details in shared spaces</span></button>
+              <button type="button" data-settings-toggle="localOnly"><strong>Local Only</strong><span>Keep changes on this device until sync</span></button>
+            </section>
+
+            <section class="settings-panel" data-settings-panel="alerts">
+              <h3>Alerts</h3>
+              <button type="button" data-settings-toggle="alertsEnabled"><strong>Neuro Alerts</strong><span>Notification count and reminders</span></button>
+              <button type="button" data-settings-toggle="quietMode"><strong>Quiet Mode</strong><span>Reduce non-critical alerts</span></button>
+            </section>
+
+            <section class="settings-panel" data-settings-panel="connect">
+              <h3>Connect</h3>
+              <button type="button" data-settings-action="refresh-media"><strong>Refresh Media</strong><span>Reload the current HUD page</span></button>
+              <button type="button" data-settings-action="bridge-status"><strong>Bridge Status</strong><span>Check SL media bridge mode</span></button>
+            </section>
+
+            <section class="settings-panel" data-settings-panel="account">
+              <h3>Account</h3>
+              <button type="button" data-target="profile"><strong>Open Profile</strong><span>Edit identity and bio</span></button>
+              <button type="button" data-target="wallet"><strong>Open Wallet</strong><span>View G-Coin wallet</span></button>
+            </section>
+
+            <section class="settings-panel" data-settings-panel="about">
+              <h3>About Neuro-Link</h3>
+              <dl class="device-info">
+                <div><dt>Device Name</dt><dd>Neuro-Link HUD</dd></div>
+                <div><dt>OS Version</dt><dd>Camden OS 2.4.7</dd></div>
+                <div><dt>Live URL</dt><dd>vrynos.github.io/Neuro</dd></div>
+              </dl>
+            </section>
           </div>
-        </section>
+        </div>
+        <p class="settings-status" id="settingsStatus">Ready.</p>
       </section>
       <button class="bottom-home" type="button" data-target="home" aria-label="Home">
         <span></span>
@@ -287,6 +354,6 @@
 
   </main>
 
-  <script src="app.js?v=17"></script>
+  <script src="app.js?v=18"></script>
 </body>
 </html>

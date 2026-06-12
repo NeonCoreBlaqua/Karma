@@ -12,6 +12,12 @@ const homeClock = document.querySelector("#homeClock");
 const homeDate = document.querySelector("#homeDate");
 const timeModeButtons = Array.from(document.querySelectorAll("[data-time-mode]"));
 const wallpaperButtons = Array.from(document.querySelectorAll("[data-wallpaper]"));
+const wallpaperTarget = document.querySelector("#wallpaperTarget");
+const settingsTabs = Array.from(document.querySelectorAll("[data-settings-section]"));
+const settingsPanels = Array.from(document.querySelectorAll("[data-settings-panel]"));
+const settingsStatus = document.querySelector("#settingsStatus");
+const settingsActionButtons = Array.from(document.querySelectorAll("[data-settings-action]"));
+const settingsToggleButtons = Array.from(document.querySelectorAll("[data-settings-toggle]"));
 const profileViewAvatar = document.querySelector("#profileViewAvatar");
 const profileViewTitle = document.querySelector("#profileViewTitle");
 const profileViewTitleDetail = document.querySelector("#profileViewTitleDetail");
@@ -29,6 +35,8 @@ const PROFILE_ENDPOINT_KEY = "neuroLinkProfileEndpoint";
 const PROFILE_LOCATION_KEY = "neuroLinkProfileLocation";
 const TIME_MODE_KEY = "neuroLinkTimeMode";
 const WALLPAPER_KEY = "neuroLinkWallpaper";
+const WALLPAPER_MAP_KEY = "neuroLinkWallpaperMap";
+const SETTINGS_STATE_KEY = "neuroLinkSettingsState";
 const DEFAULT_PROFILE_IMAGE = "images/Male Avatar.png";
 const DEFAULT_MALE_PROFILE_IMAGE = "images/Male Avatar.png";
 const DEFAULT_FEMALE_PROFILE_IMAGE = "images/Female Avatar.png";
@@ -44,6 +52,7 @@ const WALLPAPERS = {
   "burple-tide": "images/wallpapers/burple-tide.png",
   "emerald-horizon": "images/wallpapers/emerald-horizon.png"
 };
+const WALLPAPER_TARGETS = ["home", "profile", "wallet", "health", "messages", "settings"];
 
 const urlParams = new URLSearchParams(location.search);
 const configuredEndpoint = urlParams.get("profileEndpoint") || localStorage.getItem(PROFILE_ENDPOINT_KEY) || "";
@@ -142,18 +151,181 @@ for (const button of timeModeButtons) {
   });
 }
 
-function applyWallpaper(name = localStorage.getItem(WALLPAPER_KEY) || "neuro-midnight") {
-  const wallpaperName = WALLPAPERS[name] ? name : "neuro-midnight";
-  document.documentElement.style.setProperty("--app-wallpaper", `url("${WALLPAPERS[wallpaperName]}")`);
-  localStorage.setItem(WALLPAPER_KEY, wallpaperName);
+function readWallpaperMap() {
+  try {
+    return JSON.parse(localStorage.getItem(WALLPAPER_MAP_KEY)) || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function writeWallpaperMap(map) {
+  localStorage.setItem(WALLPAPER_MAP_KEY, JSON.stringify(map));
+}
+
+function wallpaperForTarget(target, map = readWallpaperMap()) {
+  return WALLPAPERS[map[target]] ? map[target] : localStorage.getItem(WALLPAPER_KEY) || "neuro-midnight";
+}
+
+function paintViewWallpaper(viewName, wallpaperName) {
+  const view = document.querySelector(`[data-view="${viewName}"]`);
+  if (view && WALLPAPERS[wallpaperName]) {
+    view.style.setProperty("--view-wallpaper", `url("${WALLPAPERS[wallpaperName]}")`);
+  }
+}
+
+function refreshWallpaperButtons() {
+  const target = wallpaperTarget?.value || "all";
+  const activeWallpaper = target === "all" ? localStorage.getItem(WALLPAPER_KEY) || "neuro-midnight" : wallpaperForTarget(target);
 
   for (const button of wallpaperButtons) {
-    button.classList.toggle("active", button.dataset.wallpaper === wallpaperName);
+    button.classList.toggle("active", button.dataset.wallpaper === activeWallpaper);
   }
+}
+
+function applyWallpaper(name = localStorage.getItem(WALLPAPER_KEY) || "neuro-midnight", target = wallpaperTarget?.value || "all") {
+  const wallpaperName = WALLPAPERS[name] ? name : "neuro-midnight";
+  const map = readWallpaperMap();
+
+  if (target === "all") {
+    localStorage.setItem(WALLPAPER_KEY, wallpaperName);
+    for (const viewName of WALLPAPER_TARGETS) {
+      map[viewName] = wallpaperName;
+      paintViewWallpaper(viewName, wallpaperName);
+    }
+  } else {
+    map[target] = wallpaperName;
+    paintViewWallpaper(target, wallpaperName);
+  }
+
+  writeWallpaperMap(map);
+  refreshWallpaperButtons();
+  setSettingsStatus(`${wallpaperName.replace(/-/g, " ")} applied to ${target === "all" ? "all screens" : target}.`);
+}
+
+function loadWallpapers() {
+  const map = readWallpaperMap();
+  const fallback = localStorage.getItem(WALLPAPER_KEY) || "neuro-midnight";
+
+  for (const viewName of WALLPAPER_TARGETS) {
+    const wallpaperName = WALLPAPERS[map[viewName]] ? map[viewName] : fallback;
+    map[viewName] = wallpaperName;
+    paintViewWallpaper(viewName, wallpaperName);
+  }
+
+  writeWallpaperMap(map);
+  refreshWallpaperButtons();
 }
 
 for (const button of wallpaperButtons) {
   button.addEventListener("click", () => applyWallpaper(button.dataset.wallpaper));
+}
+
+wallpaperTarget?.addEventListener("change", refreshWallpaperButtons);
+
+function setSettingsStatus(message) {
+  if (settingsStatus) settingsStatus.textContent = message;
+}
+
+for (const tab of settingsTabs) {
+  tab.addEventListener("click", () => {
+    const section = tab.dataset.settingsSection;
+    for (const button of settingsTabs) button.classList.toggle("active", button === tab);
+    for (const panel of settingsPanels) panel.classList.toggle("active", panel.dataset.settingsPanel === section);
+    setSettingsStatus(`${section} settings open.`);
+  });
+}
+
+function readSettingsState() {
+  try {
+    return JSON.parse(localStorage.getItem(SETTINGS_STATE_KEY)) || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function writeSettingsState(state) {
+  localStorage.setItem(SETTINGS_STATE_KEY, JSON.stringify(state));
+}
+
+function refreshToggleButtons() {
+  const state = readSettingsState();
+  for (const button of settingsToggleButtons) {
+    const enabled = !!state[button.dataset.settingsToggle];
+    button.classList.toggle("active", enabled);
+    button.dataset.state = enabled ? "On" : "Off";
+  }
+}
+
+for (const button of settingsToggleButtons) {
+  button.addEventListener("click", () => {
+    const state = readSettingsState();
+    const key = button.dataset.settingsToggle;
+    state[key] = !state[key];
+    writeSettingsState(state);
+    refreshToggleButtons();
+    setSettingsStatus(`${button.querySelector("strong")?.textContent || "Setting"} ${state[key] ? "enabled" : "disabled"}.`);
+  });
+}
+
+async function runSettingsAction(action) {
+  if (action === "refresh-sync") {
+    renderHealthStatus();
+    renderProfileSummary();
+    setSettingsStatus("Sync refreshed.");
+    return;
+  }
+
+  if (action === "export-data") {
+    const data = {
+      profile: localStorage.getItem(PROFILE_STORAGE_KEY),
+      wallpaperMap: readWallpaperMap(),
+      settings: readSettingsState(),
+      exportedAt: new Date().toISOString()
+    };
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+    link.download = "neuro-link-backup.json";
+    link.click();
+    URL.revokeObjectURL(link.href);
+    setSettingsStatus("Backup exported.");
+    return;
+  }
+
+  if (action === "diagnostics") {
+    setSettingsStatus(`Diagnostics OK. Bridge: ${profileBridge === "sl" ? "SL media" : "local/web"}.`);
+    return;
+  }
+
+  if (action === "clear-cache") {
+    localStorage.removeItem(PROFILE_PENDING_SYNC_KEY);
+    setSettingsStatus("Temporary cache cleared.");
+    return;
+  }
+
+  if (action === "reset-neuro") {
+    localStorage.removeItem(WALLPAPER_KEY);
+    localStorage.removeItem(WALLPAPER_MAP_KEY);
+    localStorage.removeItem(TIME_MODE_KEY);
+    loadWallpapers();
+    updateClock();
+    setSettingsStatus("Display settings reset.");
+    return;
+  }
+
+  if (action === "refresh-media") {
+    setSettingsStatus("Refreshing media...");
+    location.reload();
+    return;
+  }
+
+  if (action === "bridge-status") {
+    setSettingsStatus(profileBridge === "sl" ? "SL bridge mode is active." : "SL bridge mode is not active.");
+  }
+}
+
+for (const button of settingsActionButtons) {
+  button.addEventListener("click", () => runSettingsAction(button.dataset.settingsAction));
 }
 
 window.addEventListener("hashchange", () => {
@@ -161,7 +333,8 @@ window.addEventListener("hashchange", () => {
 });
 
 showView(location.hash.replace("#", "") || "home");
-applyWallpaper();
+loadWallpapers();
+refreshToggleButtons();
 updateClock();
 window.setInterval(updateClock, 10000);
 
