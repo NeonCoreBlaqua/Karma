@@ -326,30 +326,23 @@ button {
   position: absolute;
   z-index: 8;
   left: 50%;
-  bottom: 18px;
-  width: 70px;
-  height: 70px;
+  bottom: 12px;
+  width: 92px;
+  height: 92px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(244, 251, 255, 0.82);
+  border: 0;
   border-radius: 50%;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.3) 18%, transparent 38%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.38), rgba(210, 234, 244, 0.12) 44%, rgba(10, 18, 22, 0.34)),
-    rgba(230, 244, 250, 0.18);
-  backdrop-filter: blur(16px) saturate(1.25);
+  background: url("images/home-orb.png") center / cover no-repeat;
   box-shadow:
-    inset 0 2px 4px rgba(255, 255, 255, 0.7),
-    inset 0 -16px 24px rgba(0, 0, 0, 0.3),
-    0 0 18px rgba(244, 251, 255, 0.36),
-    0 0 42px rgba(244, 251, 255, 0.16),
-    0 12px 32px rgba(0, 0, 0, 0.48);
+    0 0 18px rgba(235, 255, 239, 0.58),
+    0 0 44px rgba(141, 255, 170, 0.26),
+    0 16px 30px rgba(0, 0, 0, 0.52);
   transform: translateX(-50%);
-  transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease, border-color 160ms ease, filter 160ms ease;
+  transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease, filter 160ms ease;
 }
 
-.bottom-home::before,
 .bottom-home::after {
   content: "";
   position: absolute;
@@ -357,62 +350,37 @@ button {
   pointer-events: none;
 }
 
-.bottom-home::before {
-  inset: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.42);
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.12), transparent 62%);
-  box-shadow:
-    inset 0 0 18px rgba(255, 255, 255, 0.16),
-    0 0 18px rgba(255, 255, 255, 0.14);
-}
-
 .bottom-home::after {
   inset: 50%;
   width: 0;
   height: 0;
-  background: rgba(255, 255, 255, 0.58);
+  background: rgba(239, 255, 242, 0.55);
   transform: translate(-50%, -50%);
   opacity: 0;
 }
 
 .bottom-home span {
-  position: relative;
-  z-index: 1;
-  display: block;
-  width: 30px;
-  height: 30px;
-  border: 3px solid rgba(255, 255, 255, 0.88);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 40% 34%, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.08) 42%, rgba(0, 0, 0, 0.16));
-  box-shadow:
-    inset 0 0 10px rgba(0, 0, 0, 0.34),
-    0 0 14px rgba(244, 251, 255, 0.46);
+  display: none;
 }
 
 .bottom-home:hover,
 .bottom-home:focus-visible {
-  transform: translateX(-50%) scale(1.06);
-  border-color: rgba(255, 255, 255, 0.96);
-  filter: brightness(1.08);
+  transform: translateX(-50%) scale(1.05);
+  filter: brightness(1.1) saturate(1.12);
   box-shadow:
-    inset 0 2px 4px rgba(255, 255, 255, 0.78),
-    inset 0 -16px 24px rgba(0, 0, 0, 0.26),
-    0 0 26px rgba(244, 251, 255, 0.54),
-    0 0 58px rgba(244, 251, 255, 0.24),
-    0 12px 32px rgba(0, 0, 0, 0.42);
+    0 0 28px rgba(235, 255, 239, 0.82),
+    0 0 68px rgba(141, 255, 170, 0.4),
+    0 18px 30px rgba(0, 0, 0, 0.52);
   outline: none;
 }
 
 .bottom-home:active {
-  transform: translateX(-50%) scale(0.94);
+  transform: translateX(-50%) scale(0.93);
+  filter: brightness(1.22) saturate(1.16);
   box-shadow:
-    inset 0 2px 7px rgba(255, 255, 255, 0.88),
-    inset 0 -10px 20px rgba(0, 0, 0, 0.34),
-    0 0 34px rgba(255, 255, 255, 0.72),
-    0 0 74px rgba(244, 251, 255, 0.3),
-    0 10px 24px rgba(0, 0, 0, 0.48);
+    0 0 42px rgba(242, 255, 244, 0.95),
+    0 0 90px rgba(142, 255, 172, 0.48),
+    0 10px 24px rgba(0, 0, 0, 0.52);
 }
 
 .bottom-home:active::after {
@@ -427,20 +395,16 @@ button {
   0%,
   100% {
     box-shadow:
-      inset 0 2px 4px rgba(255, 255, 255, 0.7),
-      inset 0 -16px 24px rgba(0, 0, 0, 0.3),
-      0 0 18px rgba(244, 251, 255, 0.36),
-      0 0 42px rgba(244, 251, 255, 0.16),
-      0 12px 32px rgba(0, 0, 0, 0.48);
+      0 0 18px rgba(235, 255, 239, 0.58),
+      0 0 46px rgba(141, 255, 170, 0.22),
+      0 16px 30px rgba(0, 0, 0, 0.52);
   }
 
   50% {
     box-shadow:
-      inset 0 2px 4px rgba(255, 255, 255, 0.78),
-      inset 0 -16px 24px rgba(0, 0, 0, 0.28),
-      0 0 30px rgba(255, 255, 255, 0.54),
-      0 0 68px rgba(244, 251, 255, 0.24),
-      0 12px 32px rgba(0, 0, 0, 0.46);
+      0 0 28px rgba(235, 255, 239, 0.78),
+      0 0 72px rgba(141, 255, 170, 0.32),
+      0 16px 30px rgba(0, 0, 0, 0.52);
   }
 }
 
@@ -452,8 +416,8 @@ button {
   }
 
   100% {
-    width: 118px;
-    height: 118px;
+    width: 150px;
+    height: 150px;
     opacity: 0;
   }
 }
