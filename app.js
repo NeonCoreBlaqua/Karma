@@ -10,22 +10,25 @@ const useSlProfileButton = document.querySelector("#useSlProfile");
 const resetProfileButton = document.querySelector("#resetProfile");
 const profileViewAvatar = document.querySelector("#profileViewAvatar");
 const profileViewTitle = document.querySelector("#profileViewTitle");
+const profileViewTitleDetail = document.querySelector("#profileViewTitleDetail");
 const profileViewName = document.querySelector("#profileViewName");
 const profileViewAge = document.querySelector("#profileViewAge");
 const profileViewSex = document.querySelector("#profileViewSex");
 const profileViewLocation = document.querySelector("#profileViewLocation");
+const profileViewLocationHero = document.querySelector("#profileViewLocationHero");
 const profileViewHealth = document.querySelector("#profileViewHealth");
 const profileViewBio = document.querySelector("#profileViewBio");
 const PROFILE_STORAGE_KEY = "neuroLinkProfile";
 const PROFILE_PENDING_SYNC_KEY = "neuroLinkProfilePendingSync";
 const HEALTH_STATUS_KEY = "neuroLinkHealthStatus";
 const PROFILE_ENDPOINT_KEY = "neuroLinkProfileEndpoint";
-const DEFAULT_PROFILE_IMAGE = "images/neuro logo.png";
-const DEFAULT_MALE_PROFILE_IMAGE = "images/neuro logo.png";
-const DEFAULT_FEMALE_PROFILE_IMAGE = "images/neuro logo.png";
+const PROFILE_LOCATION_KEY = "neuroLinkProfileLocation";
+const DEFAULT_PROFILE_IMAGE = "images/Male Avatar.png";
+const DEFAULT_MALE_PROFILE_IMAGE = "images/Male Avatar.png";
+const DEFAULT_FEMALE_PROFILE_IMAGE = "images/Female Avatar.png";
 const VALID_LOCATIONS = ["Eden Palms", "Chi-Core"];
 const VALID_SEXES = ["Female", "Male", "Non-binary", "Private"];
-const HEALTH_EMOJIS = ["😁", "😔", "😷", "😐", "😒", "😃"];
+const HEALTH_EMOJIS = ["\uD83D\uDE01", "\uD83D\uDE14", "\uD83D\uDE37", "\uD83D\uDE10", "\uD83D\uDE12", "\uD83D\uDE03"];
 
 const urlParams = new URLSearchParams(location.search);
 const configuredEndpoint = urlParams.get("profileEndpoint") || localStorage.getItem(PROFILE_ENDPOINT_KEY) || "";
@@ -71,7 +74,7 @@ function getProfileFormData() {
   if (!profileForm) return {};
 
   const data = Object.fromEntries(new FormData(profileForm).entries());
-  data.location = VALID_LOCATIONS.includes(data.location) ? data.location : "";
+  data.location = canonicalLocation(data.location) || localStorage.getItem(PROFILE_LOCATION_KEY) || "Eden Palms";
   data.sex = VALID_SEXES.includes(data.sex) ? data.sex : "";
   data.healthStatus = getHealthStatus();
   data.profileImage = defaultProfileImage(data.sex);
@@ -80,12 +83,14 @@ function getProfileFormData() {
 }
 
 function normalizeProfile(profile = {}) {
+  const location = canonicalLocation(profile.location) || localStorage.getItem(PROFILE_LOCATION_KEY) || "Eden Palms";
+
   return {
     title: cleanLoadedValue(profile.title, "Resident"),
     displayName: cleanLoadedValue(profile.displayName, "Not set"),
     age: cleanLoadedValue(profile.age, "Not set"),
     sex: VALID_SEXES.includes(profile.sex) ? profile.sex : "",
-    location: VALID_LOCATIONS.includes(profile.location) ? profile.location : "",
+    location,
     bio: cleanLoadedValue(profile.bio, "No bio set."),
     healthStatus: healthEmoji(profile.healthStatus),
     profileImage: defaultProfileImage(profile.sex),
@@ -98,17 +103,29 @@ function cleanLoadedValue(value, placeholder) {
   return clean === placeholder ? "" : clean;
 }
 
+function canonicalLocation(value = "") {
+  const clean = String(value || "")
+    .replace(/\+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const compact = clean.toLowerCase().replace(/[^a-z]/g, "");
+
+  if (compact.includes("chicore") || compact.includes("chico") || compact === "chi") return "Chi-Core";
+  if (compact.includes("edenpalms")) return "Eden Palms";
+  return "";
+}
+
 function healthEmoji(value = "") {
   const clean = String(value || "").trim();
   if (HEALTH_EMOJIS.includes(clean)) return clean;
 
   const lowered = clean.toLowerCase();
-  if (lowered.includes("happy") || lowered.includes("good") || lowered.includes("great")) return "😃";
-  if (lowered.includes("sad") || lowered.includes("low")) return "😔";
-  if (lowered.includes("sick") || lowered.includes("ill")) return "😷";
-  if (lowered.includes("annoy") || lowered.includes("mad")) return "😒";
-  if (lowered.includes("not") || lowered.includes("sync")) return "😐";
-  return "😐";
+  if (lowered.includes("happy") || lowered.includes("good") || lowered.includes("great")) return "\uD83D\uDE03";
+  if (lowered.includes("sad") || lowered.includes("low")) return "\uD83D\uDE14";
+  if (lowered.includes("sick") || lowered.includes("ill")) return "\uD83D\uDE37";
+  if (lowered.includes("annoy") || lowered.includes("mad")) return "\uD83D\uDE12";
+  if (lowered.includes("not") || lowered.includes("sync")) return "\uD83D\uDE10";
+  return "\uD83D\uDE10";
 }
 
 function defaultProfileImage(sex = "") {
@@ -130,7 +147,7 @@ function getProfileFromUrl() {
 
   const hasIdentity = identityKeys.some((key) => profile[key] && profile[key] !== "Not set" && profile[key] !== "No bio set.");
   if (!hasIdentity) {
-    if (profile.healthStatus) localStorage.setItem(HEALTH_STATUS_KEY, healthEmoji(profile.healthStatus));
+    if (profile.healthStatus) localStorage.setItem(HEALTH_STATUS_KEY, profile.healthStatus);
     return null;
   }
 
@@ -141,6 +158,7 @@ function getProfileFromUrl() {
 function applyProfileData(profile) {
   if (!profileForm || !profile) return;
   const normalized = normalizeProfile(profile);
+  localStorage.setItem(PROFILE_LOCATION_KEY, normalized.location);
 
   for (const [key, value] of Object.entries(normalized)) {
     const field = profileForm.elements[key];
@@ -159,17 +177,19 @@ function renderProfileSummary(profile = getProfileFormData()) {
 
   if (profileViewAvatar) profileViewAvatar.src = defaultProfileImage(profile.sex);
   if (profileViewTitle) profileViewTitle.textContent = profile.title || "Resident";
+  if (profileViewTitleDetail) profileViewTitleDetail.textContent = profile.title || "Resident";
   if (profileViewName) profileViewName.textContent = profile.displayName || fallback;
   if (profileViewAge) profileViewAge.textContent = profile.age || fallback;
   if (profileViewSex) profileViewSex.textContent = profile.sex || fallback;
   if (profileViewLocation) profileViewLocation.textContent = profile.location || "Eden Palms";
+  if (profileViewLocationHero) profileViewLocationHero.textContent = profile.location || "Eden Palms";
   if (profileViewHealth) profileViewHealth.textContent = healthEmoji(health);
   if (profileViewBio) profileViewBio.textContent = profile.bio || "No bio set.";
 }
 
 function getHealthStatus() {
   const health = window.NeuroLinkHealth || {};
-  return healthEmoji(health.status || localStorage.getItem(HEALTH_STATUS_KEY) || "😐");
+  return healthEmoji(health.status || localStorage.getItem(HEALTH_STATUS_KEY) || "\uD83D\uDE10");
 }
 
 function renderHealthStatus() {
@@ -181,7 +201,7 @@ function loadProfile() {
   try {
     const urlProfile = getProfileFromUrl();
     if (urlProfile) {
-      if (urlProfile.healthStatus) localStorage.setItem(HEALTH_STATUS_KEY, healthEmoji(urlProfile.healthStatus));
+      if (urlProfile.healthStatus) localStorage.setItem(HEALTH_STATUS_KEY, urlProfile.healthStatus);
       localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(urlProfile));
       applyProfileData(urlProfile);
       showProfileMode("view");
@@ -272,6 +292,7 @@ async function resetProfile() {
 
 async function saveProfile() {
   const profile = getProfileFormData();
+  localStorage.setItem(PROFILE_LOCATION_KEY, profile.location);
   localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
   localStorage.setItem(PROFILE_PENDING_SYNC_KEY, JSON.stringify(profile));
   renderProfileSummary(profile);
