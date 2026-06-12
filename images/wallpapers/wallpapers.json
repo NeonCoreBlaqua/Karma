@@ -1,0 +1,44 @@
+[
+  {
+    "id": "burple-tide",
+    "name": "Burple Tide",
+    "file": "images/wallpapers/burple-tide.png",
+    "tone": "purple",
+    "accent": "#9c4dff"
+  },
+  {
+    "id": "black-gold",
+    "name": "Black Gold",
+    "file": "images/wallpapers/black-gold.png",
+    "tone": "gold",
+    "accent": "#d8a43b"
+  },
+  {
+    "id": "velvet-night",
+    "name": "Velvet Night",
+    "file": "images/wallpapers/velvet-night.png",
+    "tone": "violet",
+    "accent": "#b894ff"
+  },
+  {
+    "id": "city-signal",
+    "name": "City Signal",
+    "file": "images/wallpapers/city-signal.png",
+    "tone": "city",
+    "accent": "#58e6ff"
+  },
+  {
+    "id": "emerald-horizon",
+    "name": "Emerald Horizon",
+    "file": "images/wallpapers/emerald-horizon.png",
+    "tone": "emerald",
+    "accent": "#45f08b"
+  },
+  {
+    "id": "neuro-midnight",
+    "name": "Neuro Midnight",
+    "file": "images/wallpapers/neuro-midnight.png",
+    "tone": "midnight",
+    "accent": "#d8a43b"
+  }
+]
