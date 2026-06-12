@@ -13,6 +13,11 @@
   border-bottom: 1px solid rgba(88, 230, 255, 0.12);
 }
 
+.profile-view .page-title h2 {
+  font-size: clamp(3.1rem, 9vw, 4.4rem);
+  line-height: 0.9;
+}
+
 .section-nav {
   position: absolute;
   z-index: 4;
@@ -56,10 +61,17 @@
 .profile-summary {
   position: relative;
   display: grid;
+  grid-template-columns: 1fr;
   gap: 1.15rem;
   width: min(100%, 55rem);
   margin: 0 auto;
+  padding: 0 0 1rem;
   padding-bottom: 1rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .edit-profile-action {
@@ -102,6 +114,10 @@
 
 .profile-summary-avatar {
   position: relative;
+  width: 100%;
+  aspect-ratio: auto;
+  align-self: stretch;
+  justify-self: stretch;
   min-height: 20rem;
   border: 1px solid rgba(0, 255, 224, 0.72);
   border-radius: 1.05rem;
@@ -208,6 +224,7 @@
 .profile-summary-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
   border: 1px solid rgba(88, 230, 255, 0.22);
   border-radius: 0.85rem;
   background: rgba(0, 7, 10, 0.42);
@@ -389,7 +406,7 @@
   line-height: 1;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 560px) {
   .section-nav {
     left: 1rem;
     right: 1rem;
