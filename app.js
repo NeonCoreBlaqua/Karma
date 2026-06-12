@@ -1,5 +1,11 @@
 const views = Array.from(document.querySelectorAll(".view"));
 const routeButtons = Array.from(document.querySelectorAll("[data-target]"));
+const notificationBell = document.querySelector("#notificationBell");
+const notificationPopover = document.querySelector("#notificationPopover");
+const quickNotificationList = document.querySelector("#quickNotificationList");
+const clearNotificationsButton = document.querySelector("#clearNotifications");
+const bottomHomeButton = document.querySelector(".bottom-home");
+const connectBridgeStatus = document.querySelector("#connectBridgeStatus");
 const profileForm = document.querySelector("#profileForm");
 const profileAvatar = document.querySelector("#profileAvatar img");
 const profileSummary = document.querySelector("#profileSummary");
@@ -37,6 +43,7 @@ const TIME_MODE_KEY = "neuroLinkTimeMode";
 const WALLPAPER_KEY = "neuroLinkWallpaper";
 const WALLPAPER_MAP_KEY = "neuroLinkWallpaperMap";
 const SETTINGS_STATE_KEY = "neuroLinkSettingsState";
+const NOTIFICATION_STATE_KEY = "neuroLinkNotifications";
 const DEFAULT_PROFILE_IMAGE = "images/Male Avatar.png";
 const DEFAULT_MALE_PROFILE_IMAGE = "images/Male Avatar.png";
 const DEFAULT_FEMALE_PROFILE_IMAGE = "images/Female Avatar.png";
@@ -52,13 +59,24 @@ const WALLPAPERS = {
   "burple-tide": "images/wallpapers/burple-tide.png",
   "emerald-horizon": "images/wallpapers/emerald-horizon.png"
 };
-const WALLPAPER_TARGETS = ["home", "profile", "wallet", "health", "messages", "settings"];
+const WALLPAPER_TARGETS = ["home", "profile", "wallet", "health", "messages", "connect", "settings"];
+const DEFAULT_NOTIFICATIONS = [
+  { id: "health-vitamin", icon: "H", title: "Health", message: "Vitamin reminder ready.", time: "2m ago", unread: true },
+  { id: "wallet-payment", icon: "G", title: "Wallet", message: "GC payment received.", time: "8m ago", unread: true },
+  { id: "system-profile", icon: "S", title: "System", message: "Profile synced.", time: "14m ago", unread: false },
+  { id: "alert-wellness", icon: "!", title: "Alert", message: "Low wellness status.", time: "22m ago", unread: true }
+];
 
 const urlParams = new URLSearchParams(location.search);
 const configuredEndpoint = urlParams.get("profileEndpoint") || localStorage.getItem(PROFILE_ENDPOINT_KEY) || "";
 const profileBridge = urlParams.get("profileBridge") || "";
 
+if (connectBridgeStatus) {
+  connectBridgeStatus.textContent = profileBridge === "sl" ? "SL Bridge Active" : "Web Mode";
+}
+
 function showView(name) {
+  closeNotifications();
   const viewName = views.some((view) => view.dataset.view === name) ? name : "home";
 
   for (const view of views) {
@@ -100,6 +118,95 @@ function handleRouteButton(button) {
 for (const button of routeButtons) {
   button.addEventListener("click", () => handleRouteButton(button));
 }
+
+function readNotifications() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(NOTIFICATION_STATE_KEY));
+    return Array.isArray(saved) ? saved : DEFAULT_NOTIFICATIONS;
+  } catch (error) {
+    return DEFAULT_NOTIFICATIONS;
+  }
+}
+
+function writeNotifications(notifications) {
+  localStorage.setItem(NOTIFICATION_STATE_KEY, JSON.stringify(notifications));
+}
+
+function unreadNotificationCount() {
+  return readNotifications().filter((item) => item.unread).length;
+}
+
+function updateNotificationBadge() {
+  if (!notificationBell) return;
+  const badge = notificationBell.querySelector("span");
+  const count = unreadNotificationCount();
+  notificationBell.classList.toggle("has-unread", count > 0);
+  notificationBell.classList.toggle("has-count", count >= 5);
+  if (badge) badge.textContent = count >= 5 ? String(count) : "";
+}
+
+function renderQuickNotifications() {
+  if (!quickNotificationList) return;
+  const notifications = readNotifications();
+  quickNotificationList.innerHTML = notifications.map((item) => `
+    <button type="button" data-notification-id="${item.id}" class="${item.unread ? "unread" : ""}">
+      <i>${item.icon}</i>
+      <span>
+        <strong>${item.title}</strong>
+        <small>${item.message}</small>
+      </span>
+      <em>${item.time}</em>
+      <b>${item.unread ? "unread" : "read"}</b>
+    </button>
+  `).join("");
+
+  for (const button of quickNotificationList.querySelectorAll("[data-notification-id]")) {
+    button.addEventListener("click", () => {
+      const updated = readNotifications().map((item) => (
+        item.id === button.dataset.notificationId ? { ...item, unread: false } : item
+      ));
+      writeNotifications(updated);
+      renderQuickNotifications();
+      updateNotificationBadge();
+    });
+  }
+}
+
+function openNotifications() {
+  if (!notificationPopover || !notificationBell) return;
+  renderQuickNotifications();
+  notificationPopover.hidden = false;
+  notificationPopover.classList.add("open");
+  notificationBell.setAttribute("aria-expanded", "true");
+}
+
+function closeNotifications() {
+  if (!notificationPopover || !notificationBell) return;
+  notificationPopover.classList.remove("open");
+  notificationPopover.hidden = true;
+  notificationBell.setAttribute("aria-expanded", "false");
+}
+
+notificationBell?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  if (notificationPopover?.classList.contains("open")) {
+    closeNotifications();
+  } else {
+    openNotifications();
+  }
+});
+
+notificationPopover?.addEventListener("click", (event) => event.stopPropagation());
+
+document.addEventListener("click", () => closeNotifications());
+
+bottomHomeButton?.addEventListener("click", () => closeNotifications());
+
+clearNotificationsButton?.addEventListener("click", () => {
+  writeNotifications(readNotifications().map((item) => ({ ...item, unread: false })));
+  renderQuickNotifications();
+  updateNotificationBadge();
+});
 
 function formatTwelveHour(hours, minutes) {
   const period = hours >= 12 ? "PM" : "AM";
@@ -335,6 +442,7 @@ window.addEventListener("hashchange", () => {
 showView(location.hash.replace("#", "") || "home");
 loadWallpapers();
 refreshToggleButtons();
+updateNotificationBadge();
 updateClock();
 window.setInterval(updateClock, 10000);
 

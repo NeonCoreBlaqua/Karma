@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=25">
+  <link rel="stylesheet" href="style.css?v=26">
   <link rel="stylesheet" href="profile.css?v=9">
   <style>
     body { font-family: Arial, Helvetica, sans-serif; }
@@ -23,7 +23,7 @@
           <button type="button" data-time-mode="rl" aria-pressed="true">RL Time</button>
           <button type="button" data-time-mode="cdf" aria-pressed="false">CDF Time</button>
         </div>
-        <button class="status-bell" type="button" data-target="notifications" aria-label="Open notifications">
+        <button class="status-bell" type="button" id="notificationBell" aria-label="Open notifications" aria-expanded="false">
           <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 46h24l-4-6V28c0-12-16-12-16 0v12Z"/><path d="M28 52h8"/></svg>
           <span></span>
         </button>
@@ -57,11 +57,19 @@
             <button class="app-icon messages-app" type="button" data-target="messages">
               <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 16h40v28H28L16 54V44h-4Z"/></svg><strong>Messages</strong>
             </button>
-            <button class="app-icon connect-app" type="button" data-target="settings">
+            <button class="app-icon connect-app" type="button" data-target="connect">
               <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 34a20 20 0 0 1 28 0"/><path d="M25 42a10 10 0 0 1 14 0"/><path d="M32 50v6"/><circle cx="32" cy="50" r="3"/></svg><strong>Connect</strong>
             </button>
           </div>
         </div>
+      </section>
+
+      <section class="notification-popover" id="notificationPopover" aria-label="Quick notifications" hidden>
+        <header>
+          <strong>Notifications</strong>
+          <button type="button" id="clearNotifications">Mark all read</button>
+        </header>
+        <div class="quick-notification-list" id="quickNotificationList"></div>
       </section>
 
       <section class="view" data-view="notifications">
@@ -106,6 +114,31 @@
           <article>
             <span>Neuro-Link</span>
             <strong>Message routing online.</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" data-view="connect">
+        <div class="page-title">
+          <p>Connect</p>
+          <h2>Links</h2>
+        </div>
+        <div class="info-grid">
+          <article>
+            <span>SL Media Bridge</span>
+            <strong id="connectBridgeStatus">Checking...</strong>
+          </article>
+          <article>
+            <span>Network</span>
+            <strong>Online</strong>
+          </article>
+          <article>
+            <span>Live Site</span>
+            <strong>VrynOS / Neuro</strong>
+          </article>
+          <article>
+            <span>Media Refresh</span>
+            <strong>Available in Settings</strong>
           </article>
         </div>
       </section>
@@ -295,6 +328,7 @@
                   <option value="wallet">Wallet</option>
                   <option value="health">Health / Stats</option>
                   <option value="messages">Messages</option>
+                  <option value="connect">Connect</option>
                   <option value="settings">Settings</option>
                 </select>
               </label>
@@ -354,6 +388,6 @@
 
   </main>
 
-  <script src="app.js?v=18"></script>
+  <script src="app.js?v=19"></script>
 </body>
 </html>
