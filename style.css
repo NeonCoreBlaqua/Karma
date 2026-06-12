@@ -281,6 +281,14 @@ button {
   text-transform: uppercase;
 }
 
+.empty-notifications {
+  margin: 0;
+  padding: 18px 10px;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+
 .status-icons {
   justify-self: end;
   display: flex;

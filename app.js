@@ -3,6 +3,7 @@ const routeButtons = Array.from(document.querySelectorAll("[data-target]"));
 const notificationBell = document.querySelector("#notificationBell");
 const notificationPopover = document.querySelector("#notificationPopover");
 const quickNotificationList = document.querySelector("#quickNotificationList");
+const alertHistoryList = document.querySelector("#alertHistoryList");
 const clearNotificationsButton = document.querySelector("#clearNotifications");
 const bottomHomeButton = document.querySelector(".bottom-home");
 const connectBridgeStatus = document.querySelector("#connectBridgeStatus");
@@ -44,6 +45,7 @@ const WALLPAPER_KEY = "neuroLinkWallpaper";
 const WALLPAPER_MAP_KEY = "neuroLinkWallpaperMap";
 const SETTINGS_STATE_KEY = "neuroLinkSettingsState";
 const NOTIFICATION_STATE_KEY = "neuroLinkNotifications";
+const QUICK_NOTIFICATION_TTL_MS = 60 * 60 * 1000;
 const DEFAULT_PROFILE_IMAGE = "images/Male Avatar.png";
 const DEFAULT_MALE_PROFILE_IMAGE = "images/Male Avatar.png";
 const DEFAULT_FEMALE_PROFILE_IMAGE = "images/Female Avatar.png";
@@ -60,12 +62,15 @@ const WALLPAPERS = {
   "emerald-horizon": "images/wallpapers/emerald-horizon.png"
 };
 const WALLPAPER_TARGETS = ["home", "profile", "wallet", "health", "messages", "connect", "settings"];
-const DEFAULT_NOTIFICATIONS = [
-  { id: "health-vitamin", icon: "H", title: "Health", message: "Vitamin reminder ready.", time: "2m ago", unread: true },
-  { id: "wallet-payment", icon: "G", title: "Wallet", message: "GC payment received.", time: "8m ago", unread: true },
-  { id: "system-profile", icon: "S", title: "System", message: "Profile synced.", time: "14m ago", unread: false },
-  { id: "alert-wellness", icon: "!", title: "Alert", message: "Low wellness status.", time: "22m ago", unread: true }
-];
+function defaultNotifications() {
+  const now = Date.now();
+  return [
+    { id: "health-vitamin", icon: "H", title: "Health", message: "Vitamin reminder ready.", createdAt: now - 2 * 60 * 1000, unread: true },
+    { id: "wallet-payment", icon: "G", title: "Wallet", message: "GC payment received.", createdAt: now - 8 * 60 * 1000, unread: true },
+    { id: "system-profile", icon: "S", title: "System", message: "Profile synced.", createdAt: now - 14 * 60 * 1000, unread: false },
+    { id: "alert-wellness", icon: "!", title: "Alert", message: "Low wellness status.", createdAt: now - 22 * 60 * 1000, unread: true }
+  ];
+}
 
 const urlParams = new URLSearchParams(location.search);
 const configuredEndpoint = urlParams.get("profileEndpoint") || localStorage.getItem(PROFILE_ENDPOINT_KEY) || "";
@@ -122,9 +127,9 @@ for (const button of routeButtons) {
 function readNotifications() {
   try {
     const saved = JSON.parse(localStorage.getItem(NOTIFICATION_STATE_KEY));
-    return Array.isArray(saved) ? saved : DEFAULT_NOTIFICATIONS;
+    return normalizeNotifications(Array.isArray(saved) ? saved : defaultNotifications());
   } catch (error) {
-    return DEFAULT_NOTIFICATIONS;
+    return normalizeNotifications(defaultNotifications());
   }
 }
 
@@ -132,8 +137,34 @@ function writeNotifications(notifications) {
   localStorage.setItem(NOTIFICATION_STATE_KEY, JSON.stringify(notifications));
 }
 
+function normalizeNotifications(notifications) {
+  const now = Date.now();
+  return notifications.map((item, index) => ({
+    id: item.id || `alert-${index}`,
+    icon: item.icon || item.title?.charAt(0) || "!",
+    title: item.title || "Alert",
+    message: item.message || "Notification ready.",
+    createdAt: Number(item.createdAt) || now - index * 6 * 60 * 1000,
+    unread: item.unread !== false
+  })).sort((a, b) => b.createdAt - a.createdAt);
+}
+
+function recentBellNotifications() {
+  const now = Date.now();
+  return readNotifications().filter((item) => item.unread && now - item.createdAt < QUICK_NOTIFICATION_TTL_MS);
+}
+
+function formatNotificationTime(createdAt) {
+  const minutes = Math.max(0, Math.floor((Date.now() - createdAt) / 60000));
+  if (minutes < 1) return "now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
 function unreadNotificationCount() {
-  return readNotifications().filter((item) => item.unread).length;
+  return recentBellNotifications().length;
 }
 
 function updateNotificationBadge() {
@@ -146,18 +177,18 @@ function updateNotificationBadge() {
 
 function renderQuickNotifications() {
   if (!quickNotificationList) return;
-  const notifications = readNotifications();
-  quickNotificationList.innerHTML = notifications.map((item) => `
+  const notifications = recentBellNotifications();
+  quickNotificationList.innerHTML = notifications.length ? notifications.map((item) => `
     <button type="button" data-notification-id="${item.id}" class="${item.unread ? "unread" : ""}">
       <i>${item.icon}</i>
       <span>
         <strong>${item.title}</strong>
         <small>${item.message}</small>
       </span>
-      <em>${item.time}</em>
+      <em>${formatNotificationTime(item.createdAt)}</em>
       <b>${item.unread ? "unread" : "read"}</b>
     </button>
-  `).join("");
+  `).join("") : `<p class="empty-notifications">No new alerts.</p>`;
 
   for (const button of quickNotificationList.querySelectorAll("[data-notification-id]")) {
     button.addEventListener("click", () => {
@@ -165,6 +196,31 @@ function renderQuickNotifications() {
         item.id === button.dataset.notificationId ? { ...item, unread: false } : item
       ));
       writeNotifications(updated);
+      renderQuickNotifications();
+      renderAlertHistory();
+      updateNotificationBadge();
+    });
+  }
+}
+
+function renderAlertHistory() {
+  if (!alertHistoryList) return;
+  const notifications = readNotifications();
+  alertHistoryList.innerHTML = notifications.map((item) => `
+    <button type="button" data-alert-id="${item.id}" class="${item.unread ? "unread" : ""}">
+      <span>${item.title}</span>
+      <strong>${item.message}</strong>
+      <em>${formatNotificationTime(item.createdAt)} - ${item.unread ? "Unread" : "Read"}</em>
+    </button>
+  `).join("");
+
+  for (const button of alertHistoryList.querySelectorAll("[data-alert-id]")) {
+    button.addEventListener("click", () => {
+      const updated = readNotifications().map((item) => (
+        item.id === button.dataset.alertId ? { ...item, unread: false } : item
+      ));
+      writeNotifications(updated);
+      renderAlertHistory();
       renderQuickNotifications();
       updateNotificationBadge();
     });
@@ -204,6 +260,7 @@ bottomHomeButton?.addEventListener("click", () => closeNotifications());
 clearNotificationsButton?.addEventListener("click", () => {
   writeNotifications(readNotifications().map((item) => ({ ...item, unread: false })));
   renderQuickNotifications();
+  renderAlertHistory();
   updateNotificationBadge();
 });
 
@@ -441,6 +498,7 @@ window.addEventListener("hashchange", () => {
 showView(location.hash.replace("#", "") || "home");
 loadWallpapers();
 refreshToggleButtons();
+renderAlertHistory();
 updateNotificationBadge();
 updateClock();
 window.setInterval(updateClock, 10000);

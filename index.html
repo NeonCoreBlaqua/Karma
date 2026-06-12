@@ -70,26 +70,10 @@
 
       <section class="view" data-view="notifications">
         <div class="page-title">
-          <p>Notification Center</p>
-          <h2>Updates</h2>
+          <p>Alerts</p>
+          <h2>Notification History</h2>
         </div>
-        <div class="notification-list">
-          <button type="button" data-target="messages">
-            <span>Messages</span>
-            <strong>New message waiting</strong>
-            <em>Open Messages</em>
-          </button>
-          <button type="button" data-target="wallet">
-            <span>Wallet</span>
-            <strong>G-Coin activity ready</strong>
-            <em>Open Wallet</em>
-          </button>
-          <button type="button" data-target="health">
-            <span>Health</span>
-            <strong>Status check available</strong>
-            <em>Open Health</em>
-          </button>
-        </div>
+        <div class="notification-list" id="alertHistoryList"></div>
       </section>
 
       <section class="view" data-view="messages">
@@ -384,6 +368,6 @@
 
   </main>
 
-  <script src="app.js?v=20"></script>
+  <script src="app.js?v=21"></script>
 </body>
 </html>
