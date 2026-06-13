@@ -135,6 +135,8 @@ Safe button behavior:
 
 Transaction records should store UUIDs plus display labels.
 
+This applies to normal users and Owner/Admin actions. Owner/Admin permissions can allow full control, but they must not allow invisible balance edits. See `docs/gcoin-admin-logging-requirements.md`.
+
 Recommended permanent format:
 
 ```text

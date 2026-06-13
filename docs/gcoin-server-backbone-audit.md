@@ -10,6 +10,8 @@ The current wallet HUD, ATMs, vendors, workforce kiosks, and the future Neuro wa
 
 Identity rule: UUID is the internal account key. Display Name is the public label shown to users. See `docs/gcoin-identity-architecture.md`.
 
+Logging rule: every balance-affecting action must be logged, including Owner/Admin actions. See `docs/gcoin-admin-logging-requirements.md`.
+
 ```text
 Wallet HUD / Neuro Wallet / ATM / Vendors / Workforce
         |
