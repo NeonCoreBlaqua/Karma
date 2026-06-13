@@ -57,11 +57,30 @@ string baseUrl()
         + "#wallet";
 }
 
+integer mediaLink()
+{
+    if (llGetNumberOfPrims() >= MEDIA_LINK) return MEDIA_LINK;
+    return LINK_THIS;
+}
+
+integer mediaFace(integer link)
+{
+    integer sides = llGetLinkNumberOfSides(link);
+    if (MEDIA_FACE < sides) return MEDIA_FACE;
+    return 0;
+}
+
 setMedia()
 {
+    integer link;
+    integer face;
+
     if (bridgeUrl == "" || activeUser == NULL_KEY) return;
 
-    llSetLinkMedia(MEDIA_LINK, MEDIA_FACE, [
+    link = mediaLink();
+    face = mediaFace(link);
+
+    llSetLinkMedia(link, face, [
         PRIM_MEDIA_CURRENT_URL, baseUrl(),
         PRIM_MEDIA_HOME_URL, baseUrl(),
         PRIM_MEDIA_AUTO_PLAY, TRUE,
