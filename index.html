@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=28">
+  <link rel="stylesheet" href="style.css?v=29">
   <link rel="stylesheet" href="profile.css?v=10">
   <style>
     body { font-family: Arial, Helvetica, sans-serif; }
@@ -246,15 +246,48 @@
           <p>Wallet</p>
           <h2>G-Coin</h2>
         </div>
-        <div class="balance-card">
-          <span>Available Balance</span>
-          <strong>GC 0</strong>
-        </div>
-        <div class="action-row">
-          <button type="button">Send</button>
-          <button type="button">Request</button>
-          <button type="button">History</button>
-        </div>
+        <section class="wallet-shell" aria-label="G-Coin wallet">
+          <article class="wallet-balance-panel">
+            <div class="wallet-account-line">
+              <span>Account</span>
+              <strong id="walletDisplayName">Not synced</strong>
+            </div>
+            <div class="wallet-total">
+              <span>Total Balance</span>
+              <strong id="walletTotalBalance">GC 0</strong>
+            </div>
+            <div class="wallet-balance-grid">
+              <article><span>Checking</span><strong id="walletChecking">GC 0</strong></article>
+              <article><span>Savings</span><strong id="walletSavings">GC 0</strong></article>
+            </div>
+            <p id="walletSyncStatus">Waiting for G-Coin Server sync.</p>
+          </article>
+
+          <article class="wallet-action-panel">
+            <header>
+              <span>Actions</span>
+              <strong>Server-backed</strong>
+            </header>
+            <div class="wallet-action-grid">
+              <button type="button" data-wallet-action="refresh">Refresh Balance</button>
+              <button type="button" data-wallet-action="send">Send Money</button>
+              <button type="button" data-wallet-action="request">Request Money</button>
+              <button type="button" data-wallet-action="history">History</button>
+            </div>
+            <div class="wallet-request-box" id="walletRequestBox">
+              <span id="walletActionTitle">Ready</span>
+              <strong id="walletActionText">G-Coin Server remains the source of truth.</strong>
+            </div>
+          </article>
+
+          <article class="wallet-history-panel">
+            <header>
+              <span>Recent Activity</span>
+              <strong>Display Names</strong>
+            </header>
+            <div class="wallet-history-list" id="walletHistoryList"></div>
+          </article>
+        </section>
       </section>
 
       <section class="view" data-view="health">
@@ -444,6 +477,6 @@
 
   </main>
 
-  <script src="app.js?v=23"></script>
+  <script src="app.js?v=24"></script>
 </body>
 </html>

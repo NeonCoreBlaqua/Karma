@@ -48,6 +48,15 @@ const profileViewLocation = document.querySelector("#profileViewLocation");
 const profileViewLocationHero = document.querySelector("#profileViewLocationHero");
 const profileViewHealth = document.querySelector("#profileViewHealth");
 const profileViewBio = document.querySelector("#profileViewBio");
+const walletDisplayName = document.querySelector("#walletDisplayName");
+const walletTotalBalance = document.querySelector("#walletTotalBalance");
+const walletChecking = document.querySelector("#walletChecking");
+const walletSavings = document.querySelector("#walletSavings");
+const walletSyncStatus = document.querySelector("#walletSyncStatus");
+const walletHistoryList = document.querySelector("#walletHistoryList");
+const walletActionTitle = document.querySelector("#walletActionTitle");
+const walletActionText = document.querySelector("#walletActionText");
+const walletActionButtons = Array.from(document.querySelectorAll("[data-wallet-action]"));
 const PROFILE_STORAGE_KEY = "neuroLinkProfile";
 const PROFILE_PENDING_SYNC_KEY = "neuroLinkProfilePendingSync";
 const HEALTH_STATUS_KEY = "neuroLinkHealthStatus";
@@ -59,6 +68,7 @@ const WALLPAPER_MAP_KEY = "neuroLinkWallpaperMap";
 const SETTINGS_STATE_KEY = "neuroLinkSettingsState";
 const NOTIFICATION_STATE_KEY = "neuroLinkNotifications";
 const NEURO_STATE_KEY = "neuroLinkCareState";
+const GCOIN_WALLET_KEY = "neuroLinkGcoinWallet";
 const QUICK_NOTIFICATION_TTL_MS = 60 * 60 * 1000;
 const DEFAULT_PROFILE_IMAGE = "images/Male Avatar.png";
 const DEFAULT_MALE_PROFILE_IMAGE = "images/Male Avatar.png";
@@ -109,6 +119,8 @@ function showView(name) {
   if (location.hash !== `#${viewName}`) {
     history.replaceState(null, "", `#${viewName}`);
   }
+
+  if (viewName === "wallet") renderWallet();
 }
 
 function sendSlBridgeOp(op) {
@@ -504,6 +516,184 @@ for (const button of settingsActionButtons) {
   button.addEventListener("click", () => runSettingsAction(button.dataset.settingsAction));
 }
 
+const DEFAULT_WALLET_STATE = {
+  displayName: "",
+  agentName: "",
+  accountId: "",
+  checking: 0,
+  savings: 0,
+  updatedAt: "",
+  history: []
+};
+
+function parseGcAmount(value) {
+  const clean = String(value ?? "")
+    .replace(/gc/gi, "")
+    .replace(/g\$/gi, "")
+    .replace(/,/g, "")
+    .trim();
+  const amount = Number(clean);
+  return Number.isFinite(amount) ? amount : 0;
+}
+
+function formatGc(value) {
+  const amount = parseGcAmount(value);
+  return `GC ${Math.round(amount).toLocaleString()}`;
+}
+
+function walletProfileName() {
+  try {
+    const profile = normalizeProfile(JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY) || "{}"));
+    return profile.displayName || "";
+  } catch (error) {
+    return "";
+  }
+}
+
+function readWalletState() {
+  try {
+    return { ...DEFAULT_WALLET_STATE, ...JSON.parse(localStorage.getItem(GCOIN_WALLET_KEY)) };
+  } catch (error) {
+    return { ...DEFAULT_WALLET_STATE };
+  }
+}
+
+function writeWalletState(state) {
+  localStorage.setItem(GCOIN_WALLET_KEY, JSON.stringify(state));
+}
+
+function walletStateFromUrl() {
+  const checking = urlParams.get("gcChecking") || urlParams.get("checking") || urlParams.get("gcoinChecking");
+  const savings = urlParams.get("gcSavings") || urlParams.get("savings") || urlParams.get("gcoinSavings");
+  const total = urlParams.get("gcBalance") || urlParams.get("gcoinBalance");
+  const displayName = urlParams.get("gcDisplayName") || urlParams.get("walletDisplayName") || urlParams.get("displayName") || "";
+  const accountId = urlParams.get("gcAccount") || urlParams.get("accountId") || urlParams.get("uuid") || "";
+  const hasWalletData = checking !== null || savings !== null || total !== null || displayName !== "" || accountId !== "";
+
+  if (!hasWalletData) return null;
+
+  const existing = readWalletState();
+  const next = {
+    ...existing,
+    displayName: displayName || existing.displayName,
+    accountId: accountId || existing.accountId,
+    checking: checking !== null ? parseGcAmount(checking) : (total !== null ? parseGcAmount(total) : existing.checking),
+    savings: savings !== null ? parseGcAmount(savings) : existing.savings,
+    updatedAt: new Date().toISOString()
+  };
+
+  return next;
+}
+
+function normalizeWalletHistory(history = []) {
+  return history.slice(0, 8).map((item, index) => ({
+    id: item.id || `wallet-${index}`,
+    type: item.type || "Server",
+    title: item.title || "G-Coin update",
+    detail: item.detail || "Balance synced from server.",
+    amount: item.amount || "",
+    createdAt: item.createdAt || new Date().toISOString()
+  }));
+}
+
+function appendWalletHistory(entry) {
+  const state = readWalletState();
+  state.history = normalizeWalletHistory([entry, ...(state.history || [])]);
+  writeWalletState(state);
+}
+
+function currentWalletState() {
+  const fromUrl = walletStateFromUrl();
+  if (fromUrl) {
+    fromUrl.history = normalizeWalletHistory(fromUrl.history);
+    if (!fromUrl.history.length) {
+      fromUrl.history = normalizeWalletHistory([{
+        type: "Sync",
+        title: "Balance synced",
+        detail: "G-Coin Server balance received.",
+        amount: formatGc((fromUrl.checking || 0) + (fromUrl.savings || 0)),
+        createdAt: fromUrl.updatedAt
+      }]);
+    }
+    writeWalletState(fromUrl);
+    return fromUrl;
+  }
+
+  const saved = readWalletState();
+  return { ...saved, history: normalizeWalletHistory(saved.history) };
+}
+
+function renderWallet() {
+  const state = currentWalletState();
+  const displayName = state.displayName || walletProfileName() || "Waiting for server";
+  const checking = parseGcAmount(state.checking);
+  const savings = parseGcAmount(state.savings);
+  const total = checking + savings;
+
+  if (walletDisplayName) walletDisplayName.textContent = displayName;
+  if (walletChecking) walletChecking.textContent = formatGc(checking);
+  if (walletSavings) walletSavings.textContent = formatGc(savings);
+  if (walletTotalBalance) walletTotalBalance.textContent = formatGc(total);
+  if (walletSyncStatus) {
+    walletSyncStatus.textContent = state.updatedAt
+      ? `Synced ${new Date(state.updatedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}. UUID stays internal.`
+      : "Waiting for G-Coin Server sync.";
+  }
+
+  if (walletHistoryList) {
+    walletHistoryList.innerHTML = state.history.length ? state.history.map((item) => `
+      <article>
+        <span>${item.type}</span>
+        <strong>${item.title}</strong>
+        <em>${item.amount || ""}</em>
+        <small>${item.detail}</small>
+      </article>
+    `).join("") : `
+      <article>
+        <span>Server</span>
+        <strong>No activity loaded</strong>
+        <em></em>
+        <small>Recent G-Coin transactions will appear here after the bridge sends them.</small>
+      </article>
+    `;
+  }
+}
+
+function setWalletAction(title, text) {
+  if (walletActionTitle) walletActionTitle.textContent = title;
+  if (walletActionText) walletActionText.textContent = text;
+}
+
+function handleWalletAction(action) {
+  if (action === "refresh") {
+    const sent = sendSlBridgeOp("gcoin-balance");
+    renderWallet();
+    setWalletAction("Refresh Balance", sent ? "Balance refresh requested from the SL bridge." : "Refresh ready. Waiting for SL bridge connection.");
+    return;
+  }
+
+  if (action === "send") {
+    const sent = sendSlBridgeOp("gcoin-send");
+    setWalletAction("Send Money", sent ? "Opening server-backed Send Money flow." : "Send Money needs the SL G-Coin bridge before it can move funds.");
+    return;
+  }
+
+  if (action === "request") {
+    const sent = sendSlBridgeOp("gcoin-request");
+    setWalletAction("Request Money", sent ? "Opening server-backed Request Money flow." : "Request Money is waiting for the new server-backed request flow.");
+    return;
+  }
+
+  if (action === "history") {
+    const sent = sendSlBridgeOp("gcoin-history");
+    setWalletAction("History", sent ? "Transaction history requested from the server." : "History will show server logs once the bridge sends them.");
+  }
+}
+
+for (const button of walletActionButtons) {
+  button.addEventListener("click", () => handleWalletAction(button.dataset.walletAction));
+}
+
 const NEURO_DEFAULT_STATE = {
   energy: "Normal",
   mood: "Chill",
@@ -664,6 +854,7 @@ loadWallpapers();
 refreshToggleButtons();
 renderAlertHistory();
 updateNotificationBadge();
+renderWallet();
 renderNeuro();
 updateClock();
 window.setInterval(updateClock, 10000);
@@ -958,6 +1149,23 @@ window.NeuroLink = {
   saveProfile,
   resetProfile,
   syncProfileToServer,
+  setGcoinWallet(wallet) {
+    const existing = readWalletState();
+    const next = {
+      ...existing,
+      ...wallet,
+      checking: parseGcAmount(wallet?.checking ?? existing.checking),
+      savings: parseGcAmount(wallet?.savings ?? existing.savings),
+      updatedAt: wallet?.updatedAt || new Date().toISOString(),
+      history: normalizeWalletHistory(wallet?.history || existing.history)
+    };
+    writeWalletState(next);
+    renderWallet();
+  },
+  addGcoinHistory(entry) {
+    appendWalletHistory(entry);
+    renderWallet();
+  },
   setHealthStatus(status) {
     localStorage.setItem(HEALTH_STATUS_KEY, healthEmoji(status));
     renderHealthStatus();
