@@ -42,6 +42,20 @@ Use it in:
 
 Breadcrumbs announce the object and report interactions.
 
+Auto-use Breadcrumb variants:
+
+- `Breadcrumb Food Auto.lsl`
+  - For food and drink items.
+  - Emits `stat.hunger` and `stat.thirst`.
+- `Breadcrumb Furniture Auto.lsl`
+  - For beds, couches, chairs, baths, tubs, showers, and other furniture.
+  - Emits `stat.rest` and `stat.comfort`.
+- `Breadcrumb Product Auto.lsl`
+  - For meds, fem products, hygiene products, wellness products, dispensers, and vendor-given items.
+  - Emits `stat.health` and `stat.care`.
+
+These scripts are opt-in. They do not scan the region. Objects become trackable because you place a Breadcrumb script inside them.
+
 ### Neurons
 
 `Neurons.lsl` is worn by an avatar.
