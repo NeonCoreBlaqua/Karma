@@ -100,7 +100,7 @@ string bestName(key id, string serverName)
 string dialogUserName(string name, key id)
 {
     string suffix = " " + accountNumber(id);
-    integer maxName = 24 - llStringLength(suffix);
+    integer maxName = 22 - llStringLength(suffix);
     if (maxName < 8) maxName = 8;
     if (llStringLength(name) > maxName)
     {
