@@ -5,16 +5,14 @@
 // Talks to AtlasVault on BANK_CH and refreshes SL media
 // with wallet balances + display-name user list.
 //
-// HUD structure expected:
-// link 2 = media screen
-// face 4 = media face
+// Put this script directly inside the media screen prim.
+// It sets media on the same prim it is inside.
 // =====================================================
 
 string DISPLAY_TITLE = "Neuro G-Coin Wallet Bridge";
 integer BUILD_NUMBER = 1;
 
 string NEURO_URL = "https://vrynos.github.io/Neuro/";
-integer MEDIA_LINK = 2;
 integer MEDIA_FACE = 4;
 
 integer BANK_CH = -777777;
@@ -57,30 +55,22 @@ string baseUrl()
         + "#wallet";
 }
 
-integer mediaLink()
+integer mediaFace()
 {
-    if (llGetNumberOfPrims() >= MEDIA_LINK) return MEDIA_LINK;
-    return LINK_THIS;
-}
-
-integer mediaFace(integer link)
-{
-    integer sides = llGetLinkNumberOfSides(link);
+    integer sides = llGetNumberOfSides();
     if (MEDIA_FACE < sides) return MEDIA_FACE;
     return 0;
 }
 
 setMedia()
 {
-    integer link;
     integer face;
 
     if (bridgeUrl == "" || activeUser == NULL_KEY) return;
 
-    link = mediaLink();
-    face = mediaFace(link);
+    face = mediaFace();
 
-    llSetLinkMedia(link, face, [
+    llSetPrimMediaParams(face, [
         PRIM_MEDIA_CURRENT_URL, baseUrl(),
         PRIM_MEDIA_HOME_URL, baseUrl(),
         PRIM_MEDIA_AUTO_PLAY, TRUE,
