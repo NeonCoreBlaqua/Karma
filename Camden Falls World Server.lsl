@@ -33,9 +33,20 @@ string classify(string payload)
 {
     string eventName = llJsonGetValue(payload, ["event"]);
     string typeName = llJsonGetValue(payload, ["type"]);
+    string lowerEvent = llToLower(eventName);
 
-    if (llSubStringIndex(eventName, "rent") != -1 || typeName == "rent") return "housing";
-    if (llSubStringIndex(eventName, "pay") != -1 || typeName == "vendor") return "wallet";
+    if (llSubStringIndex(lowerEvent, "rent") != -1 || typeName == "rent") return "housing";
+    if (
+        typeName == "wallet"
+        || typeName == "vendor"
+        || typeName == "tip"
+        || typeName == "payout"
+        || llSubStringIndex(lowerEvent, "gcoin") != -1
+        || llSubStringIndex(lowerEvent, "pay") != -1
+        || llSubStringIndex(lowerEvent, "purchase") != -1
+        || llSubStringIndex(lowerEvent, "payout") != -1
+        || llSubStringIndex(lowerEvent, "tip") != -1
+    ) return "wallet";
     if (typeName == "work") return "job";
     if (typeName == "food" || typeName == "drink" || typeName == "bed" || typeName == "shower" || typeName == "bath") return "care";
     if (llJsonGetValue(payload, ["source"]) == "neurons") return "presence";

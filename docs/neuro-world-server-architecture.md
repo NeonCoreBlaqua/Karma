@@ -53,6 +53,9 @@ Auto-use Breadcrumb variants:
 - `Breadcrumb Product Auto.lsl`
   - For meds, fem products, hygiene products, wellness products, dispensers, and vendor-given items.
   - Emits `stat.health` and `stat.care`.
+- `Breadcrumb Wallet Auto.lsl`
+  - For G-Coin kiosks, vendors, tip jars, payout boards, rent/payment kiosks, and wallet-connected systems.
+  - Emits `wallet.kind`, `wallet.amount`, and `wallet.currency`.
 
 These scripts are opt-in. They do not scan the region. Objects become trackable because you place a Breadcrumb script inside them.
 
@@ -95,7 +98,7 @@ Neuro-Link HUD receives the alert/update
 - Notification Tracker
 - Location Tracker
 - Housing Tracker
-- Wallet Tracker
+- Wallet Tracker / G-Coin Tracker
 
 ## Phase 2 Trackers
 
