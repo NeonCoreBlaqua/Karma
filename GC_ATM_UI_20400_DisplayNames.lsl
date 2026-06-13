@@ -97,6 +97,18 @@ string bestName(key id, string serverName)
     return "User-" + accountNumber(id);
 }
 
+string dialogUserName(string name, key id)
+{
+    string suffix = " " + accountNumber(id);
+    integer maxName = 24 - llStringLength(suffix);
+    if (maxName < 8) maxName = 8;
+    if (llStringLength(name) > maxName)
+    {
+        name = llGetSubString(name, 0, maxName - 1);
+    }
+    return name + suffix;
+}
+
 integer hasAccess(key id)
 {
     if (!ACCESS_GROUP_ONLY) return TRUE;
@@ -509,7 +521,7 @@ handleServer(string str)
             }
 
             userUUIDs += [k];
-            userNames += [bestName(k, serverName)];
+            userNames += [dialogUserName(bestName(k, serverName), k)];
 
 @cont2;
         }
