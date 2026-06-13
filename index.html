@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=29">
+  <link rel="stylesheet" href="style.css?v=30">
   <link rel="stylesheet" href="profile.css?v=10">
   <style>
     body { font-family: Arial, Helvetica, sans-serif; }
@@ -237,11 +237,23 @@
       </section>
 
       <section class="view" data-view="wallet">
-        <nav class="section-nav" aria-label="Profile app navigation">
-          <button type="button" data-target="profile">Profile</button>
-          <button type="button" data-target="wallet">Wallet</button>
-          <button type="button" data-target="messages">DMs</button>
-        </nav>
+        <button class="wallet-settings-button" type="button" id="walletSettingsButton" aria-label="Wallet settings" aria-expanded="false">
+          <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="8"/><path d="M32 8v8M32 48v8M8 32h8M48 32h8M15 15l6 6M43 43l6 6M49 15l-6 6M21 43l-6 6"/></svg>
+        </button>
+        <aside class="wallet-settings-panel" id="walletSettingsPanel" aria-label="Wallet admin settings" hidden>
+          <header>
+            <span>Settings</span>
+            <button type="button" data-wallet-admin-action="close">Close</button>
+          </header>
+          <div class="wallet-admin-list">
+            <button type="button" data-wallet-admin-action="admin-send">Admin Send</button>
+            <button type="button" data-wallet-admin-action="add-money">Add Money</button>
+            <button type="button" data-wallet-admin-action="set-balance">Set Balance</button>
+            <button type="button" data-wallet-admin-action="clear-balance">Clear Balance</button>
+            <button type="button" data-wallet-admin-action="transaction-logs">Transaction Logs</button>
+          </div>
+          <p id="walletAdminStatus">Owner/Admin tools require server permission.</p>
+        </aside>
         <div class="page-title">
           <p>Wallet</p>
           <h2>G-Coin</h2>
@@ -251,10 +263,6 @@
             <div class="wallet-account-line">
               <span>Account</span>
               <strong id="walletDisplayName">Not synced</strong>
-            </div>
-            <div class="wallet-total">
-              <span>Total Balance</span>
-              <strong id="walletTotalBalance">GC 0</strong>
             </div>
             <div class="wallet-balance-grid">
               <article><span>Checking</span><strong id="walletChecking">GC 0</strong></article>
@@ -269,8 +277,8 @@
               <strong>Server-backed</strong>
             </header>
             <div class="wallet-action-grid">
-              <button type="button" data-wallet-action="refresh">Refresh Balance</button>
-              <button type="button" data-wallet-action="send">Send Money</button>
+              <button type="button" data-wallet-action="refresh">Refresh</button>
+              <button type="button" data-wallet-action="transfer">Transfer</button>
               <button type="button" data-wallet-action="request">Request Money</button>
               <button type="button" data-wallet-action="history">History</button>
             </div>
@@ -477,6 +485,6 @@
 
   </main>
 
-  <script src="app.js?v=24"></script>
+  <script src="app.js?v=25"></script>
 </body>
 </html>

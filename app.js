@@ -49,7 +49,6 @@ const profileViewLocationHero = document.querySelector("#profileViewLocationHero
 const profileViewHealth = document.querySelector("#profileViewHealth");
 const profileViewBio = document.querySelector("#profileViewBio");
 const walletDisplayName = document.querySelector("#walletDisplayName");
-const walletTotalBalance = document.querySelector("#walletTotalBalance");
 const walletChecking = document.querySelector("#walletChecking");
 const walletSavings = document.querySelector("#walletSavings");
 const walletSyncStatus = document.querySelector("#walletSyncStatus");
@@ -57,6 +56,10 @@ const walletHistoryList = document.querySelector("#walletHistoryList");
 const walletActionTitle = document.querySelector("#walletActionTitle");
 const walletActionText = document.querySelector("#walletActionText");
 const walletActionButtons = Array.from(document.querySelectorAll("[data-wallet-action]"));
+const walletSettingsButton = document.querySelector("#walletSettingsButton");
+const walletSettingsPanel = document.querySelector("#walletSettingsPanel");
+const walletAdminStatus = document.querySelector("#walletAdminStatus");
+const walletAdminActionButtons = Array.from(document.querySelectorAll("[data-wallet-admin-action]"));
 const PROFILE_STORAGE_KEY = "neuroLinkProfile";
 const PROFILE_PENDING_SYNC_KEY = "neuroLinkProfilePendingSync";
 const HEALTH_STATUS_KEY = "neuroLinkHealthStatus";
@@ -278,7 +281,10 @@ notificationBell?.addEventListener("click", (event) => {
 
 notificationPopover?.addEventListener("click", (event) => event.stopPropagation());
 
-document.addEventListener("click", () => closeNotifications());
+document.addEventListener("click", () => {
+  closeNotifications();
+  closeWalletSettings();
+});
 
 bottomHomeButton?.addEventListener("click", () => closeNotifications());
 
@@ -520,6 +526,7 @@ const DEFAULT_WALLET_STATE = {
   displayName: "",
   agentName: "",
   accountId: "",
+  admin: false,
   checking: 0,
   savings: 0,
   updatedAt: "",
@@ -568,6 +575,7 @@ function walletStateFromUrl() {
   const total = urlParams.get("gcBalance") || urlParams.get("gcoinBalance");
   const displayName = urlParams.get("gcDisplayName") || urlParams.get("walletDisplayName") || urlParams.get("displayName") || "";
   const accountId = urlParams.get("gcAccount") || urlParams.get("accountId") || urlParams.get("uuid") || "";
+  const admin = urlParams.get("gcAdmin") || urlParams.get("admin") || "";
   const hasWalletData = checking !== null || savings !== null || total !== null || displayName !== "" || accountId !== "";
 
   if (!hasWalletData) return null;
@@ -577,6 +585,7 @@ function walletStateFromUrl() {
     ...existing,
     displayName: displayName || existing.displayName,
     accountId: accountId || existing.accountId,
+    admin: admin ? admin === "1" || admin.toLowerCase() === "true" : !!existing.admin,
     checking: checking !== null ? parseGcAmount(checking) : (total !== null ? parseGcAmount(total) : existing.checking),
     savings: savings !== null ? parseGcAmount(savings) : existing.savings,
     updatedAt: new Date().toISOString()
@@ -628,16 +637,20 @@ function renderWallet() {
   const displayName = state.displayName || walletProfileName() || "Waiting for server";
   const checking = parseGcAmount(state.checking);
   const savings = parseGcAmount(state.savings);
-  const total = checking + savings;
 
   if (walletDisplayName) walletDisplayName.textContent = displayName;
   if (walletChecking) walletChecking.textContent = formatGc(checking);
   if (walletSavings) walletSavings.textContent = formatGc(savings);
-  if (walletTotalBalance) walletTotalBalance.textContent = formatGc(total);
   if (walletSyncStatus) {
     walletSyncStatus.textContent = state.updatedAt
       ? `Synced ${new Date(state.updatedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}. UUID stays internal.`
       : "Waiting for G-Coin Server sync.";
+  }
+  if (walletSettingsPanel) walletSettingsPanel.classList.toggle("admin-ready", !!state.admin);
+  if (walletAdminStatus) {
+    walletAdminStatus.textContent = state.admin
+      ? "Owner/Admin tools ready. Server still logs every action."
+      : "Owner/Admin tools require server permission.";
   }
 
   if (walletHistoryList) {
@@ -664,17 +677,34 @@ function setWalletAction(title, text) {
   if (walletActionText) walletActionText.textContent = text;
 }
 
+function closeWalletSettings() {
+  if (!walletSettingsPanel || !walletSettingsButton) return;
+  walletSettingsPanel.hidden = true;
+  walletSettingsPanel.classList.remove("open");
+  walletSettingsButton.setAttribute("aria-expanded", "false");
+}
+
+function toggleWalletSettings() {
+  if (!walletSettingsPanel || !walletSettingsButton) return;
+  const opening = walletSettingsPanel.hidden;
+  walletSettingsPanel.hidden = !opening;
+  walletSettingsPanel.classList.toggle("open", opening);
+  walletSettingsButton.setAttribute("aria-expanded", String(opening));
+  if (opening) renderWallet();
+}
+
 function handleWalletAction(action) {
   if (action === "refresh") {
-    const sent = sendSlBridgeOp("gcoin-balance");
+    const sentBalance = sendSlBridgeOp("gcoin-balance");
+    const sentHistory = sendSlBridgeOp("gcoin-history");
     renderWallet();
-    setWalletAction("Refresh Balance", sent ? "Balance refresh requested from the SL bridge." : "Refresh ready. Waiting for SL bridge connection.");
+    setWalletAction("Refresh", sentBalance || sentHistory ? "Latest balances and transaction history requested from the G-Coin Server." : "Refresh ready. Waiting for SL bridge connection.");
     return;
   }
 
-  if (action === "send") {
-    const sent = sendSlBridgeOp("gcoin-send");
-    setWalletAction("Send Money", sent ? "Opening server-backed Send Money flow." : "Send Money needs the SL G-Coin bridge before it can move funds.");
+  if (action === "transfer") {
+    const sent = sendSlBridgeOp("gcoin-transfer");
+    setWalletAction("Transfer", sent ? "Opening transfer flow. Checking can move to savings or another resident." : "Transfer needs the SL G-Coin bridge. Savings cannot be spent directly.");
     return;
   }
 
@@ -690,8 +720,51 @@ function handleWalletAction(action) {
   }
 }
 
+function handleWalletAdminAction(action) {
+  const state = readWalletState();
+
+  if (action === "close") {
+    closeWalletSettings();
+    return;
+  }
+
+  if (!state.admin) {
+    setWalletAction("Admin Locked", "This wallet session is not marked Owner/Admin by the G-Coin Server.");
+    if (walletAdminStatus) walletAdminStatus.textContent = "Admin action blocked. Server permission required.";
+    return;
+  }
+
+  const bridgeOps = {
+    "admin-send": "gcoin-admin-send",
+    "add-money": "gcoin-add-money",
+    "set-balance": "gcoin-set-balance",
+    "clear-balance": "gcoin-clear-balance",
+    "transaction-logs": "gcoin-admin-logs"
+  };
+  const labels = {
+    "admin-send": "Admin Send",
+    "add-money": "Add Money",
+    "set-balance": "Set Balance",
+    "clear-balance": "Clear Balance",
+    "transaction-logs": "Transaction Logs"
+  };
+  const sent = sendSlBridgeOp(bridgeOps[action]);
+  setWalletAction(labels[action] || "Admin", sent ? `${labels[action]} requested. Server logging remains mandatory.` : `${labels[action]} needs the SL G-Coin bridge.`);
+}
+
 for (const button of walletActionButtons) {
   button.addEventListener("click", () => handleWalletAction(button.dataset.walletAction));
+}
+
+walletSettingsButton?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  toggleWalletSettings();
+});
+
+walletSettingsPanel?.addEventListener("click", (event) => event.stopPropagation());
+
+for (const button of walletAdminActionButtons) {
+  button.addEventListener("click", () => handleWalletAdminAction(button.dataset.walletAdminAction));
 }
 
 const NEURO_DEFAULT_STATE = {
