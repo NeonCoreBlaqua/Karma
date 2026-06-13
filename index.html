@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=27">
+  <link rel="stylesheet" href="style.css?v=28">
   <link rel="stylesheet" href="profile.css?v=10">
   <style>
     body { font-family: Arial, Helvetica, sans-serif; }
@@ -42,7 +42,7 @@
               <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 20h38a6 6 0 0 1 6 6v24H12Z"/><path d="M12 20l34-8v8"/><path d="M46 37h10"/></svg><strong>Wallet</strong>
             </button>
             <button class="app-icon health-app" type="button" data-target="health">
-              <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 54 13 34c-13-15 8-31 19-14 11-17 32-1 19 14Z"/><path d="M18 36h10l5-10 6 20 5-10h8"/></svg><strong>Health</strong>
+              <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8c13 10 18 24 13 39-10-5-15-19-13-39Z"/><path d="M52 22c-1 20-13 31-31 34 3-17 13-30 31-34Z"/><path d="M12 23c18 2 29 14 33 33-17-3-29-14-33-33Z"/></svg><strong>Neuro</strong>
             </button>
             <button class="app-icon stats-app" type="button" data-target="health">
               <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M16 50V32"/><path d="M32 50V20"/><path d="M48 50V12"/><path d="M10 50h44"/></svg><strong>Stats</strong>
@@ -258,15 +258,91 @@
       </section>
 
       <section class="view" data-view="health">
-        <div class="page-title">
-          <p>Health</p>
-          <h2>Status</h2>
-        </div>
-        <div class="meters">
-          <label>Health <span></span></label>
-          <label>Energy <span></span></label>
-          <label>Hydration <span></span></label>
-          <label>Mood <span></span></label>
+        <div class="neuro-app">
+          <aside class="neuro-rail" aria-label="Neuro sections">
+            <strong>Neuro</strong>
+            <button class="active" type="button" data-neuro-section="home">Home</button>
+            <button type="button" data-neuro-section="checkin">Daily Check-In</button>
+            <button type="button" data-neuro-section="pulse">My Pulse</button>
+            <button type="button" data-neuro-section="health">Health</button>
+            <button type="button" data-neuro-section="care">Care</button>
+            <button type="button" data-neuro-section="lifestyle">Lifestyle</button>
+            <button type="button" data-neuro-section="suggestions">Suggestions</button>
+          </aside>
+
+          <section class="neuro-main">
+            <header class="neuro-hero">
+              <div>
+                <p>Good morning,</p>
+                <h2 id="neuroGreetingName">Xavion.</h2>
+                <span id="neuroGreetingLine">How are we moving today?</span>
+              </div>
+              <div class="neuro-mark" aria-hidden="true"></div>
+            </header>
+
+            <section class="neuro-panel active" data-neuro-panel="home">
+              <article class="neuro-card neuro-checkin-card">
+                <header><strong>Daily Check-In</strong><span>Answer a few questions about your day.</span></header>
+                <div class="neuro-choice-grid" id="neuroPrimaryChoices">
+                  <button type="button" data-neuro-choice="Focused">Focused</button>
+                  <button type="button" data-neuro-choice="Tired">Tired</button>
+                  <button type="button" data-neuro-choice="Hungry">Hungry</button>
+                  <button type="button" data-neuro-choice="Stressed">Stressed</button>
+                  <button type="button" data-neuro-choice="Social">Social</button>
+                  <button type="button" data-neuro-choice="Skip">Skip</button>
+                </div>
+                <p id="neuroFollowupPrompt">Choose how you are moving today.</p>
+                <div class="neuro-choice-grid compact" id="neuroFollowupChoices"></div>
+                <small id="neuroLastCheckin">Last check-in: Not yet</small>
+              </article>
+
+              <article class="neuro-card neuro-pulse-card">
+                <header><strong>My Pulse</strong><span>Overview of your current state.</span></header>
+                <dl>
+                  <div><dt>Energy</dt><dd id="pulseEnergy">Normal</dd></div>
+                  <div><dt>Mood</dt><dd id="pulseMood">Chill</dd></div>
+                  <div><dt>Health</dt><dd id="pulseHealth">Normal</dd></div>
+                </dl>
+              </article>
+
+              <article class="neuro-card neuro-care-card">
+                <header><strong>Care Essentials</strong><span>Take care of the basics.</span></header>
+                <div class="neuro-care-grid">
+                  <button type="button" data-neuro-care="food">Food</button>
+                  <button type="button" data-neuro-care="water">Water</button>
+                  <button type="button" data-neuro-care="rest">Rest</button>
+                  <button type="button" data-neuro-care="meds">Meds</button>
+                  <button type="button" data-neuro-care="hygiene">Hygiene</button>
+                  <button type="button" data-neuro-care="selfCare">Self-Care</button>
+                </div>
+              </article>
+
+              <article class="neuro-card neuro-suggestion-card">
+                <header><strong>Neuro Suggestion</strong><span>Based on your pulse and habits.</span></header>
+                <p id="neuroSuggestion">A quick check-in will help Neuro suggest your next step.</p>
+                <button type="button" data-neuro-section="suggestions">See suggestions</button>
+              </article>
+            </section>
+
+            <section class="neuro-panel" data-neuro-panel="checkin">
+              <article class="neuro-card"><h3>Daily Check-In</h3><p>Pick a starting state from the Home check-in card.</p></article>
+            </section>
+            <section class="neuro-panel" data-neuro-panel="pulse">
+              <article class="neuro-card"><h3>My Pulse</h3><div class="neuro-pulse-list" id="neuroPulseSummary"></div></article>
+            </section>
+            <section class="neuro-panel" data-neuro-panel="health">
+              <article class="neuro-card"><h3>Health</h3><div class="neuro-option-list" data-neuro-list="health"></div></article>
+            </section>
+            <section class="neuro-panel" data-neuro-panel="care">
+              <article class="neuro-card"><h3>Care</h3><div class="neuro-option-list" data-neuro-list="care"></div></article>
+            </section>
+            <section class="neuro-panel" data-neuro-panel="lifestyle">
+              <article class="neuro-card"><h3>Lifestyle</h3><div class="neuro-option-list" data-neuro-list="lifestyle"></div></article>
+            </section>
+            <section class="neuro-panel" data-neuro-panel="suggestions">
+              <article class="neuro-card"><h3>Suggestions</h3><p id="neuroSuggestionFull">A quick check-in will help Neuro suggest your next step.</p></article>
+            </section>
+          </section>
         </div>
       </section>
 
@@ -306,7 +382,7 @@
                   <option value="home">Home</option>
                   <option value="profile">Profile</option>
                   <option value="wallet">Wallet</option>
-                  <option value="health">Health / Stats</option>
+                  <option value="health">Neuro / Stats</option>
                   <option value="messages">Messages</option>
                   <option value="connect">Connect</option>
                   <option value="settings">Settings</option>
@@ -368,6 +444,6 @@
 
   </main>
 
-  <script src="app.js?v=22"></script>
+  <script src="app.js?v=23"></script>
 </body>
 </html>

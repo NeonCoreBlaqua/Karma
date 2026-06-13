@@ -25,6 +25,19 @@ const settingsPanels = Array.from(document.querySelectorAll("[data-settings-pane
 const settingsStatus = document.querySelector("#settingsStatus");
 const settingsActionButtons = Array.from(document.querySelectorAll("[data-settings-action]"));
 const settingsToggleButtons = Array.from(document.querySelectorAll("[data-settings-toggle]"));
+const neuroSectionButtons = Array.from(document.querySelectorAll("[data-neuro-section]"));
+const neuroPanels = Array.from(document.querySelectorAll("[data-neuro-panel]"));
+const neuroPrimaryChoices = Array.from(document.querySelectorAll("[data-neuro-choice]"));
+const neuroFollowupChoices = document.querySelector("#neuroFollowupChoices");
+const neuroFollowupPrompt = document.querySelector("#neuroFollowupPrompt");
+const neuroLastCheckin = document.querySelector("#neuroLastCheckin");
+const neuroSuggestion = document.querySelector("#neuroSuggestion");
+const neuroSuggestionFull = document.querySelector("#neuroSuggestionFull");
+const neuroGreetingName = document.querySelector("#neuroGreetingName");
+const pulseEnergy = document.querySelector("#pulseEnergy");
+const pulseMood = document.querySelector("#pulseMood");
+const pulseHealth = document.querySelector("#pulseHealth");
+const neuroPulseSummary = document.querySelector("#neuroPulseSummary");
 const profileViewAvatar = document.querySelector("#profileViewAvatar");
 const profileViewTitle = document.querySelector("#profileViewTitle");
 const profileViewTitleDetail = document.querySelector("#profileViewTitleDetail");
@@ -45,6 +58,7 @@ const WALLPAPER_KEY = "neuroLinkWallpaper";
 const WALLPAPER_MAP_KEY = "neuroLinkWallpaperMap";
 const SETTINGS_STATE_KEY = "neuroLinkSettingsState";
 const NOTIFICATION_STATE_KEY = "neuroLinkNotifications";
+const NEURO_STATE_KEY = "neuroLinkCareState";
 const QUICK_NOTIFICATION_TTL_MS = 60 * 60 * 1000;
 const DEFAULT_PROFILE_IMAGE = "images/Male Avatar.png";
 const DEFAULT_MALE_PROFILE_IMAGE = "images/Male Avatar.png";
@@ -490,6 +504,157 @@ for (const button of settingsActionButtons) {
   button.addEventListener("click", () => runSettingsAction(button.dataset.settingsAction));
 }
 
+const NEURO_DEFAULT_STATE = {
+  energy: "Normal",
+  mood: "Chill",
+  health: "Normal",
+  food: "Not checked",
+  water: "Not checked",
+  rest: "Not checked",
+  rent: "Stable",
+  social: "Quiet",
+  stress: "Low",
+  lastCheckIn: ""
+};
+
+const NEURO_FOLLOWUPS = {
+  Focused: { prompt: "What are we focusing on first?", choices: ["Work", "Errands", "Creative", "Reset"] },
+  Tired: { prompt: "Need rest, water, or a slower pace?", choices: ["Rest", "Water", "Slow pace", "Not now"] },
+  Hungry: { prompt: "Need breakfast, coffee, or water first?", choices: ["Breakfast", "Coffee", "Water", "Not now"] },
+  Stressed: { prompt: "What would help lower the pressure?", choices: ["Breathe", "Quiet", "Talk", "Break"] },
+  Social: { prompt: "How social are we feeling?", choices: ["Active", "Low-key", "DMs", "Solo"] },
+  Skip: { prompt: "No check-in saved yet.", choices: ["Not now"] }
+};
+
+function readNeuroState() {
+  try {
+    return { ...NEURO_DEFAULT_STATE, ...JSON.parse(localStorage.getItem(NEURO_STATE_KEY)) };
+  } catch (error) {
+    return { ...NEURO_DEFAULT_STATE };
+  }
+}
+
+function writeNeuroState(state) {
+  localStorage.setItem(NEURO_STATE_KEY, JSON.stringify(state));
+}
+
+function showNeuroPanel(name = "home") {
+  const panelName = neuroPanels.some((panel) => panel.dataset.neuroPanel === name) ? name : "home";
+  for (const button of neuroSectionButtons) {
+    button.classList.toggle("active", button.dataset.neuroSection === panelName);
+  }
+  for (const panel of neuroPanels) {
+    panel.classList.toggle("active", panel.dataset.neuroPanel === panelName);
+  }
+}
+
+function neuroSuggestionFor(state) {
+  if (state.food === "Hungry" || state.food === "Breakfast") return "You marked food as a priority. A real meal and some water could help your energy stabilize.";
+  if (state.energy === "Low" || state.rest === "Needed") return "Your energy is low. A short rest, water, and a slower pace would be a good next move.";
+  if (state.stress === "High") return "Stress is running high. Try a quiet reset before taking on the next task.";
+  if (state.social === "Active") return "You are open socially. Check Camden Falls Online or send a DM when you are ready.";
+  if (state.mood === "Focused") return "You are focused. Pick one task and keep the next step small.";
+  return "Your pulse looks steady. Keep food, water, and rest balanced today.";
+}
+
+function renderNeuro() {
+  const state = readNeuroState();
+  let profile = {};
+  try {
+    profile = normalizeProfile(JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY) || "{}"));
+  } catch (error) {
+    profile = normalizeProfile({});
+  }
+  if (neuroGreetingName) neuroGreetingName.textContent = `${profile.displayName || "Xavion"}.`;
+  if (pulseEnergy) pulseEnergy.textContent = state.energy;
+  if (pulseMood) pulseMood.textContent = state.mood;
+  if (pulseHealth) pulseHealth.textContent = state.health;
+  if (neuroLastCheckin) {
+    neuroLastCheckin.textContent = state.lastCheckIn ? `Last check-in: ${new Date(state.lastCheckIn).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : "Last check-in: Not yet";
+  }
+  const suggestion = neuroSuggestionFor(state);
+  if (neuroSuggestion) neuroSuggestion.textContent = suggestion;
+  if (neuroSuggestionFull) neuroSuggestionFull.textContent = suggestion;
+  if (neuroPulseSummary) {
+    neuroPulseSummary.innerHTML = Object.entries(state).map(([key, value]) => `<div><span>${key}</span><strong>${value || "Not checked"}</strong></div>`).join("");
+  }
+}
+
+function saveNeuroChoice(primary, followup = "") {
+  const state = readNeuroState();
+  state.lastCheckIn = new Date().toISOString();
+
+  if (primary === "Focused") {
+    state.energy = "Good";
+    state.mood = "Focused";
+  } else if (primary === "Tired") {
+    state.energy = "Low";
+    state.rest = "Needed";
+  } else if (primary === "Hungry") {
+    state.food = followup || "Hungry";
+    if (followup === "Water") state.water = "Needed";
+  } else if (primary === "Stressed") {
+    state.stress = "High";
+    state.mood = "Stressed";
+  } else if (primary === "Social") {
+    state.social = followup || "Active";
+    state.mood = "Social";
+  }
+
+  if (followup === "Water") state.water = "Needed";
+  if (followup === "Rest") state.rest = "Needed";
+  if (followup === "Break" || followup === "Breathe" || followup === "Quiet") state.stress = "Moderate";
+
+  writeNeuroState(state);
+  renderNeuro();
+}
+
+for (const button of neuroSectionButtons) {
+  button.addEventListener("click", () => showNeuroPanel(button.dataset.neuroSection));
+}
+
+for (const button of neuroPrimaryChoices) {
+  button.addEventListener("click", () => {
+    const choice = button.dataset.neuroChoice;
+    const followup = NEURO_FOLLOWUPS[choice] || NEURO_FOLLOWUPS.Skip;
+    if (neuroFollowupPrompt) neuroFollowupPrompt.textContent = followup.prompt;
+    if (neuroFollowupChoices) {
+      neuroFollowupChoices.innerHTML = followup.choices.map((item) => `<button type="button" data-followup="${item}">${item}</button>`).join("");
+      for (const followupButton of neuroFollowupChoices.querySelectorAll("[data-followup]")) {
+        followupButton.addEventListener("click", () => saveNeuroChoice(choice, followupButton.dataset.followup));
+      }
+    }
+    if (choice === "Skip") saveNeuroChoice(choice, "Not now");
+  });
+}
+
+for (const button of document.querySelectorAll("[data-neuro-care]")) {
+  button.addEventListener("click", () => {
+    const state = readNeuroState();
+    const key = button.dataset.neuroCare;
+    if (key in NEURO_DEFAULT_STATE) {
+      state[key] = "Checked";
+    } else if (key === "meds" || key === "hygiene") {
+      state.health = "Checked";
+    } else if (key === "selfCare") {
+      state.mood = "Supported";
+    }
+    state.lastCheckIn = new Date().toISOString();
+    writeNeuroState(state);
+    renderNeuro();
+  });
+}
+
+for (const list of document.querySelectorAll("[data-neuro-list]")) {
+  const type = list.dataset.neuroList;
+  const items = {
+    health: ["Status: Normal", "Sickness: None", "Medication: None", "Pain / Discomfort: None"],
+    care: ["Food", "Water", "Rest", "Meds", "Hygiene", "Self-Care"],
+    lifestyle: ["Rent: Stable", "Social Life: Quiet", "Stress Level: Low", "Sleep Schedule: Normal"]
+  }[type] || [];
+  list.innerHTML = items.map((item) => `<button type="button">${item}</button>`).join("");
+}
+
 window.addEventListener("hashchange", () => {
   showView(location.hash.replace("#", "") || "home");
 });
@@ -499,6 +664,7 @@ loadWallpapers();
 refreshToggleButtons();
 renderAlertHistory();
 updateNotificationBadge();
+renderNeuro();
 updateClock();
 window.setInterval(updateClock, 10000);
 
@@ -627,6 +793,7 @@ function renderProfileSummary(profile = getProfileFormData()) {
   if (profileViewLocationHero) profileViewLocationHero.textContent = profile.location || "Eden Palms";
   if (profileViewHealth) profileViewHealth.textContent = healthEmoji(health);
   if (profileViewBio) profileViewBio.textContent = profile.bio || "No bio set.";
+  renderNeuro();
 }
 
 function getHealthStatus() {
