@@ -37,7 +37,7 @@ string enc(string value)
     return llEscapeURL(value);
 }
 
-string money(float amount)
+string gcAmount(float amount)
 {
     return (string)llRound(amount);
 }
@@ -49,8 +49,8 @@ string baseUrl()
         + "&profileEndpoint=" + enc(bridgeUrl)
         + "&gcDisplayName=" + enc(llGetDisplayName(activeUser))
         + "&gcAccount=" + enc((string)activeUser)
-        + "&gcChecking=" + enc(money(checking))
-        + "&gcSavings=" + enc(money(savings))
+        + "&gcChecking=" + enc(gcAmount(checking))
+        + "&gcSavings=" + enc(gcAmount(savings))
         + "&gcAdmin=" + (string)isAdmin
         + "&gcSync=" + (string)lastSync
         + "&gcUsers=" + enc(usersPayload)
@@ -200,7 +200,7 @@ handleBridgeOp(string body, key requestId)
             llInstantMessage((key)resident,
                 llGetDisplayName(activeUser)
                 + " requested GC "
-                + money(amount)
+                + gcAmount(amount)
                 + ". Reason: "
                 + reason
             );
