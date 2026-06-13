@@ -12,7 +12,7 @@ string SERVER_NAME      = "G Coin Update Server";
 key    ADMIN_UUID       = "0f6de87a-d007-46bb-85e5-fceccf6974ae";
 
 integer UPDATE_CH       = -9869870;
-integer BUILD_NUMBER    = 20408;
+integer BUILD_NUMBER    = 20407;
 integer OWNER_ONLY      = FALSE;
 integer GIVE_UPDATES    = TRUE;
 
@@ -20,9 +20,9 @@ integer CDF_TRACKER_CHANNEL = -73463301;
 string CDF_TOKEN = "CDF_WORLD_V1";
 
 string HUD_PRODUCT_ID   = "GCOIN_WALLET_HUD";
-integer HUD_BUILD       = 20406;
+integer HUD_BUILD       = 20405;
 string HUD_OBJECT_NAME  = "G Coin Wallet";
-string HUD_NOTES        = "G Coin Wallet 20406 split core update fixes stack/heap pressure and safe recipient picker labels.";
+string HUD_NOTES        = "G Coin Wallet 20405 fixes recipient display names, paging, request alerts, and self-send blocking.";
 
 string ATM_PRODUCT_ID   = "GCOIN_ATM";
 integer ATM_BUILD       = 20400;
@@ -192,3 +192,4 @@ default
         if (channel == UPDATE_CH) handleUpdateMessage(id, msg);
     }
 }
+
