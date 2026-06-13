@@ -8,6 +8,8 @@ G-Coin is no longer a test HUD. The permanent system is the server.
 
 The current wallet HUD, ATMs, vendors, workforce kiosks, and the future Neuro wallet module should all be treated as clients. They can request balances, send payments, create requests, and show results, but the permanent truth must stay in the G-Coin Server.
 
+Identity rule: UUID is the internal account key. Display Name is the public label shown to users. See `docs/gcoin-identity-architecture.md`.
+
 ```text
 Wallet HUD / Neuro Wallet / ATM / Vendors / Workforce
         |
