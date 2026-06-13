@@ -56,10 +56,23 @@ const walletHistoryList = document.querySelector("#walletHistoryList");
 const walletActionTitle = document.querySelector("#walletActionTitle");
 const walletActionText = document.querySelector("#walletActionText");
 const walletActionButtons = Array.from(document.querySelectorAll("[data-wallet-action]"));
+const walletScreens = Array.from(document.querySelectorAll("[data-wallet-screen]"));
+const walletEyeButtons = Array.from(document.querySelectorAll("[data-wallet-eye]"));
+const walletBackButtons = Array.from(document.querySelectorAll("[data-wallet-back]"));
+const walletConfirmButtons = Array.from(document.querySelectorAll("[data-wallet-confirm]"));
 const walletSettingsButton = document.querySelector("#walletSettingsButton");
 const walletSettingsPanel = document.querySelector("#walletSettingsPanel");
 const walletAdminStatus = document.querySelector("#walletAdminStatus");
 const walletAdminActionButtons = Array.from(document.querySelectorAll("[data-wallet-admin-action]"));
+const walletTransferFrom = document.querySelector("#walletTransferFrom");
+const walletTransferTo = document.querySelector("#walletTransferTo");
+const walletTransferResident = document.querySelector("#walletTransferResident");
+const walletTransferAmount = document.querySelector("#walletTransferAmount");
+const walletTransferStatus = document.querySelector("#walletTransferStatus");
+const walletRequestResident = document.querySelector("#walletRequestResident");
+const walletRequestAmount = document.querySelector("#walletRequestAmount");
+const walletRequestReason = document.querySelector("#walletRequestReason");
+const walletRequestStatus = document.querySelector("#walletRequestStatus");
 const PROFILE_STORAGE_KEY = "neuroLinkProfile";
 const PROFILE_PENDING_SYNC_KEY = "neuroLinkProfilePendingSync";
 const HEALTH_STATUS_KEY = "neuroLinkHealthStatus";
@@ -72,6 +85,7 @@ const SETTINGS_STATE_KEY = "neuroLinkSettingsState";
 const NOTIFICATION_STATE_KEY = "neuroLinkNotifications";
 const NEURO_STATE_KEY = "neuroLinkCareState";
 const GCOIN_WALLET_KEY = "neuroLinkGcoinWallet";
+const GCOIN_WALLET_VISIBILITY_KEY = "neuroLinkGcoinWalletVisibility";
 const QUICK_NOTIFICATION_TTL_MS = 60 * 60 * 1000;
 const DEFAULT_PROFILE_IMAGE = "images/Male Avatar.png";
 const DEFAULT_MALE_PROFILE_IMAGE = "images/Male Avatar.png";
@@ -126,12 +140,15 @@ function showView(name) {
   if (viewName === "wallet") renderWallet();
 }
 
-function sendSlBridgeOp(op) {
+function sendSlBridgeOp(op, data = {}) {
   if (!configuredEndpoint || profileBridge !== "sl") return false;
 
   const payload = new URLSearchParams();
   payload.set("op", op);
   payload.set("tick", String(Date.now()));
+  for (const [key, value] of Object.entries(data)) {
+    if (value !== undefined && value !== null) payload.set(key, String(value));
+  }
 
   const separator = configuredEndpoint.includes("?") ? "&" : "?";
   const ping = new Image();
@@ -569,6 +586,18 @@ function writeWalletState(state) {
   localStorage.setItem(GCOIN_WALLET_KEY, JSON.stringify(state));
 }
 
+function readWalletVisibility() {
+  try {
+    return { checking: true, savings: true, ...JSON.parse(localStorage.getItem(GCOIN_WALLET_VISIBILITY_KEY)) };
+  } catch (error) {
+    return { checking: true, savings: true };
+  }
+}
+
+function writeWalletVisibility(state) {
+  localStorage.setItem(GCOIN_WALLET_VISIBILITY_KEY, JSON.stringify(state));
+}
+
 function walletStateFromUrl() {
   const checking = urlParams.get("gcChecking") || urlParams.get("checking") || urlParams.get("gcoinChecking");
   const savings = urlParams.get("gcSavings") || urlParams.get("savings") || urlParams.get("gcoinSavings");
@@ -585,7 +614,7 @@ function walletStateFromUrl() {
     ...existing,
     displayName: displayName || existing.displayName,
     accountId: accountId || existing.accountId,
-    admin: admin ? admin === "1" || admin.toLowerCase() === "true" : !!existing.admin,
+    admin: admin ? admin === "1" || admin.toLowerCase() === "true" : false,
     checking: checking !== null ? parseGcAmount(checking) : (total !== null ? parseGcAmount(total) : existing.checking),
     savings: savings !== null ? parseGcAmount(savings) : existing.savings,
     updatedAt: new Date().toISOString()
@@ -634,19 +663,28 @@ function currentWalletState() {
 
 function renderWallet() {
   const state = currentWalletState();
+  const visibility = readWalletVisibility();
   const displayName = state.displayName || walletProfileName() || "Waiting for server";
   const checking = parseGcAmount(state.checking);
   const savings = parseGcAmount(state.savings);
 
   if (walletDisplayName) walletDisplayName.textContent = displayName;
-  if (walletChecking) walletChecking.textContent = formatGc(checking);
-  if (walletSavings) walletSavings.textContent = formatGc(savings);
+  if (walletChecking) walletChecking.textContent = visibility.checking ? formatGc(checking) : "GC ••••";
+  if (walletSavings) walletSavings.textContent = visibility.savings ? formatGc(savings) : "GC ••••";
+  for (const button of walletEyeButtons) {
+    const account = button.dataset.walletEye;
+    const visible = visibility[account] !== false;
+    button.textContent = visible ? "👁" : "⊘";
+    button.setAttribute("aria-label", `${visible ? "Hide" : "Show"} ${account} balance`);
+  }
   if (walletSyncStatus) {
     walletSyncStatus.textContent = state.updatedAt
       ? `Synced ${new Date(state.updatedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}. UUID stays internal.`
       : "Waiting for G-Coin Server sync.";
   }
   if (walletSettingsPanel) walletSettingsPanel.classList.toggle("admin-ready", !!state.admin);
+  if (walletSettingsButton) walletSettingsButton.hidden = !state.admin;
+  if (walletSettingsPanel && !state.admin) closeWalletSettings();
   if (walletAdminStatus) {
     walletAdminStatus.textContent = state.admin
       ? "Owner/Admin tools ready. Server still logs every action."
@@ -677,6 +715,15 @@ function setWalletAction(title, text) {
   if (walletActionText) walletActionText.textContent = text;
 }
 
+function showWalletScreen(name = "home") {
+  const screenName = walletScreens.some((screen) => screen.dataset.walletScreen === name) ? name : "home";
+  for (const screen of walletScreens) {
+    screen.classList.toggle("active", screen.dataset.walletScreen === screenName);
+  }
+  closeWalletSettings();
+  renderWallet();
+}
+
 function closeWalletSettings() {
   if (!walletSettingsPanel || !walletSettingsButton) return;
   walletSettingsPanel.hidden = true;
@@ -703,21 +750,88 @@ function handleWalletAction(action) {
   }
 
   if (action === "transfer") {
-    const sent = sendSlBridgeOp("gcoin-transfer");
-    setWalletAction("Transfer", sent ? "Opening transfer flow. Checking can move to savings or another resident." : "Transfer needs the SL G-Coin bridge. Savings cannot be spent directly.");
+    showWalletScreen("transfer");
+    setWalletAction("Transfer", "Checking can send to residents. Savings can only move to checking.");
     return;
   }
 
   if (action === "request") {
-    const sent = sendSlBridgeOp("gcoin-request");
-    setWalletAction("Request Money", sent ? "Opening server-backed Request Money flow." : "Request Money is waiting for the new server-backed request flow.");
+    showWalletScreen("request");
+    setWalletAction("Request", "Create a server-backed payment request.");
     return;
   }
 
   if (action === "history") {
     const sent = sendSlBridgeOp("gcoin-history");
+    showWalletScreen("history");
     setWalletAction("History", sent ? "Transaction history requested from the server." : "History will show server logs once the bridge sends them.");
   }
+}
+
+function validWalletAmount(input) {
+  const amount = parseGcAmount(input?.value);
+  return amount > 0 ? amount : 0;
+}
+
+function confirmWalletTransfer() {
+  const from = walletTransferFrom?.value || "checking";
+  const to = walletTransferTo?.value || "checking";
+  const resident = String(walletTransferResident?.value || "").trim();
+  const amount = validWalletAmount(walletTransferAmount);
+
+  if (!amount) {
+    if (walletTransferStatus) walletTransferStatus.textContent = "Enter an amount greater than 0.";
+    return;
+  }
+
+  if (from === to) {
+    if (walletTransferStatus) walletTransferStatus.textContent = "Choose two different accounts.";
+    return;
+  }
+
+  if (from === "savings" && to === "resident") {
+    if (walletTransferStatus) walletTransferStatus.textContent = "Savings cannot pay residents directly. Move savings to checking first.";
+    return;
+  }
+
+  if (to === "resident" && !resident) {
+    if (walletTransferStatus) walletTransferStatus.textContent = "Enter a resident for this transfer.";
+    return;
+  }
+
+  const sent = sendSlBridgeOp("gcoin-transfer", { from, to, resident, amount });
+  const detail = to === "resident"
+    ? `Transfer request sent: ${formatGc(amount)} from checking to ${resident}.`
+    : `Transfer request sent: ${formatGc(amount)} from ${from} to ${to}.`;
+  if (walletTransferStatus) walletTransferStatus.textContent = sent ? detail : "Transfer ready, but SL bridge is not connected.";
+  setWalletAction("Transfer", sent ? detail : "Transfer needs the SL G-Coin bridge.");
+}
+
+function confirmWalletRequest() {
+  const resident = String(walletRequestResident?.value || "").trim();
+  const reason = String(walletRequestReason?.value || "").trim();
+  const amount = validWalletAmount(walletRequestAmount);
+
+  if (!resident) {
+    if (walletRequestStatus) walletRequestStatus.textContent = "Enter a resident for this request.";
+    return;
+  }
+
+  if (!amount) {
+    if (walletRequestStatus) walletRequestStatus.textContent = "Enter an amount greater than 0.";
+    return;
+  }
+
+  const sent = sendSlBridgeOp("gcoin-request", { resident, amount, reason });
+  const detail = `Request sent: ${formatGc(amount)} from ${resident}.`;
+  if (walletRequestStatus) walletRequestStatus.textContent = sent ? detail : "Request ready, but SL bridge is not connected.";
+  setWalletAction("Request", sent ? detail : "Request Money needs the SL G-Coin bridge.");
+}
+
+function updateTransferResidentField() {
+  if (!walletTransferResident) return;
+  const show = walletTransferTo?.value === "resident";
+  walletTransferResident.closest("label")?.classList.toggle("hidden", !show);
 }
 
 function handleWalletAdminAction(action) {
@@ -755,6 +869,29 @@ function handleWalletAdminAction(action) {
 for (const button of walletActionButtons) {
   button.addEventListener("click", () => handleWalletAction(button.dataset.walletAction));
 }
+
+for (const button of walletEyeButtons) {
+  button.addEventListener("click", () => {
+    const visibility = readWalletVisibility();
+    const account = button.dataset.walletEye;
+    visibility[account] = visibility[account] === false;
+    writeWalletVisibility(visibility);
+    renderWallet();
+  });
+}
+
+for (const button of walletBackButtons) {
+  button.addEventListener("click", () => showWalletScreen("home"));
+}
+
+for (const button of walletConfirmButtons) {
+  button.addEventListener("click", () => {
+    if (button.dataset.walletConfirm === "transfer") confirmWalletTransfer();
+    if (button.dataset.walletConfirm === "request") confirmWalletRequest();
+  });
+}
+
+walletTransferTo?.addEventListener("change", updateTransferResidentField);
 
 walletSettingsButton?.addEventListener("click", (event) => {
   event.stopPropagation();
@@ -928,6 +1065,7 @@ refreshToggleButtons();
 renderAlertHistory();
 updateNotificationBadge();
 renderWallet();
+updateTransferResidentField();
 renderNeuro();
 updateClock();
 window.setInterval(updateClock, 10000);

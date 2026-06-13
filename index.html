@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=30">
+  <link rel="stylesheet" href="style.css?v=31">
   <link rel="stylesheet" href="profile.css?v=10">
   <style>
     body { font-family: Arial, Helvetica, sans-serif; }
@@ -259,42 +259,108 @@
           <h2>G-Coin</h2>
         </div>
         <section class="wallet-shell" aria-label="G-Coin wallet">
-          <article class="wallet-balance-panel">
-            <div class="wallet-account-line">
-              <span>Account</span>
-              <strong id="walletDisplayName">Not synced</strong>
-            </div>
-            <div class="wallet-balance-grid">
-              <article><span>Checking</span><strong id="walletChecking">GC 0</strong></article>
-              <article><span>Savings</span><strong id="walletSavings">GC 0</strong></article>
-            </div>
-            <p id="walletSyncStatus">Waiting for G-Coin Server sync.</p>
-          </article>
+          <section class="wallet-screen active" data-wallet-screen="home">
+            <article class="wallet-balance-panel">
+              <div class="wallet-account-line">
+                <span>Account</span>
+                <strong id="walletDisplayName">Not synced</strong>
+              </div>
+              <div class="wallet-balance-stack">
+                <article>
+                  <button type="button" data-wallet-eye="checking" aria-label="Hide checking balance">👁</button>
+                  <span>Checking</span>
+                  <strong id="walletChecking">GC 0</strong>
+                </article>
+                <article>
+                  <button type="button" data-wallet-eye="savings" aria-label="Hide savings balance">👁</button>
+                  <span>Savings</span>
+                  <strong id="walletSavings">GC 0</strong>
+                </article>
+              </div>
+              <p id="walletSyncStatus">Waiting for G-Coin Server sync.</p>
+            </article>
 
-          <article class="wallet-action-panel">
-            <header>
-              <span>Actions</span>
-              <strong>Server-backed</strong>
-            </header>
-            <div class="wallet-action-grid">
-              <button type="button" data-wallet-action="refresh">Refresh</button>
-              <button type="button" data-wallet-action="transfer">Transfer</button>
-              <button type="button" data-wallet-action="request">Request Money</button>
-              <button type="button" data-wallet-action="history">History</button>
-            </div>
-            <div class="wallet-request-box" id="walletRequestBox">
-              <span id="walletActionTitle">Ready</span>
-              <strong id="walletActionText">G-Coin Server remains the source of truth.</strong>
-            </div>
-          </article>
+            <article class="wallet-action-panel">
+              <header>
+                <span>Actions</span>
+                <strong>Server-backed</strong>
+              </header>
+              <div class="wallet-action-grid">
+                <button type="button" data-wallet-action="refresh">Refresh</button>
+                <button type="button" data-wallet-action="transfer">Transfer</button>
+                <button type="button" data-wallet-action="request">Request</button>
+                <button type="button" data-wallet-action="history">History</button>
+              </div>
+              <div class="wallet-request-box" id="walletRequestBox">
+                <span id="walletActionTitle">Ready</span>
+                <strong id="walletActionText">G-Coin Server remains the source of truth.</strong>
+              </div>
+            </article>
+          </section>
 
-          <article class="wallet-history-panel">
-            <header>
-              <span>Recent Activity</span>
-              <strong>Display Names</strong>
-            </header>
-            <div class="wallet-history-list" id="walletHistoryList"></div>
-          </article>
+          <section class="wallet-screen" data-wallet-screen="transfer">
+            <article class="wallet-form-panel">
+              <header><span>Transfer</span><strong>Move G-Coin</strong></header>
+              <label>From
+                <select id="walletTransferFrom">
+                  <option value="checking">Checking</option>
+                  <option value="savings">Savings</option>
+                </select>
+              </label>
+              <label>To
+                <select id="walletTransferTo">
+                  <option value="checking">Checking</option>
+                  <option value="savings">Savings</option>
+                  <option value="resident">Resident</option>
+                </select>
+              </label>
+              <label class="wallet-resident-field">Resident
+                <input id="walletTransferResident" autocomplete="off" placeholder="Display name or UUID">
+              </label>
+              <label>Amount
+                <input id="walletTransferAmount" inputmode="decimal" autocomplete="off" placeholder="0">
+              </label>
+              <p id="walletTransferStatus">Checking can send to residents. Savings can only move to checking.</p>
+              <div class="wallet-form-actions">
+                <button type="button" data-wallet-confirm="transfer">Confirm</button>
+                <button type="button" data-wallet-back>Back</button>
+              </div>
+            </article>
+          </section>
+
+          <section class="wallet-screen" data-wallet-screen="request">
+            <article class="wallet-form-panel">
+              <header><span>Request</span><strong>Ask for G-Coin</strong></header>
+              <label>Resident
+                <input id="walletRequestResident" autocomplete="off" placeholder="Display name or UUID">
+              </label>
+              <label>Amount
+                <input id="walletRequestAmount" inputmode="decimal" autocomplete="off" placeholder="0">
+              </label>
+              <label>Reason
+                <input id="walletRequestReason" autocomplete="off" placeholder="What is this for?">
+              </label>
+              <p id="walletRequestStatus">Requests are sent to the G-Coin Server.</p>
+              <div class="wallet-form-actions">
+                <button type="button" data-wallet-confirm="request">Request</button>
+                <button type="button" data-wallet-back>Back</button>
+              </div>
+            </article>
+          </section>
+
+          <section class="wallet-screen" data-wallet-screen="history">
+            <article class="wallet-history-panel">
+              <header>
+                <span>History</span>
+                <strong>Recent Activity</strong>
+              </header>
+              <div class="wallet-history-list" id="walletHistoryList"></div>
+              <div class="wallet-form-actions">
+                <button type="button" data-wallet-action="refresh">Refresh</button>
+                <button type="button" data-wallet-back>Back</button>
+              </div>
+            </article>
+          </section>
         </section>
       </section>
 
@@ -485,6 +551,6 @@
 
   </main>
 
-  <script src="app.js?v=25"></script>
+  <script src="app.js?v=26"></script>
 </body>
 </html>
