@@ -1088,13 +1088,46 @@ h2 {
   border-radius: 50%;
   color: #ffffff;
   background: rgba(255, 255, 255, 0.07);
-  font-size: 1.15rem;
+}
+
+.wallet-balance-stack button::before {
+  content: "";
+  width: 1.35rem;
+  height: 0.82rem;
+  border: 2px solid currentColor;
+  border-radius: 999px / 70%;
+}
+
+.wallet-balance-stack button::after {
+  content: "";
+  position: absolute;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 .wallet-balance-stack button:hover,
 .wallet-balance-stack button:focus-visible {
   border-color: rgba(156, 255, 142, 0.48);
   outline: none;
+}
+
+.wallet-balance-stack button.is-hidden {
+  color: rgba(244, 251, 255, 0.58);
+  background: rgba(255, 255, 255, 0.035);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035);
+}
+
+.wallet-balance-stack button.is-hidden::before {
+  height: 0.08rem;
+  border-width: 0;
+  background: currentColor;
+  transform: rotate(-8deg);
+}
+
+.wallet-balance-stack button.is-hidden::after {
+  display: none;
 }
 
 .wallet-balance-stack strong {

@@ -183,6 +183,21 @@ function writeNotifications(notifications) {
   localStorage.setItem(NOTIFICATION_STATE_KEY, JSON.stringify(notifications));
 }
 
+function pushNotification(icon, title, message, unread = true) {
+  const item = {
+    id: `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`,
+    icon,
+    title,
+    message,
+    createdAt: Date.now(),
+    unread
+  };
+  writeNotifications(normalizeNotifications([item, ...readNotifications()]).slice(0, 30));
+  renderQuickNotifications();
+  renderAlertHistory();
+  updateNotificationBadge();
+}
+
 function normalizeNotifications(notifications) {
   const now = Date.now();
   return notifications.map((item, index) => ({
@@ -547,6 +562,8 @@ const DEFAULT_WALLET_STATE = {
   checking: 0,
   savings: 0,
   updatedAt: "",
+  syncTick: "",
+  users: [],
   history: []
 };
 
@@ -598,6 +615,38 @@ function writeWalletVisibility(state) {
   localStorage.setItem(GCOIN_WALLET_VISIBILITY_KEY, JSON.stringify(state));
 }
 
+function decodeMaybeBase64(value = "") {
+  try {
+    return atob(value);
+  } catch (error) {
+    return value;
+  }
+}
+
+function parseWalletUsers(raw = "") {
+  return String(raw || "")
+    .split("|")
+    .map((row) => row.trim())
+    .filter(Boolean)
+    .map((row) => {
+      const parts = row.split(",");
+      const id = parts.shift() || "";
+      const label = decodeMaybeBase64(parts.join(",") || id);
+      return { id, label: label || id };
+    })
+    .filter((user) => user.id && user.label);
+}
+
+function normalizeWalletUsers(users = []) {
+  return users
+    .map((user) => ({
+      id: user.id || user.uuid || user.key || "",
+      label: user.label || user.displayName || user.name || user.id || ""
+    }))
+    .filter((user) => user.id && user.label)
+    .sort((a, b) => a.label.localeCompare(b.label));
+}
+
 function walletStateFromUrl() {
   const checking = urlParams.get("gcChecking") || urlParams.get("checking") || urlParams.get("gcoinChecking");
   const savings = urlParams.get("gcSavings") || urlParams.get("savings") || urlParams.get("gcoinSavings");
@@ -605,7 +654,9 @@ function walletStateFromUrl() {
   const displayName = urlParams.get("gcDisplayName") || urlParams.get("walletDisplayName") || urlParams.get("displayName") || "";
   const accountId = urlParams.get("gcAccount") || urlParams.get("accountId") || urlParams.get("uuid") || "";
   const admin = urlParams.get("gcAdmin") || urlParams.get("admin") || "";
-  const hasWalletData = checking !== null || savings !== null || total !== null || displayName !== "" || accountId !== "";
+  const usersRaw = urlParams.get("gcUsers") || urlParams.get("users") || "";
+  const syncTick = urlParams.get("gcSync") || urlParams.get("tick") || "";
+  const hasWalletData = checking !== null || savings !== null || total !== null || displayName !== "" || accountId !== "" || usersRaw !== "";
 
   if (!hasWalletData) return null;
 
@@ -617,8 +668,14 @@ function walletStateFromUrl() {
     admin: admin ? admin === "1" || admin.toLowerCase() === "true" : false,
     checking: checking !== null ? parseGcAmount(checking) : (total !== null ? parseGcAmount(total) : existing.checking),
     savings: savings !== null ? parseGcAmount(savings) : existing.savings,
+    users: usersRaw ? parseWalletUsers(usersRaw) : normalizeWalletUsers(existing.users),
+    syncTick: syncTick || existing.syncTick,
     updatedAt: new Date().toISOString()
   };
+
+  if ((syncTick && syncTick !== existing.syncTick) || (!existing.updatedAt && hasWalletData)) {
+    pushNotification("G", "Wallet", "Wallet data synced from G-Coin Server.");
+  }
 
   return next;
 }
@@ -632,6 +689,15 @@ function normalizeWalletHistory(history = []) {
     amount: item.amount || "",
     createdAt: item.createdAt || new Date().toISOString()
   }));
+}
+
+function renderWalletUserOptions() {
+  const state = readWalletState();
+  const users = normalizeWalletUsers(state.users);
+  const html = [`<option value="">Choose resident</option>`, ...users.map((user) => `<option value="${user.id}">${user.label}</option>`)].join("");
+
+  if (walletTransferResident) walletTransferResident.innerHTML = html;
+  if (walletRequestResident) walletRequestResident.innerHTML = html;
 }
 
 function appendWalletHistory(entry) {
@@ -674,7 +740,8 @@ function renderWallet() {
   for (const button of walletEyeButtons) {
     const account = button.dataset.walletEye;
     const visible = visibility[account] !== false;
-    button.textContent = visible ? "👁" : "⊘";
+    button.textContent = "";
+    button.classList.toggle("is-hidden", !visible);
     button.setAttribute("aria-label", `${visible ? "Hide" : "Show"} ${account} balance`);
   }
   if (walletSyncStatus) {
@@ -690,6 +757,7 @@ function renderWallet() {
       ? "Owner/Admin tools ready. Server still logs every action."
       : "Owner/Admin tools require server permission.";
   }
+  renderWalletUserOptions();
 
   if (walletHistoryList) {
     walletHistoryList.innerHTML = state.history.length ? state.history.map((item) => `
@@ -746,18 +814,21 @@ function handleWalletAction(action) {
     const sentHistory = sendSlBridgeOp("gcoin-history");
     renderWallet();
     setWalletAction("Refresh", sentBalance || sentHistory ? "Latest balances and transaction history requested from the G-Coin Server." : "Refresh ready. Waiting for SL bridge connection.");
+    pushNotification("G", "Wallet", sentBalance || sentHistory ? "Wallet refresh requested." : "Wallet refresh waiting for SL bridge.");
     return;
   }
 
   if (action === "transfer") {
     showWalletScreen("transfer");
     setWalletAction("Transfer", "Checking can send to residents. Savings can only move to checking.");
+    pushNotification("G", "Wallet", "Transfer screen opened.");
     return;
   }
 
   if (action === "request") {
     showWalletScreen("request");
     setWalletAction("Request", "Create a server-backed payment request.");
+    pushNotification("G", "Wallet", "Request screen opened.");
     return;
   }
 
@@ -765,6 +836,7 @@ function handleWalletAction(action) {
     const sent = sendSlBridgeOp("gcoin-history");
     showWalletScreen("history");
     setWalletAction("History", sent ? "Transaction history requested from the server." : "History will show server logs once the bridge sends them.");
+    pushNotification("G", "Wallet", sent ? "Transaction history requested." : "History opened.");
   }
 }
 
@@ -800,11 +872,21 @@ function confirmWalletTransfer() {
   }
 
   const sent = sendSlBridgeOp("gcoin-transfer", { from, to, resident, amount });
+  const residentLabel = walletTransferResident?.selectedOptions?.[0]?.textContent || resident;
   const detail = to === "resident"
-    ? `Transfer request sent: ${formatGc(amount)} from checking to ${resident}.`
+    ? `Transfer request sent: ${formatGc(amount)} from checking to ${residentLabel}.`
     : `Transfer request sent: ${formatGc(amount)} from ${from} to ${to}.`;
+  appendWalletHistory({
+    type: "Transfer",
+    title: to === "resident" ? "Money sent" : "Checking/Savings transfer",
+    detail,
+    amount: formatGc(amount),
+    createdAt: new Date().toISOString()
+  });
   if (walletTransferStatus) walletTransferStatus.textContent = sent ? detail : "Transfer ready, but SL bridge is not connected.";
   setWalletAction("Transfer", sent ? detail : "Transfer needs the SL G-Coin bridge.");
+  pushNotification("G", "Wallet", sent ? detail : "Transfer waiting for SL bridge.");
+  renderWallet();
 }
 
 function confirmWalletRequest() {
@@ -823,9 +905,19 @@ function confirmWalletRequest() {
   }
 
   const sent = sendSlBridgeOp("gcoin-request", { resident, amount, reason });
-  const detail = `Request sent: ${formatGc(amount)} from ${resident}.`;
+  const residentLabel = walletRequestResident?.selectedOptions?.[0]?.textContent || resident;
+  const detail = `Request sent: ${formatGc(amount)} from ${residentLabel}.`;
+  appendWalletHistory({
+    type: "Request",
+    title: "Money requested",
+    detail: reason ? `${detail} ${reason}` : detail,
+    amount: formatGc(amount),
+    createdAt: new Date().toISOString()
+  });
   if (walletRequestStatus) walletRequestStatus.textContent = sent ? detail : "Request ready, but SL bridge is not connected.";
   setWalletAction("Request", sent ? detail : "Request Money needs the SL G-Coin bridge.");
+  pushNotification("G", "Wallet", sent ? detail : "Request waiting for SL bridge.");
+  renderWallet();
 }
 
 function updateTransferResidentField() {
@@ -877,6 +969,7 @@ for (const button of walletEyeButtons) {
     visibility[account] = visibility[account] === false;
     writeWalletVisibility(visibility);
     renderWallet();
+    pushNotification("G", "Wallet", `${account === "checking" ? "Checking" : "Savings"} balance ${visibility[account] ? "shown" : "hidden"}.`, false);
   });
 }
 
