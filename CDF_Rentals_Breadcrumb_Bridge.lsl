@@ -97,15 +97,15 @@ sendRentEvent(string eventName, key avatar, string detail)
 
 checkRental()
 {
-    string state = currentState();
+    string rentState = currentState();
     key tenant = rk(K_TENANT);
     integer paid = ri(K_PAID, 0);
     integer dueSent = ri(K_DUE_SENT, 0);
 
-    if (state != lastState)
+    if (rentState != lastState)
     {
-        sendRentEvent("housing." + state, tenant, "Rental state changed to " + state);
-        lastState = state;
+        sendRentEvent("housing." + rentState, tenant, "Rental state changed to " + rentState);
+        lastState = rentState;
     }
 
     if (tenant != lastTenant)
