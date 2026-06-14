@@ -10,7 +10,7 @@
 string DISPLAY_TITLE = "G Coin Wallet";
 string CURRENCY_MARK = "GC";
 string PRODUCT_ID = "GCOIN_WALLET_HUD";
-integer BUILD_NUMBER = 20406;
+integer BUILD_NUMBER = 20407;
 
 integer ACCESS_GROUP_ONLY = TRUE;
 integer DIALOG_TIMEOUT = 60;
@@ -26,6 +26,9 @@ integer LM_PICK = 3100;
 
 integer BANK_CH = -777777;
 integer UPDATE_CH = -9869870;
+integer DIGIT_FACE = 0;
+float DIGIT_ROTATION = 4.712389;
+string DIGIT_LOGO_TEXTURE = "GC Logo";
 
 integer bankListen;
 integer updateListen;
@@ -42,6 +45,7 @@ float queuedAmt = 0.0;
 
 integer lastIsAdmin = FALSE;
 integer receiptPending = FALSE;
+integer displayOnlyRefresh = FALSE;
 
 string uiScreen = "MAIN";
 string queuedCmd = "";
@@ -109,6 +113,71 @@ string formatMoney(float v)
     return CURRENCY_MARK + " " + addCommas(llRound(v));
 }
 
+integer findLinkByName(string linkName)
+{
+    integer i;
+    integer count = llGetNumberOfPrims();
+    for (i = 1; i <= count; ++i)
+    {
+        if (llGetLinkName(i) == linkName) return i;
+    }
+    return 0;
+}
+
+string padLeft(string s, integer width)
+{
+    while (llStringLength(s) < width) s = " " + s;
+    if (llStringLength(s) > width) s = llGetSubString(s, -width, -1);
+    return s;
+}
+
+string digitTextureFor(string ch)
+{
+    if (ch == " ") return "GC_DIGIT_BLANK";
+    if (ch == ",") return "GC_DIGIT_COMMA";
+    return "GC_DIGIT_" + ch;
+}
+
+updateBalanceDisplay()
+{
+    string value = padLeft(addCommas(llRound(checkingBal)), 9);
+    integer i;
+    string linkName;
+    integer link;
+    string tex;
+    string ch;
+
+    for (i = 0; i < 10; ++i)
+    {
+        linkName = "DIGIT_";
+        if (i + 1 < 10) linkName += "0";
+        linkName += (string)(i + 1);
+
+        link = findLinkByName(linkName);
+        if (link)
+        {
+            tex = "";
+            if (i == 0)
+            {
+                tex = DIGIT_LOGO_TEXTURE;
+                if (llGetInventoryType(tex) != INVENTORY_TEXTURE) tex = "GC_DIGIT_BLANK";
+            }
+            else
+            {
+                ch = llGetSubString(value, i - 1, i - 1);
+                tex = digitTextureFor(ch);
+            }
+
+            if (llGetInventoryType(tex) == INVENTORY_TEXTURE)
+            {
+                llSetLinkPrimitiveParamsFast(link, [
+                    PRIM_TEXTURE, DIGIT_FACE, tex, <1.0, 1.0, 0.0>, <0.0, 0.0, 0.0>, DIGIT_ROTATION
+                ]);
+            }
+        }
+    }
+}
+
 string headerLine()
 {
     string adminTag = "";
@@ -133,6 +202,7 @@ cleanup(integer timedOut)
     amtTitle = "";
     uiScreen = "MAIN";
     receiptPending = FALSE;
+    displayOnlyRefresh = FALSE;
     llSetTimerEvent(0.0);
 }
 
@@ -152,6 +222,13 @@ req(string cmd, float amt, key target, string extra)
 requestBalance()
 {
     req("BALANCE", 0.0, NULL_KEY, "");
+}
+
+requestOwnerDisplayBalance()
+{
+    activeUser = llGetOwner();
+    displayOnlyRefresh = TRUE;
+    requestBalance();
 }
 
 requestUserList(string pickMode, string title)
@@ -264,6 +341,7 @@ handleServer(string str)
     {
         checkingBal = (float)llList2String(p, 4);
         savingsBal = (float)llList2String(p, 5);
+        updateBalanceDisplay();
         integer i;
         lastIsAdmin = FALSE;
         for (i = 6; i < llGetListLength(p); ++i)
@@ -274,6 +352,11 @@ handleServer(string str)
         {
             receiptPending = FALSE;
             printReceipt();
+        }
+        if (displayOnlyRefresh || menuListen == 0)
+        {
+            displayOnlyRefresh = FALSE;
+            return;
         }
         showMain();
         return;
@@ -315,7 +398,7 @@ handlePick(string str)
     if (mode == "REQ_PICK")
     {
         lastAction = "Request";
-        showAmountPicker("Request", "REQ", "", target);
+        showAmountPicker("Request", "REQUEST_ONLY", "", target);
         return;
     }
     if (mode == "ADMIN_SEND_PICK")
@@ -501,6 +584,13 @@ handleButton(string msg)
             llDialog(activeUser, headerLine() + "Select amount first.", [BACK_BTN, HELP_BTN, EXIT_BTN], MENU_CH);
             return;
         }
+        if (queuedCmd == "REQUEST_ONLY")
+        {
+            llInstantMessage(queuedTarget, niceName(activeUser) + " requested " + formatMoney(queuedAmt) + ".");
+            llRegionSayTo(activeUser, 0, DISPLAY_TITLE + ": request sent to " + niceName(queuedTarget) + ".");
+            showMain();
+            return;
+        }
         req(queuedCmd, queuedAmt, queuedTarget, queuedExtra);
         llDialog(activeUser, headerLine() + "Processing...", [HELP_BTN, EXIT_BTN], MENU_CH);
         return;
@@ -532,11 +622,17 @@ default
         if (updateListen) llListenRemove(updateListen);
         updateListen = llListen(UPDATE_CH, "", NULL_KEY, "");
         llOwnerSay(DISPLAY_TITLE + " split main online | Build " + (string)BUILD_NUMBER);
+        requestOwnerDisplayBalance();
     }
 
     on_rez(integer p)
     {
         llResetScript();
+    }
+
+    attach(key id)
+    {
+        if (id) requestOwnerDisplayBalance();
     }
 
     timer()

@@ -12,6 +12,7 @@ integer LM_PICK = 3100;
 integer BANK_CH = -777777;
 integer USER_PAGE_SIZE = 6;
 integer MAX_USERS = 24;
+integer MAX_BUTTON_CHARS = 24;
 integer PICK_TIMEOUT = 60;
 
 string EXIT_BTN = "Exit";
@@ -59,16 +60,16 @@ string fallbackName(key id)
     return "User-" + accountNumber(id);
 }
 
-string dialogUserName(string name, key id)
+string dialogUserName(string name, integer slot)
 {
-    string suffix = " " + accountNumber(id);
-    integer maxName = 20 - llStringLength(suffix);
+    string prefix = (string)slot + " ";
+    integer maxName = MAX_BUTTON_CHARS - llStringLength(prefix);
     if (maxName < 8) maxName = 8;
     if (llStringLength(name) > maxName)
     {
         name = llGetSubString(name, 0, maxName - 1);
     }
-    return name + suffix;
+    return prefix + name;
 }
 
 integer makeMenuChannel(key who)
@@ -119,9 +120,12 @@ showUserList()
     }
 
     integer i;
+    integer slot;
+    string label;
     for (i = start; i <= end && i < total; ++i)
     {
-        string label = llList2String(userNames, i);
+        slot = i - start + 1;
+        label = dialogUserName(llList2String(userNames, i), slot);
         buttons += [label];
         pageNames += [label];
         pageUUIDs += [llList2Key(userUUIDs, i)];
@@ -189,7 +193,7 @@ handleUserList(string msg)
         if (!validName(name)) name = fallbackName(id);
 
         userUUIDs += [id];
-        userNames += [dialogUserName(name, id)];
+        userNames += [name];
 
 @cont;
     }
