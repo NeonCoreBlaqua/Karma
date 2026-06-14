@@ -15,8 +15,7 @@
 //   /77 reset
 //
 // Drop into the Neuro-Link HUD/linkset with the G-Coin
-// server channel scripts. Pair with GC_Wallet_UserPicker_20406
-// for resident picking.
+// server channel scripts. Resident picking is built in.
 // =====================================================
 
 string DISPLAY_TITLE = "Neuro Wallet Safe Mode";
@@ -24,8 +23,9 @@ integer BUILD_NUMBER = 1;
 
 integer COMMAND_CH = 77;
 integer BANK_CH = -777777;
-integer LM_PICK = 3100;
 integer DIALOG_TIMEOUT = 60;
+integer USER_PAGE_SIZE = 6;
+integer MAX_USERS = 24;
 
 string BACK_BTN = "Back";
 string CLOSE_BTN = "Close";
@@ -50,6 +50,14 @@ string screen = "HOME";
 string queuedCommand = "";
 string queuedExtra = "";
 string queuedAction = "";
+string pickMode = "";
+string pickTitle = "";
+integer userPage = 0;
+
+list userUUIDs = [];
+list userNames = [];
+list pageUUIDs = [];
+list pageNames = [];
 
 string shortAccount(key id)
 {
@@ -67,6 +75,41 @@ string niceName(key id)
     if (name == "") name = llKey2Name(id);
     if (name == "") name = "User-" + shortAccount(id);
     return name;
+}
+
+integer startsWith(string value, string prefix)
+{
+    return llGetSubString(value, 0, llStringLength(prefix) - 1) == prefix;
+}
+
+integer validName(string name)
+{
+    if (name == "") return FALSE;
+    if (name == "Resident") return FALSE;
+    if (startsWith(name, "User-")) return FALSE;
+    return TRUE;
+}
+
+string fallbackName(key id)
+{
+    string name = llGetDisplayName(id);
+    if (validName(name)) return name;
+
+    name = llKey2Name(id);
+    if (validName(name)) return name;
+
+    return "User-" + shortAccount(id);
+}
+
+string dialogUserName(string name, key id)
+{
+    string suffix = " " + shortAccount(id);
+    integer maxName = 20 - llStringLength(suffix);
+
+    if (maxName < 8) maxName = 8;
+    if (llStringLength(name) > maxName) name = llGetSubString(name, 0, maxName - 1);
+
+    return name + suffix;
 }
 
 integer makeMenuChannel(key user)
@@ -128,8 +171,17 @@ requestBalance()
 
 requestUserPick(string mode, string title)
 {
-    llMessageLinked(LINK_SET, LM_PICK, "OPEN|" + (string)activeUser + "|" + mode + "|" + title, NULL_KEY);
+    screen = "PICK";
+    pickMode = mode;
+    pickTitle = title;
+    userPage = 0;
+    userUUIDs = [];
+    userNames = [];
+    pageUUIDs = [];
+    pageNames = [];
+
     sendBank("USERLIST", 0.0, NULL_KEY, "");
+    llDialog(activeUser, header() + "Loading residents from G-Coin Server...", [BACK_BTN, CLOSE_BTN], menuCh);
 }
 
 list amountButtons()
@@ -207,6 +259,47 @@ showConfirm()
         menuCh);
 }
 
+showUserList()
+{
+    integer total = llGetListLength(userNames);
+    integer start = userPage * USER_PAGE_SIZE;
+    integer end = start + USER_PAGE_SIZE - 1;
+    integer i;
+    integer pages;
+    string label;
+    list buttons = [];
+
+    pageUUIDs = [];
+    pageNames = [];
+
+    if (total == 0)
+    {
+        llDialog(activeUser, header() + "No residents found yet. Have them use G-Coin once, then refresh.", [BACK_BTN, CLOSE_BTN], menuCh);
+        return;
+    }
+
+    if (start >= total && userPage > 0)
+    {
+        userPage = 0;
+        start = 0;
+        end = USER_PAGE_SIZE - 1;
+    }
+
+    for (i = start; i <= end && i < total; ++i)
+    {
+        label = llList2String(userNames, i);
+        buttons += [label];
+        pageNames += [label];
+        pageUUIDs += [llList2Key(userUUIDs, i)];
+    }
+
+    if (end + 1 < total) buttons += ["Next"];
+    buttons += [BACK_BTN, CLOSE_BTN];
+
+    pages = (total + USER_PAGE_SIZE - 1) / USER_PAGE_SIZE;
+    llDialog(activeUser, header() + pickTitle + "\nChoose resident:\nPage " + (string)(userPage + 1) + " of " + (string)pages, buttons, menuCh);
+}
+
 closeMenu()
 {
     if (menuListen) llListenRemove(menuListen);
@@ -219,6 +312,13 @@ closeMenu()
     queuedAction = "";
     receiptPending = FALSE;
     screen = "HOME";
+    pickMode = "";
+    pickTitle = "";
+    userPage = 0;
+    userUUIDs = [];
+    userNames = [];
+    pageUUIDs = [];
+    pageNames = [];
     llSetTimerEvent(0.0);
 }
 
@@ -244,6 +344,10 @@ handleBankReply(string msg)
 {
     list p = llParseStringKeepNulls(msg, ["|"], []);
     string type;
+    string token;
+    list row;
+    key resident;
+    string residentName;
     integer i;
 
     if (llGetListLength(p) < 5) return;
@@ -252,6 +356,40 @@ handleBankReply(string msg)
     if ((key)llList2String(p, 3) != llGetKey()) return;
 
     type = llList2String(p, 1);
+
+    if (type == "USERLIST")
+    {
+        userUUIDs = [];
+        userNames = [];
+        pageUUIDs = [];
+        pageNames = [];
+        userPage = 0;
+
+        for (i = 4; i < llGetListLength(p); ++i)
+        {
+            if (llGetListLength(userUUIDs) >= MAX_USERS) jump user_done;
+
+            token = llList2String(p, i);
+            if (startsWith(token, "ADMIN=")) jump user_continue;
+
+            row = llParseStringKeepNulls(token, [","], []);
+            resident = (key)llList2String(row, 0);
+            if (resident == NULL_KEY || resident == activeUser) jump user_continue;
+
+            residentName = "";
+            if (llGetListLength(row) > 1) residentName = llBase64ToString(llList2String(row, 1));
+            if (!validName(residentName)) residentName = fallbackName(resident);
+
+            userUUIDs += [resident];
+            userNames += [dialogUserName(residentName, resident)];
+
+@user_continue;
+        }
+
+@user_done;
+        showUserList();
+        return;
+    }
 
     if (type == "BAL")
     {
@@ -287,37 +425,29 @@ handleBankReply(string msg)
     }
 }
 
-handlePicked(string str)
+handlePick(key target)
 {
-    list p = llParseStringKeepNulls(str, ["|"], []);
-    string mode;
-    key target;
-
-    if (llList2String(p, 0) != "PICKED") return;
-
-    mode = llList2String(p, 1);
-    target = (key)llList2String(p, 2);
     if (target == NULL_KEY) return;
 
-    if (mode == "NEURO_SEND")
+    if (pickMode == "NEURO_SEND")
     {
         showAmount("Send", "SEND", "", target);
         return;
     }
 
-    if (mode == "NEURO_REQUEST")
+    if (pickMode == "NEURO_REQUEST")
     {
         showAmount("Request", "REQUEST_ONLY", "", target);
         return;
     }
 
-    if (mode == "NEURO_CUSER")
+    if (pickMode == "NEURO_CUSER")
     {
         showAmount("Transfer C>User", "XFER", "C>U", target);
         return;
     }
 
-    if (mode == "NEURO_ADMIN_ADD")
+    if (pickMode == "NEURO_ADMIN_ADD")
     {
         showAmount("Admin Add", "ADDFUNDS", "", target);
     }
@@ -327,6 +457,7 @@ handleDialog(string msg)
 {
     float picked;
     float custom;
+    integer idx;
 
     if (msg == CLOSE_BTN)
     {
@@ -344,6 +475,23 @@ handleDialog(string msg)
     {
         showHelp();
         return;
+    }
+
+    if (screen == "PICK")
+    {
+        if (msg == "Next")
+        {
+            userPage++;
+            showUserList();
+            return;
+        }
+
+        idx = llListFindList(pageNames, [msg]);
+        if (idx != -1)
+        {
+            handlePick(llList2Key(pageUUIDs, idx));
+            return;
+        }
     }
 
     if (msg == "Balance" || msg == "Refresh")
@@ -541,8 +689,4 @@ default
         }
     }
 
-    link_message(integer sender, integer num, string str, key id)
-    {
-        if (num == LM_PICK) handlePicked(str);
-    }
 }

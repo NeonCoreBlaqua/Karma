@@ -72,7 +72,8 @@ Neuro should always keep these available:
 - `/77 refresh`
 - `/77 reset`
 
+The current wallet fallback script is `Neuro_Wallet_Safe_Mode_v0_1.lsl`. Its resident picker is built in so it can work even when the media wallet and old G-Coin HUD picker are not available.
+
 ## Rule
 
 If a feature is critical, it needs an LSL path before it gets a media-only polish pass.
-
