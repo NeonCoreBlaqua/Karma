@@ -11,7 +11,7 @@
 // =====================================================
 
 string DISPLAY_TITLE = "Neuro G-Coin Wallet Bridge";
-integer BUILD_NUMBER = 3;
+integer BUILD_NUMBER = 4;
 
 string NEURO_URL = "https://vrynos.github.io/Neuro/";
 integer MEDIA_LINK = 2;
@@ -20,11 +20,15 @@ integer MEDIA_FACE = 4;
 integer BANK_CH = -777777;
 integer HTTP_TIMEOUT = 25;
 integer MAX_USERS = 12;
+integer DEBUG_BRIDGE = TRUE;
 
 key activeUser = NULL_KEY;
 key httpRequestId = NULL_KEY;
+key pendingHttpId = NULL_KEY;
 string bridgeUrl = "";
+string pendingCmd = "";
 integer bankListen = 0;
+integer pendingStarted = 0;
 
 float checking = 0.0;
 float savings = 0.0;
@@ -40,6 +44,35 @@ string enc(string value)
 string gcAmount(float amount)
 {
     return (string)llRound(amount);
+}
+
+debugBridge(string line)
+{
+    if (DEBUG_BRIDGE) llOwnerSay(DISPLAY_TITLE + " debug: " + line);
+}
+
+integer looksLikeKey(string value)
+{
+    return llStringLength(value) == 36
+        && llGetSubString(value, 8, 8) == "-"
+        && llGetSubString(value, 13, 13) == "-"
+        && llGetSubString(value, 18, 18) == "-"
+        && llGetSubString(value, 23, 23) == "-"
+        && (key)value != NULL_KEY;
+}
+
+clearPending()
+{
+    pendingHttpId = NULL_KEY;
+    pendingCmd = "";
+    pendingStarted = 0;
+    llSetTimerEvent(0.0);
+}
+
+replyPending(integer status, string text)
+{
+    if (pendingHttpId != NULL_KEY) llHTTPResponse(pendingHttpId, status, text);
+    clearPending();
 }
 
 string appUrl()
@@ -124,16 +157,36 @@ ensureListen()
 
 sendBank(string cmd, float amount, key target, string extra)
 {
+    string msg;
     if (activeUser == NULL_KEY) activeUser = llGetOwner();
     ensureListen();
-    llRegionSay(BANK_CH,
-        "REQ|" + cmd
+
+    msg = "REQ|" + cmd
         + "|" + (string)activeUser
         + "|" + (string)llGetKey()
         + "|" + (string)llRound(amount)
         + "|" + (string)target
-        + "|" + extra
-    );
+        + "|" + extra;
+
+    debugBridge("BANK SEND: " + msg);
+    llRegionSay(BANK_CH, msg);
+}
+
+integer queueBank(key requestId, string cmd, float amount, key target, string extra)
+{
+    if (pendingHttpId != NULL_KEY)
+    {
+        llHTTPResponse(requestId, 409, "Bank busy");
+        return FALSE;
+    }
+
+    pendingHttpId = requestId;
+    pendingCmd = cmd;
+    pendingStarted = llGetUnixTime();
+
+    llSetTimerEvent(1.0);
+    sendBank(cmd, amount, target, extra);
+    return TRUE;
 }
 
 refreshWallet()
@@ -171,122 +224,159 @@ string queryValue(string body, string keyName)
 
 handleBridgeOp(string body, key requestId)
 {
-    string op = queryValue(body, "op");
-    string from;
-    string to;
-    string resident;
-    string amountRaw;
-    float amount;
-    string reason;
+    string op = llToLower(queryValue(body, "op"));
+    string from = llToLower(queryValue(body, "from"));
+    string to = llToLower(queryValue(body, "to"));
+    string resident = queryValue(body, "resident");
+    string amountRaw = queryValue(body, "amount");
+    string reason = queryValue(body, "reason");
+    float amount = (float)amountRaw;
+    key target;
 
     activeUser = llGetOwner();
+    debugBridge("MEDIA RAW: " + body);
 
-    if (op == "gcoin-balance" || op == "gcoin-history")
+    if (op == "gcoin-balance")
     {
         refreshWallet();
-        llHTTPResponse(requestId, 200, "OK");
+        llHTTPResponse(requestId, 202, "REFRESHING");
         return;
     }
 
-    if (op == "gcoin-transfer")
+    if (op == "gcoin-history")
     {
-        from = queryValue(body, "from");
-        to = queryValue(body, "to");
-        resident = queryValue(body, "resident");
-        amountRaw = queryValue(body, "amount");
-        amount = (float)amountRaw;
+        refreshWallet();
+        llHTTPResponse(requestId, 202, "HISTORY_NOT_CONNECTED_YET");
+        return;
+    }
 
+    if (op == "gcoin-transfer" || op == "gcoin-move" || op == "gcoin-send")
+    {
         if (amount <= 0.0)
         {
             llHTTPResponse(requestId, 400, "Bad amount");
             return;
         }
 
-        if (from == "savings" && to == "resident")
+        if (op == "gcoin-move" || to == "checking" || to == "savings")
         {
-            llHTTPResponse(requestId, 400, "Savings cannot pay residents");
+            if (from == "checking" && to == "savings")
+            {
+                queueBank(requestId, "XFER", amount, NULL_KEY, "C>S");
+                return;
+            }
+
+            if (from == "savings" && to == "checking")
+            {
+                queueBank(requestId, "XFER", amount, NULL_KEY, "S>C");
+                return;
+            }
+
+            llHTTPResponse(requestId, 400, "Bad account move");
             return;
         }
 
-        if (from == "checking" && to == "savings")
+        if (op == "gcoin-send" || to == "resident")
         {
-            sendBank("XFER", amount, NULL_KEY, "C>S");
-            llHTTPResponse(requestId, 200, "OK");
+            if (from != "checking")
+            {
+                llHTTPResponse(requestId, 400, "Only checking can pay residents");
+                return;
+            }
+
+            if (!looksLikeKey(resident))
+            {
+                llHTTPResponse(requestId, 400, "Bad resident UUID");
+                return;
+            }
+
+            target = (key)resident;
+            queueBank(requestId, "SEND", amount, target, "");
             return;
         }
 
-        if (from == "savings" && to == "checking")
-        {
-            sendBank("XFER", amount, NULL_KEY, "S>C");
-            llHTTPResponse(requestId, 200, "OK");
-            return;
-        }
-
-        if (from == "checking" && to == "resident")
-        {
-            sendBank("SEND", amount, (key)resident, "");
-            llHTTPResponse(requestId, 200, "OK");
-            return;
-        }
-
-        llHTTPResponse(requestId, 400, "Bad transfer");
+        llHTTPResponse(requestId, 400, "Bad transfer route");
         return;
     }
 
     if (op == "gcoin-request")
     {
-        resident = queryValue(body, "resident");
-        amountRaw = queryValue(body, "amount");
-        reason = queryValue(body, "reason");
-        amount = (float)amountRaw;
-
-        if ((key)resident != NULL_KEY && amount > 0.0)
+        if (!looksLikeKey(resident) || amount <= 0.0)
         {
-            llInstantMessage((key)resident,
-                llGetDisplayName(activeUser)
-                + " requested GC "
-                + gcAmount(amount)
-                + ". Reason: "
-                + reason
-            );
-            llHTTPResponse(requestId, 200, "OK");
+            llHTTPResponse(requestId, 400, "Bad request");
             return;
         }
 
-        llHTTPResponse(requestId, 400, "Bad request");
+        target = (key)resident;
+        llInstantMessage(target,
+            llGetDisplayName(activeUser)
+            + " requested GC "
+            + gcAmount(amount)
+            + ". Reason: "
+            + reason
+        );
+        llHTTPResponse(requestId, 200, "REQUEST_IM_SENT");
         return;
     }
 
-    llHTTPResponse(requestId, 200, "OK");
+    llHTTPResponse(requestId, 400, "Unknown op: " + op);
 }
 
 handleBankReply(string msg)
 {
     list p = llParseStringKeepNulls(msg, ["|"], []);
+    integer count = llGetListLength(p);
     string type;
     string payload;
     integer i;
     integer added;
+    string err;
 
-    if (llGetListLength(p) < 5) return;
+    debugBridge("BANK REPLY: " + msg);
+
+    if (count < 4) return;
     if (llList2String(p, 0) != "RSP") return;
     if ((key)llList2String(p, 2) != activeUser) return;
     if ((key)llList2String(p, 3) != llGetKey()) return;
 
     type = llList2String(p, 1);
 
+    if (type == "ERR" || type == "FAIL" || type == "DENY")
+    {
+        err = llDumpList2String(llList2List(p, 4, -1), "|");
+        if (err == "") err = "Bank rejected " + pendingCmd;
+        replyPending(400, err);
+        refreshWallet();
+        return;
+    }
+
+    if (type == "OK")
+    {
+        replyPending(200, "OK|" + pendingCmd);
+        refreshWallet();
+        return;
+    }
+
     if (type == "BAL")
     {
+        if (count < 6) return;
+
         checking = (float)llList2String(p, 4);
         savings = (float)llList2String(p, 5);
         isAdmin = FALSE;
-        for (i = 6; i < llGetListLength(p); i++)
+        for (i = 6; i < count; i++)
         {
             if (llList2String(p, i) == "ADMIN=1") isAdmin = TRUE;
         }
         lastSync = llGetUnixTime();
         setMedia();
         llOwnerSay(DISPLAY_TITLE + " synced. Checking: GC " + gcAmount(checking) + " | Savings: GC " + gcAmount(savings));
+
+        if (pendingHttpId != NULL_KEY && (pendingCmd == "XFER" || pendingCmd == "SEND"))
+        {
+            replyPending(200, "OK|" + pendingCmd);
+        }
+
         return;
     }
 
@@ -294,7 +384,7 @@ handleBankReply(string msg)
     {
         usersPayload = "";
         added = 0;
-        for (i = 4; i < llGetListLength(p); i++)
+        for (i = 4; i < count; i++)
         {
             payload = llList2String(p, i);
             if (!startsWith(payload, "ADMIN=") && added < MAX_USERS)
@@ -309,10 +399,7 @@ handleBankReply(string msg)
         return;
     }
 
-    if (type == "OK")
-    {
-        refreshWallet();
-    }
+    debugBridge("Unhandled bank reply type: " + type);
 }
 
 default
@@ -374,6 +461,19 @@ default
         }
 
         llHTTPResponse(requestId, 405, "Method not allowed");
+    }
+
+    timer()
+    {
+        if (pendingHttpId != NULL_KEY)
+        {
+            if (llGetUnixTime() - pendingStarted >= HTTP_TIMEOUT)
+            {
+                llHTTPResponse(pendingHttpId, 504, "Bank timeout waiting for " + pendingCmd);
+                clearPending();
+                refreshWallet();
+            }
+        }
     }
 
     listen(integer ch, string name, key id, string msg)
