@@ -140,19 +140,22 @@ function showView(name) {
   if (viewName === "wallet") renderWallet();
 }
 
+const bridgePending = new Map();
+
 function sendSlBridgeOp(op, data = {}) {
   if (!configuredEndpoint || profileBridge !== "sl") return false;
 
+  const tick = String(Date.now());
   const payload = new URLSearchParams();
   payload.set("op", op);
-  payload.set("tick", String(Date.now()));
+  payload.set("tick", tick);
   for (const [key, value] of Object.entries(data)) {
     if (value !== undefined && value !== null) payload.set(key, String(value));
   }
 
   if (window.parent && window.parent !== window) {
     window.parent.postMessage(`NEURO_BRIDGE|${payload.toString()}`, "*");
-    return true;
+    return tick;
   }
 
   const separator = configuredEndpoint.includes("?") ? "&" : "?";
@@ -162,8 +165,46 @@ function sendSlBridgeOp(op, data = {}) {
   window.__neuroLinkBridgePings = window.__neuroLinkBridgePings || [];
   window.__neuroLinkBridgePings.push(ping);
   window.setTimeout(() => window.__neuroLinkBridgePings.shift(), 8000);
-  return true;
+  return tick;
 }
+
+function trackBridgeCommand(tick, pending) {
+  if (!tick) return;
+  bridgePending.set(String(tick), pending);
+  window.setTimeout(() => {
+    const item = bridgePending.get(String(tick));
+    if (!item) return;
+    bridgePending.delete(String(tick));
+    setWalletAction(item.title || "Bridge", "No SL bridge confirmation received yet.");
+    if (item.statusElement) item.statusElement.textContent = "Waiting for SL bridge confirmation.";
+  }, 9000);
+}
+
+window.addEventListener("message", (event) => {
+  const raw = String(event.data || "");
+  if (!raw.startsWith("NEURO_BRIDGE_ACK|")) return;
+
+  const parts = raw.split("|");
+  const tick = parts[1] || "";
+  const status = Number(parts[2] || "0");
+  const item = bridgePending.get(tick);
+  if (!item) return;
+
+  bridgePending.delete(tick);
+  if (status >= 200 && status < 300) {
+    if (item.history) appendWalletHistory(item.history);
+    if (item.statusElement) item.statusElement.textContent = item.successText || "SL bridge confirmed.";
+    setWalletAction(item.title || "Wallet", item.successText || "SL bridge confirmed.");
+    pushNotification("G", "Wallet", item.successText || "SL bridge confirmed.");
+    renderWallet();
+    return;
+  }
+
+  const failure = "SL bridge rejected the command.";
+  if (item.statusElement) item.statusElement.textContent = failure;
+  setWalletAction(item.title || "Wallet", failure);
+  pushNotification("G", "Wallet", failure);
+});
 
 function handleRouteButton(button) {
   const target = button.dataset.target;
@@ -881,16 +922,21 @@ function confirmWalletTransfer() {
   const detail = to === "resident"
     ? `Transfer request sent: ${formatGc(amount)} from checking to ${residentLabel}.`
     : `Transfer request sent: ${formatGc(amount)} from ${from} to ${to}.`;
-  appendWalletHistory({
-    type: "Transfer",
-    title: to === "resident" ? "Money sent" : "Checking/Savings transfer",
-    detail,
-    amount: formatGc(amount),
-    createdAt: new Date().toISOString()
+  trackBridgeCommand(sent, {
+    title: "Transfer",
+    successText: detail,
+    statusElement: walletTransferStatus,
+    history: {
+      type: "Transfer",
+      title: to === "resident" ? "Money sent" : "Checking/Savings transfer",
+      detail,
+      amount: formatGc(amount),
+      createdAt: new Date().toISOString()
+    }
   });
-  if (walletTransferStatus) walletTransferStatus.textContent = sent ? detail : "Transfer ready, but SL bridge is not connected.";
-  setWalletAction("Transfer", sent ? detail : "Transfer needs the SL G-Coin bridge.");
-  pushNotification("G", "Wallet", sent ? detail : "Transfer waiting for SL bridge.");
+  if (walletTransferStatus) walletTransferStatus.textContent = sent ? "Transfer sent to SL bridge. Waiting for confirmation." : "Transfer ready, but SL bridge is not connected.";
+  setWalletAction("Transfer", sent ? "Transfer sent to SL bridge. Waiting for confirmation." : "Transfer needs the SL G-Coin bridge.");
+  pushNotification("G", "Wallet", sent ? "Transfer sent to SL bridge." : "Transfer waiting for SL bridge.");
   renderWallet();
 }
 
@@ -912,16 +958,21 @@ function confirmWalletRequest() {
   const sent = sendSlBridgeOp("gcoin-request", { resident, amount, reason });
   const residentLabel = walletRequestResident?.selectedOptions?.[0]?.textContent || resident;
   const detail = `Request sent: ${formatGc(amount)} from ${residentLabel}.`;
-  appendWalletHistory({
-    type: "Request",
-    title: "Money requested",
-    detail: reason ? `${detail} ${reason}` : detail,
-    amount: formatGc(amount),
-    createdAt: new Date().toISOString()
+  trackBridgeCommand(sent, {
+    title: "Request",
+    successText: reason ? `${detail} ${reason}` : detail,
+    statusElement: walletRequestStatus,
+    history: {
+      type: "Request",
+      title: "Money requested",
+      detail: reason ? `${detail} ${reason}` : detail,
+      amount: formatGc(amount),
+      createdAt: new Date().toISOString()
+    }
   });
-  if (walletRequestStatus) walletRequestStatus.textContent = sent ? detail : "Request ready, but SL bridge is not connected.";
-  setWalletAction("Request", sent ? detail : "Request Money needs the SL G-Coin bridge.");
-  pushNotification("G", "Wallet", sent ? detail : "Request waiting for SL bridge.");
+  if (walletRequestStatus) walletRequestStatus.textContent = sent ? "Request sent to SL bridge. Waiting for confirmation." : "Request ready, but SL bridge is not connected.";
+  setWalletAction("Request", sent ? "Request sent to SL bridge. Waiting for confirmation." : "Request Money needs the SL G-Coin bridge.");
+  pushNotification("G", "Wallet", sent ? "Request sent to SL bridge." : "Request waiting for SL bridge.");
   renderWallet();
 }
 

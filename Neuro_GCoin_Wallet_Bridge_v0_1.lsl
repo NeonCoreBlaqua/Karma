@@ -11,7 +11,7 @@
 // =====================================================
 
 string DISPLAY_TITLE = "Neuro G-Coin Wallet Bridge";
-integer BUILD_NUMBER = 2;
+integer BUILD_NUMBER = 3;
 
 string NEURO_URL = "https://vrynos.github.io/Neuro/";
 integer MEDIA_LINK = 2;
@@ -68,9 +68,12 @@ string wrapperHtml()
     return "<!doctype html><html><head><meta name='viewport' content='width=device-width,initial-scale=1'>"
         + "<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020806;}iframe{border:0;width:100%;height:100%;display:block;}</style>"
         + "</head><body><iframe id='neuro' src='" + src + "'></iframe>"
-        + "<script>window.addEventListener('message',function(e){var d=String(e.data||'');"
+        + "<script>var neuro=document.getElementById('neuro');window.addEventListener('message',function(e){var d=String(e.data||'');"
         + "if(d.indexOf('NEURO_BRIDGE|')!==0)return;"
-        + "var x=new XMLHttpRequest();x.open('GET','?'+d.substring(13)+'&bridgeTick='+Date.now(),true);x.send();});</script>"
+        + "var q=d.substring(13);var m=q.match(/(?:^|&)tick=([^&]+)/);var t=m?decodeURIComponent(m[1]):'';"
+        + "var x=new XMLHttpRequest();x.open('GET','?'+q+'&bridgeTick='+Date.now(),true);"
+        + "x.onload=function(){neuro.contentWindow.postMessage('NEURO_BRIDGE_ACK|'+t+'|'+x.status+'|'+x.responseText,'*');};"
+        + "x.onerror=function(){neuro.contentWindow.postMessage('NEURO_BRIDGE_ACK|'+t+'|0|error','*');};x.send();});</script>"
         + "</body></html>";
 }
 
