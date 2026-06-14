@@ -150,6 +150,11 @@ function sendSlBridgeOp(op, data = {}) {
     if (value !== undefined && value !== null) payload.set(key, String(value));
   }
 
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage(`NEURO_BRIDGE|${payload.toString()}`, "*");
+    return true;
+  }
+
   const separator = configuredEndpoint.includes("?") ? "&" : "?";
   const ping = new Image();
   ping.alt = "";

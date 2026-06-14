@@ -11,7 +11,7 @@
 // =====================================================
 
 string DISPLAY_TITLE = "Neuro G-Coin Wallet Bridge";
-integer BUILD_NUMBER = 1;
+integer BUILD_NUMBER = 2;
 
 string NEURO_URL = "https://vrynos.github.io/Neuro/";
 integer MEDIA_LINK = 2;
@@ -42,18 +42,36 @@ string gcAmount(float amount)
     return (string)llRound(amount);
 }
 
-string baseUrl()
+string appUrl()
 {
     return NEURO_URL
         + "?profileBridge=sl"
-        + "&profileEndpoint=" + enc(bridgeUrl)
+        + "&profileEndpoint=parent"
         + "&gcDisplayName=" + enc(llGetDisplayName(activeUser))
         + "&gcAccount=" + enc((string)activeUser)
         + "&gcChecking=" + enc(gcAmount(checking))
         + "&gcSavings=" + enc(gcAmount(savings))
         + "&gcAdmin=" + (string)isAdmin
+        + "&gcUsers=" + enc(usersPayload)
         + "&gcSync=" + (string)lastSync
         + "#wallet";
+}
+
+string mediaUrl()
+{
+    return bridgeUrl + "?screen=wallet&sync=" + (string)lastSync;
+}
+
+string wrapperHtml()
+{
+    string src = appUrl();
+    return "<!doctype html><html><head><meta name='viewport' content='width=device-width,initial-scale=1'>"
+        + "<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020806;}iframe{border:0;width:100%;height:100%;display:block;}</style>"
+        + "</head><body><iframe id='neuro' src='" + src + "'></iframe>"
+        + "<script>window.addEventListener('message',function(e){var d=String(e.data||'');"
+        + "if(d.indexOf('NEURO_BRIDGE|')!==0)return;"
+        + "var x=new XMLHttpRequest();x.open('GET','?'+d.substring(13)+'&bridgeTick='+Date.now(),true);x.send();});</script>"
+        + "</body></html>";
 }
 
 integer mediaFace()
@@ -86,8 +104,8 @@ setMedia()
     face = mediaFace();
 
     llSetLinkMedia(mediaLink(), face, [
-        PRIM_MEDIA_CURRENT_URL, baseUrl(),
-        PRIM_MEDIA_HOME_URL, baseUrl(),
+        PRIM_MEDIA_CURRENT_URL, mediaUrl(),
+        PRIM_MEDIA_HOME_URL, mediaUrl(),
         PRIM_MEDIA_AUTO_PLAY, TRUE,
         PRIM_MEDIA_PERMS_INTERACT, PRIM_MEDIA_PERM_OWNER,
         PRIM_MEDIA_PERMS_CONTROL, PRIM_MEDIA_PERM_OWNER,
@@ -341,6 +359,13 @@ default
         if (method == "GET")
         {
             query = llGetHTTPHeader(requestId, "x-query-string");
+            if (queryValue(query, "op") == "")
+            {
+                llHTTPResponse(requestId, 200, wrapperHtml());
+                return;
+            }
+
+            llOwnerSay(DISPLAY_TITLE + " media command: " + queryValue(query, "op"));
             handleBridgeOp(query, requestId);
             return;
         }
