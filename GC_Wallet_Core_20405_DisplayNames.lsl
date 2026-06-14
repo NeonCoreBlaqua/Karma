@@ -519,6 +519,7 @@ showUserList(string title)
     integer pageCount;
     integer slot;
     string label;
+    string body = "";
 
     userListTitle = title;
     pageUUIDs = [];
@@ -536,7 +537,8 @@ showUserList(string title)
     {
         string nm = llList2String(userNames, i);
         slot = i - start + 1;
-        label = dialogUserName(nm, slot);
+        label = (string)slot;
+        body += (string)slot + ". " + nm + "\n";
         b += [label];
         pageNames += [label];
         pageUUIDs += [llList2Key(userUUIDs, i)];
@@ -554,7 +556,7 @@ showUserList(string title)
         return;
     }
 
-    llDialog(activeUser, headerLine() + title + "\nChoose a user:\nPage " + (string)(userPage + 1) + " of " + (string)pageCount, b, MENU_CH);
+    llDialog(activeUser, headerLine() + title + "\nChoose a user:\n" + body + "Page " + (string)(userPage + 1) + " of " + (string)pageCount, b, MENU_CH);
 }
 
 integer startsWith(string s, string p)
@@ -1182,6 +1184,5 @@ default
         showMain();
     }
 }
-
 
 

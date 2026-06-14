@@ -269,6 +269,7 @@ showUserList()
     integer pages;
     string label;
     integer slot;
+    string body = "";
     list buttons = [];
 
     pageUUIDs = [];
@@ -290,7 +291,8 @@ showUserList()
     for (i = start; i <= end && i < total; ++i)
     {
         slot = i - start + 1;
-        label = dialogUserName(llList2String(userNames, i), slot);
+        label = (string)slot;
+        body += (string)slot + ". " + llList2String(userNames, i) + "\n";
         buttons += [label];
         pageNames += [label];
         pageUUIDs += [llList2Key(userUUIDs, i)];
@@ -300,7 +302,7 @@ showUserList()
     buttons += [BACK_BTN, CLOSE_BTN];
 
     pages = (total + USER_PAGE_SIZE - 1) / USER_PAGE_SIZE;
-    llDialog(activeUser, header() + pickTitle + "\nChoose resident:\nPage " + (string)(userPage + 1) + " of " + (string)pages, buttons, menuCh);
+    llDialog(activeUser, header() + pickTitle + "\nChoose resident:\n" + body + "Page " + (string)(userPage + 1) + " of " + (string)pages, buttons, menuCh);
 }
 
 closeMenu()

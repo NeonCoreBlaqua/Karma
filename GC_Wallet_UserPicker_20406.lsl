@@ -109,6 +109,7 @@ showUserList()
     integer start = userPage * USER_PAGE_SIZE;
     integer end = start + USER_PAGE_SIZE - 1;
     list buttons = [];
+    string body = "";
     pageUUIDs = [];
     pageNames = [];
 
@@ -122,10 +123,13 @@ showUserList()
     integer i;
     integer slot;
     string label;
+    string displayName;
     for (i = start; i <= end && i < total; ++i)
     {
         slot = i - start + 1;
-        label = dialogUserName(llList2String(userNames, i), slot);
+        label = (string)slot;
+        displayName = llList2String(userNames, i);
+        body += (string)slot + ". " + displayName + "\n";
         buttons += [label];
         pageNames += [label];
         pageUUIDs += [llList2Key(userUUIDs, i)];
@@ -141,7 +145,7 @@ showUserList()
     }
 
     integer pages = (total + USER_PAGE_SIZE - 1) / USER_PAGE_SIZE;
-    llDialog(activeUser, DISPLAY_TITLE + "\n" + pickTitle + "\nChoose user:\nPage " + (string)(userPage + 1) + " of " + (string)pages, buttons, MENU_CH);
+    llDialog(activeUser, DISPLAY_TITLE + "\n" + pickTitle + "\nChoose user:\n" + body + "Page " + (string)(userPage + 1) + " of " + (string)pages, buttons, MENU_CH);
 }
 
 handleOpen(string str)
