@@ -6,14 +6,15 @@
 // with wallet balances. User-list sync stays off the media URL
 // so SL does not reject long PRIM_MEDIA_CURRENT_URL values.
 //
-// Put this script directly inside the media screen prim.
-// It sets media on the same prim it is inside.
+// Put this script in the HUD linkset inventory.
+// It targets the tablet/media screen link directly.
 // =====================================================
 
 string DISPLAY_TITLE = "Neuro G-Coin Wallet Bridge";
 integer BUILD_NUMBER = 1;
 
 string NEURO_URL = "https://vrynos.github.io/Neuro/";
+integer MEDIA_LINK = 2;
 integer MEDIA_FACE = 4;
 
 integer BANK_CH = -777777;
@@ -57,9 +58,23 @@ string baseUrl()
 
 integer mediaFace()
 {
-    integer sides = llGetNumberOfSides();
+    integer sides;
+    if (MEDIA_LINK > 0 && MEDIA_LINK <= llGetNumberOfPrims())
+    {
+        sides = llGetLinkNumberOfSides(MEDIA_LINK);
+        if (MEDIA_FACE < sides) return MEDIA_FACE;
+        return 0;
+    }
+
+    sides = llGetNumberOfSides();
     if (MEDIA_FACE < sides) return MEDIA_FACE;
     return 0;
+}
+
+integer mediaLink()
+{
+    if (MEDIA_LINK > 0 && MEDIA_LINK <= llGetNumberOfPrims()) return MEDIA_LINK;
+    return LINK_THIS;
 }
 
 setMedia()
@@ -70,7 +85,7 @@ setMedia()
 
     face = mediaFace();
 
-    llSetPrimMediaParams(face, [
+    llSetLinkMedia(mediaLink(), face, [
         PRIM_MEDIA_CURRENT_URL, baseUrl(),
         PRIM_MEDIA_HOME_URL, baseUrl(),
         PRIM_MEDIA_AUTO_PLAY, TRUE,
@@ -250,6 +265,7 @@ handleBankReply(string msg)
         }
         lastSync = llGetUnixTime();
         setMedia();
+        llOwnerSay(DISPLAY_TITLE + " synced. Checking: GC " + gcAmount(checking) + " | Savings: GC " + gcAmount(savings));
         return;
     }
 
