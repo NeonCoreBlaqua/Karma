@@ -20,9 +20,9 @@ integer CDF_TRACKER_CHANNEL = -73463301;
 string CDF_TOKEN = "CDF_WORLD_V1";
 
 string HUD_PRODUCT_ID   = "GCOIN_WALLET_HUD";
-integer HUD_BUILD       = 20405;
+integer HUD_BUILD       = 20407;
 string HUD_OBJECT_NAME  = "G Coin Wallet";
-string HUD_NOTES        = "G Coin Wallet 20405 fixes recipient display names, paging, request alerts, and self-send blocking.";
+string HUD_NOTES        = "Emergency G Coin Wallet 20407 fixes live balance display, safe user picker, and transfer recipient names.";
 
 string ATM_PRODUCT_ID   = "GCOIN_ATM";
 integer ATM_BUILD       = 20400;
