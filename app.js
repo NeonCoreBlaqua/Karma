@@ -102,12 +102,11 @@ const WALLPAPERS = {
   "burple-tide": "images/wallpapers/burple-tide.png",
   "emerald-horizon": "images/wallpapers/emerald-horizon.png"
 };
-const WALLPAPER_TARGETS = ["home", "profile", "wallet", "health", "messages", "connect", "settings"];
+const WALLPAPER_TARGETS = ["home", "profile", "health", "messages", "connect", "settings"];
 function defaultNotifications() {
   const now = Date.now();
   return [
     { id: "health-vitamin", icon: "H", title: "Health", message: "Vitamin reminder ready.", createdAt: now - 2 * 60 * 1000, unread: true },
-    { id: "wallet-payment", icon: "G", title: "Wallet", message: "GC payment received.", createdAt: now - 8 * 60 * 1000, unread: true },
     { id: "system-profile", icon: "S", title: "System", message: "Profile synced.", createdAt: now - 14 * 60 * 1000, unread: false },
     { id: "alert-wellness", icon: "!", title: "Alert", message: "Low wellness status.", createdAt: now - 22 * 60 * 1000, unread: true }
   ];
@@ -123,6 +122,7 @@ if (connectBridgeStatus) {
 
 function showView(name) {
   closeNotifications();
+  if (name === "wallet") name = "home";
   const viewName = views.some((view) => view.dataset.view === name) ? name : "home";
 
   for (const view of views) {

@@ -28,6 +28,16 @@ body {
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
+/* Emergency removal: G-Coin is no longer exposed inside Neuro-Link HUD media. */
+[data-target="wallet"],
+[data-view="wallet"],
+.wallet-app,
+.profile-wallet-link,
+.wallet-settings-button,
+.wallet-settings-panel {
+  display: none !important;
+}
+
 button {
   border: 0;
   font: inherit;
