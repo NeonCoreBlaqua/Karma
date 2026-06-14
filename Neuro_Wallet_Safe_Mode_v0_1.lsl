@@ -104,13 +104,9 @@ string fallbackName(key id)
 
 string dialogUserName(string name, integer slot)
 {
-    string prefix = (string)slot + " ";
-    integer maxName = MAX_BUTTON_CHARS - llStringLength(prefix);
+    if (llStringLength(name) > 4) name = llGetSubString(name, 0, 3);
 
-    if (maxName < 8) maxName = 8;
-    if (llStringLength(name) > maxName) name = llGetSubString(name, 0, maxName - 1);
-
-    return prefix + name;
+    return name;
 }
 
 integer makeMenuChannel(key user)
@@ -291,7 +287,7 @@ showUserList()
     for (i = start; i <= end && i < total; ++i)
     {
         slot = i - start + 1;
-        label = (string)slot;
+        label = dialogUserName(llList2String(userNames, i), slot);
         body += (string)slot + ". " + llList2String(userNames, i) + "\n";
         buttons += [label];
         pageNames += [label];
