@@ -3,554 +3,84 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Neuro-Link HUD</title>
-  <link rel="stylesheet" href="style.css?v=32">
-  <link rel="stylesheet" href="profile.css?v=10">
-  <style>
-    body { font-family: Arial, Helvetica, sans-serif; }
-  </style>
+  <title>Neuro-Link Profile</title>
+  <link rel="stylesheet" href="style.css?v=profile-reset-1">
 </head>
 <body>
-  <main class="tablet" aria-label="Neuro-Link tablet interface">
-    <section class="screen" id="screen" aria-live="polite">
-      <nav class="screen-status" aria-label="Tablet status">
-        <img src="images/neuro logo.png" alt="" aria-hidden="true">
-        <div class="time-panel" aria-live="polite">
-          <strong id="homeClock">--:-- --</strong>
-          <span id="homeDate">Loading</span>
+  <main class="tablet" aria-label="Neuro-Link profile tablet">
+    <section class="screen" id="screen">
+      <header class="topbar">
+        <img src="images/neuro logo.png" alt="">
+        <div>
+          <strong id="clock">--:-- --</strong>
+          <span id="syncStatus">Profile bridge loading</span>
         </div>
-        <div class="time-toggle" role="group" aria-label="Time mode">
-          <button type="button" data-time-mode="rl" aria-pressed="true">RL Time</button>
-          <button type="button" data-time-mode="cdf" aria-pressed="false">CDF Time</button>
-        </div>
-        <button class="status-bell" type="button" id="notificationBell" aria-label="Open notifications" aria-expanded="false">
-          <span></span>
-        </button>
-        <div class="status-icons" aria-label="Connection and battery">
-          <span class="signal" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-          <span class="wifi-icon" aria-hidden="true"></span>
-          <span class="battery-icon" aria-label="Battery full"></span>
-        </div>
-      </nav>
-      <section class="view active home-view" data-view="home">
-        <div class="home-wallpaper">
-          <div class="app-grid" aria-label="Apps">
-            <button class="app-icon profile-app" type="button" data-target="profile">
-              <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="22" r="10"/><path d="M14 54c3-13 33-13 36 0"/></svg><strong>Profile</strong>
-            </button>
-            <button class="app-icon wallet-app" type="button" data-target="wallet">
-              <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 20h38a6 6 0 0 1 6 6v24H12Z"/><path d="M12 20l34-8v8"/><path d="M46 37h10"/></svg><strong>Wallet</strong>
-            </button>
-            <button class="app-icon health-app" type="button" data-target="health">
-              <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8c13 10 18 24 13 39-10-5-15-19-13-39Z"/><path d="M52 22c-1 20-13 31-31 34 3-17 13-30 31-34Z"/><path d="M12 23c18 2 29 14 33 33-17-3-29-14-33-33Z"/></svg><strong>Neuro</strong>
-            </button>
-            <button class="app-icon stats-app" type="button" data-target="health">
-              <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M16 50V32"/><path d="M32 50V20"/><path d="M48 50V12"/><path d="M10 50h44"/></svg><strong>Stats</strong>
-            </button>
-            <button class="app-icon settings-app" type="button" data-target="settings">
-              <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="8"/><path d="M32 8v8M32 48v8M8 32h8M48 32h8M15 15l6 6M43 43l6 6M49 15l-6 6M21 43l-6 6"/></svg><strong>Settings</strong>
-            </button>
-            <button class="app-icon alerts-app" type="button" data-target="notifications">
-              <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 46h24l-4-6V28c0-12-16-12-16 0v12Z"/><path d="M28 52h8"/></svg><strong>Alerts</strong>
-            </button>
-            <button class="app-icon connect-app" type="button" data-target="connect">
-              <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 34a20 20 0 0 1 28 0"/><path d="M25 42a10 10 0 0 1 14 0"/><path d="M32 50v6"/><circle cx="32" cy="50" r="3"/></svg><strong>Connect</strong>
-            </button>
+        <button type="button" id="closeButton" data-profile-action="close" aria-label="Close profile">Close</button>
+      </header>
+
+      <section class="profile-view" id="profileView">
+        <aside class="avatar-panel">
+          <div class="avatar-frame">
+            <img id="avatarImage" src="images/neuro logo.png" alt="">
           </div>
-        </div>
-      </section>
-
-      <section class="notification-popover" id="notificationPopover" aria-label="Quick notifications" hidden>
-        <header>
-          <strong>Notifications</strong>
-          <button type="button" id="clearNotifications">Mark all read</button>
-        </header>
-        <div class="quick-notification-list" id="quickNotificationList"></div>
-      </section>
-
-      <section class="view" data-view="notifications">
-        <div class="page-title">
-          <p>Alerts</p>
-          <h2>Notification History</h2>
-        </div>
-        <div class="notification-list" id="alertHistoryList"></div>
-      </section>
-
-      <section class="view" data-view="messages">
-        <nav class="section-nav" aria-label="Profile app navigation">
-          <button type="button" data-target="profile">Profile</button>
-          <button type="button" data-target="wallet">Wallet</button>
-          <button type="button" data-target="messages">DMs</button>
-        </nav>
-        <div class="page-title">
-          <p>Messages</p>
-          <h2>Inbox</h2>
-        </div>
-        <div class="message-list">
-          <article>
-            <span>Camden Falls</span>
-            <strong>System channel ready.</strong>
-          </article>
-          <article>
-            <span>Neuro-Link</span>
-            <strong>Message routing online.</strong>
-          </article>
-        </div>
-      </section>
-
-      <section class="view" data-view="connect">
-        <div class="page-title">
-          <p>Connect</p>
-          <h2>Links</h2>
-        </div>
-        <div class="info-grid">
-          <article>
-            <span>SL Media Bridge</span>
-            <strong id="connectBridgeStatus">Checking...</strong>
-          </article>
-          <article>
-            <span>Network</span>
-            <strong>Online</strong>
-          </article>
-          <article>
-            <span>Live Site</span>
-            <strong>VrynOS / Neuro</strong>
-          </article>
-          <article>
-            <span>Media Refresh</span>
-            <strong>Available in Settings</strong>
-          </article>
-        </div>
-      </section>
-
-      <section class="view profile-view" data-view="profile">
-        <nav class="section-nav" aria-label="Profile app navigation">
-          <button type="button" data-target="profile">Profile</button>
-          <button type="button" data-target="wallet">Wallet</button>
-          <button type="button" data-target="messages">DMs</button>
-        </nav>
-        <div class="page-title">
-          <p>Profile</p>
-          <h2>Identity</h2>
-        </div>
-        <section class="profile-summary hidden" id="profileSummary">
-          <button class="primary-action edit-profile-action" type="button" id="editProfileButton">
-            <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 48l4 4 13-3 24-24-14-14-24 24Z"/><path d="M35 15l14 14"/></svg>
-            <span>Edit profile</span>
-          </button>
-          <div class="profile-summary-hero">
-            <div class="profile-summary-avatar">
-              <img id="profileViewAvatar" src="images/neuro logo.png" alt="">
-              <span><i></i>Online</span>
-            </div>
-            <div class="profile-summary-info">
-              <p id="profileViewTitle">Resident</p>
-              <h3 id="profileViewName">Not set</h3>
-              <strong class="profile-location-hero" id="profileViewLocationHero">Eden Palms</strong>
-              <div class="profile-meta-list">
-                <article>
-                  <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 56s18-16 18-32a18 18 0 0 0-36 0c0 16 18 32 18 32Z"/><circle cx="32" cy="24" r="6"/></svg>
-                  <span>Location</span>
-                  <strong id="profileViewLocation">Eden Palms</strong>
-                </article>
-                <article>
-                  <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8l6 18 18 6-18 6-6 18-6-18-18-6 18-6Z"/></svg>
-                  <span>Title</span>
-                  <strong id="profileViewTitleDetail">Resident</strong>
-                </article>
-              </div>
-              <div class="profile-summary-grid">
-                <article><span>Age</span><strong id="profileViewAge">Not set</strong></article>
-                <article><span>Sex</span><strong id="profileViewSex">Not set</strong></article>
-                <article class="health-tile"><span>Health</span><strong id="profileViewHealth">&#128528;</strong></article>
-              </div>
-            </div>
-          </div>
-          <article class="profile-summary-bio">
-            <span>Bio</span>
-            <strong id="profileViewBio">No bio set.</strong>
-          </article>
-          <div class="profile-quick-actions">
-            <button class="profile-wallet-link" type="button" data-target="wallet">
-              <span>G</span>
-              <strong>G-Coin Wallet</strong>
-              <em>Open wallet app</em>
-              <i>&rsaquo;</i>
-            </button>
-            <button class="profile-dm-link" type="button" data-target="messages">
-              <span>DM</span>
-              <strong>Direct Messages</strong>
-              <em>Open DM app</em>
-              <i>&rsaquo;</i>
-            </button>
-          </div>
-          <div class="profile-dm-preview">
-            <span>Latest DM</span>
-            <em>2m ago</em>
-            <strong>Neuro-Link</strong>
-            <p>Neuro-Link channel ready.</p>
-            <button type="button" data-target="messages">Reply</button>
-          </div>
-        </section>
-        <form class="profile-editor" id="profileForm">
-          <section class="profile-card profile-main">
-            <label>Title
-              <input name="title" autocomplete="off" placeholder="Resident">
-            </label>
-            <label>Display name
-              <input name="displayName" autocomplete="name" placeholder="Not set">
-            </label>
-            <label>Age
-              <input name="age" inputmode="numeric" autocomplete="off" placeholder="18+">
-            </label>
-            <label>Sex
-              <select name="sex">
-                <option value="">Choose</option>
-                <option>Female</option>
-                <option>Male</option>
-                <option>Non-binary</option>
-                <option>Private</option>
-              </select>
-            </label>
-            <label>Location
-              <select name="location">
-                <option>Eden Palms</option>
-                <option>Chi-Core</option>
-              </select>
-            </label>
-            <label>Health
-              <output id="profileHealthStatus" class="profile-health-readout" name="healthStatus">&#128528;</output>
-            </label>
-            <label class="profile-bio">Bio
-              <textarea name="bio" rows="4" placeholder="Write a short profile bio."></textarea>
-            </label>
-          </section>
-          <section class="profile-card profile-media">
-            <div class="profile-avatar" id="profileAvatar">
-              <img src="images/neuro logo.png" alt="">
-            </div>
-            <button class="secondary-action" type="button" id="useSlProfile">Use default icon</button>
-            <button class="primary-action" type="submit">Save profile</button>
-            <p class="sync-status" id="profileSyncStatus">Local profile ready</p>
-          </section>
-        </form>
-      </section>
-
-      <section class="view" data-view="wallet">
-        <button class="wallet-settings-button" type="button" id="walletSettingsButton" aria-label="Wallet settings" aria-expanded="false">
-          <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="8"/><path d="M32 8v8M32 48v8M8 32h8M48 32h8M15 15l6 6M43 43l6 6M49 15l-6 6M21 43l-6 6"/></svg>
-        </button>
-        <aside class="wallet-settings-panel" id="walletSettingsPanel" aria-label="Wallet admin settings" hidden>
-          <header>
-            <span>Settings</span>
-            <button type="button" data-wallet-admin-action="close">Close</button>
-          </header>
-          <div class="wallet-admin-list">
-            <button type="button" data-wallet-admin-action="admin-send">Admin Send</button>
-            <button type="button" data-wallet-admin-action="add-money">Add Money</button>
-            <button type="button" data-wallet-admin-action="set-balance">Set Balance</button>
-            <button type="button" data-wallet-admin-action="clear-balance">Clear Balance</button>
-            <button type="button" data-wallet-admin-action="transaction-logs">Transaction Logs</button>
-          </div>
-          <p id="walletAdminStatus">Owner/Admin tools require server permission.</p>
+          <button type="button" data-profile-action="edit">Edit Profile</button>
+          <button type="button" data-profile-action="refresh">Refresh</button>
         </aside>
-        <div class="page-title">
-          <p>Wallet</p>
-          <h2>G-Coin</h2>
-        </div>
-        <section class="wallet-shell" aria-label="G-Coin wallet">
-          <section class="wallet-screen active" data-wallet-screen="home">
-            <article class="wallet-balance-panel">
-              <div class="wallet-account-line">
-                <span>Account</span>
-                <strong id="walletDisplayName">Not synced</strong>
-              </div>
-              <div class="wallet-balance-stack">
-                <article>
-                  <button type="button" data-wallet-eye="checking" aria-label="Hide checking balance">👁</button>
-                  <span>Checking</span>
-                  <strong id="walletChecking">GC 0</strong>
-                </article>
-                <article>
-                  <button type="button" data-wallet-eye="savings" aria-label="Hide savings balance">👁</button>
-                  <span>Savings</span>
-                  <strong id="walletSavings">GC 0</strong>
-                </article>
-              </div>
-              <p id="walletSyncStatus">Waiting for G-Coin Server sync.</p>
-            </article>
 
-            <article class="wallet-action-panel">
-              <header>
-                <span>Actions</span>
-                <strong>Server-backed</strong>
-              </header>
-              <div class="wallet-action-grid">
-                <button type="button" data-wallet-action="refresh">Refresh</button>
-                <button type="button" data-wallet-action="transfer">Transfer</button>
-                <button type="button" data-wallet-action="request">Request</button>
-                <button type="button" data-wallet-action="history">History</button>
-              </div>
-              <div class="wallet-request-box" id="walletRequestBox">
-                <span id="walletActionTitle">Ready</span>
-                <strong id="walletActionText">G-Coin Server remains the source of truth.</strong>
-              </div>
+        <section class="identity-panel">
+          <p class="eyebrow">Profile</p>
+          <h1 id="displayName">First Time Setup</h1>
+          <div class="identity-grid">
+            <article>
+              <span>SL Username</span>
+              <strong id="agentName">Loading</strong>
             </article>
-          </section>
-
-          <section class="wallet-screen" data-wallet-screen="transfer">
-            <article class="wallet-form-panel">
-              <header><span>Transfer</span><strong>Move G-Coin</strong></header>
-              <label>From
-                <select id="walletTransferFrom">
-                  <option value="checking">Checking</option>
-                  <option value="savings">Savings</option>
-                </select>
-              </label>
-              <label>To
-                <select id="walletTransferTo">
-                  <option value="checking">Checking</option>
-                  <option value="savings">Savings</option>
-                  <option value="resident">Resident</option>
-                </select>
-              </label>
-              <label class="wallet-resident-field">Resident
-                <select id="walletTransferResident"></select>
-              </label>
-              <label>Amount
-                <input id="walletTransferAmount" inputmode="decimal" autocomplete="off" placeholder="0">
-              </label>
-              <p id="walletTransferStatus">Checking can send to residents. Savings can only move to checking.</p>
-              <div class="wallet-form-actions">
-                <button type="button" data-wallet-confirm="transfer">Confirm</button>
-                <button type="button" data-wallet-back>Back</button>
-              </div>
+            <article>
+              <span>Title</span>
+              <strong id="titleText">Resident</strong>
             </article>
-          </section>
-
-          <section class="wallet-screen" data-wallet-screen="request">
-            <article class="wallet-form-panel">
-              <header><span>Request</span><strong>Ask for G-Coin</strong></header>
-              <label>Resident
-                <select id="walletRequestResident"></select>
-              </label>
-              <label>Amount
-                <input id="walletRequestAmount" inputmode="decimal" autocomplete="off" placeholder="0">
-              </label>
-              <label>Reason
-                <input id="walletRequestReason" autocomplete="off" placeholder="What is this for?">
-              </label>
-              <p id="walletRequestStatus">Requests are sent to the G-Coin Server.</p>
-              <div class="wallet-form-actions">
-                <button type="button" data-wallet-confirm="request">Request</button>
-                <button type="button" data-wallet-back>Back</button>
-              </div>
+            <article>
+              <span>Location</span>
+              <strong id="locationText">Camden Falls</strong>
             </article>
-          </section>
-
-          <section class="wallet-screen" data-wallet-screen="history">
-            <article class="wallet-history-panel">
-              <header>
-                <span>History</span>
-                <strong>Recent Activity</strong>
-              </header>
-              <div class="wallet-history-list" id="walletHistoryList"></div>
-              <div class="wallet-form-actions">
-                <button type="button" data-wallet-action="refresh">Refresh</button>
-                <button type="button" data-wallet-back>Back</button>
-              </div>
+            <article>
+              <span>Status</span>
+              <strong id="statusText">Not synced</strong>
             </article>
-          </section>
+          </div>
+          <article class="bio-card">
+            <span>About</span>
+            <p id="bioText">Open setup to create this profile.</p>
+          </article>
         </section>
       </section>
 
-      <section class="view" data-view="health">
-        <div class="neuro-app">
-          <aside class="neuro-rail" aria-label="Neuro sections">
-            <strong>Neuro</strong>
-            <button class="active" type="button" data-neuro-section="home">Home</button>
-            <button type="button" data-neuro-section="checkin">Daily Check-In</button>
-            <button type="button" data-neuro-section="pulse">My Pulse</button>
-            <button type="button" data-neuro-section="health">Health</button>
-            <button type="button" data-neuro-section="care">Care</button>
-            <button type="button" data-neuro-section="lifestyle">Lifestyle</button>
-            <button type="button" data-neuro-section="suggestions">Suggestions</button>
-          </aside>
-
-          <section class="neuro-main">
-            <header class="neuro-hero">
-              <div>
-                <p>Good morning,</p>
-                <h2 id="neuroGreetingName">Xavion.</h2>
-                <span id="neuroGreetingLine">How are we moving today?</span>
-              </div>
-              <div class="neuro-mark" aria-hidden="true"></div>
-            </header>
-
-            <section class="neuro-panel active" data-neuro-panel="home">
-              <article class="neuro-card neuro-checkin-card">
-                <header><strong>Daily Check-In</strong><span>Answer a few questions about your day.</span></header>
-                <div class="neuro-choice-grid" id="neuroPrimaryChoices">
-                  <button type="button" data-neuro-choice="Focused">Focused</button>
-                  <button type="button" data-neuro-choice="Tired">Tired</button>
-                  <button type="button" data-neuro-choice="Hungry">Hungry</button>
-                  <button type="button" data-neuro-choice="Stressed">Stressed</button>
-                  <button type="button" data-neuro-choice="Social">Social</button>
-                  <button type="button" data-neuro-choice="Skip">Skip</button>
-                </div>
-                <p id="neuroFollowupPrompt">Choose how you are moving today.</p>
-                <div class="neuro-choice-grid compact" id="neuroFollowupChoices"></div>
-                <small id="neuroLastCheckin">Last check-in: Not yet</small>
-              </article>
-
-              <article class="neuro-card neuro-pulse-card">
-                <header><strong>My Pulse</strong><span>Overview of your current state.</span></header>
-                <dl>
-                  <div><dt>Energy</dt><dd id="pulseEnergy">Normal</dd></div>
-                  <div><dt>Mood</dt><dd id="pulseMood">Chill</dd></div>
-                  <div><dt>Health</dt><dd id="pulseHealth">Normal</dd></div>
-                </dl>
-              </article>
-
-              <article class="neuro-card neuro-care-card">
-                <header><strong>Care Essentials</strong><span>Take care of the basics.</span></header>
-                <div class="neuro-care-grid">
-                  <button type="button" data-neuro-care="food">Food</button>
-                  <button type="button" data-neuro-care="water">Water</button>
-                  <button type="button" data-neuro-care="rest">Rest</button>
-                  <button type="button" data-neuro-care="meds">Meds</button>
-                  <button type="button" data-neuro-care="hygiene">Hygiene</button>
-                  <button type="button" data-neuro-care="selfCare">Self-Care</button>
-                </div>
-              </article>
-
-              <article class="neuro-card neuro-suggestion-card">
-                <header><strong>Neuro Suggestion</strong><span>Based on your pulse and habits.</span></header>
-                <p id="neuroSuggestion">A quick check-in will help Neuro suggest your next step.</p>
-                <button type="button" data-neuro-section="suggestions">See suggestions</button>
-              </article>
-            </section>
-
-            <section class="neuro-panel" data-neuro-panel="checkin">
-              <article class="neuro-card"><h3>Daily Check-In</h3><p>Pick a starting state from the Home check-in card.</p></article>
-            </section>
-            <section class="neuro-panel" data-neuro-panel="pulse">
-              <article class="neuro-card"><h3>My Pulse</h3><div class="neuro-pulse-list" id="neuroPulseSummary"></div></article>
-            </section>
-            <section class="neuro-panel" data-neuro-panel="health">
-              <article class="neuro-card"><h3>Health</h3><div class="neuro-option-list" data-neuro-list="health"></div></article>
-            </section>
-            <section class="neuro-panel" data-neuro-panel="care">
-              <article class="neuro-card"><h3>Care</h3><div class="neuro-option-list" data-neuro-list="care"></div></article>
-            </section>
-            <section class="neuro-panel" data-neuro-panel="lifestyle">
-              <article class="neuro-card"><h3>Lifestyle</h3><div class="neuro-option-list" data-neuro-list="lifestyle"></div></article>
-            </section>
-            <section class="neuro-panel" data-neuro-panel="suggestions">
-              <article class="neuro-card"><h3>Suggestions</h3><p id="neuroSuggestionFull">A quick check-in will help Neuro suggest your next step.</p></article>
-            </section>
-          </section>
+      <form class="profile-form hidden" id="profileForm">
+        <div class="form-grid">
+          <label>Display Name
+            <input name="displayName" autocomplete="name" maxlength="40" required>
+          </label>
+          <label>Title
+            <input name="title" autocomplete="off" maxlength="40" placeholder="Resident">
+          </label>
+          <label>Location
+            <input name="location" autocomplete="off" maxlength="40" placeholder="Camden Falls">
+          </label>
+          <label>Avatar Image URL
+            <input name="avatarUrl" autocomplete="off" placeholder="Optional image URL">
+          </label>
+          <label class="wide">About
+            <textarea name="bio" rows="5" maxlength="420" placeholder="Write a short SL-style profile bio."></textarea>
+          </label>
         </div>
-      </section>
-
-      <section class="view" data-view="settings">
-        <div class="page-title">
-          <p>Settings</p>
-          <h2>Manage your Neuro-Link experience.</h2>
-        </div>
-        <div class="settings-shell">
-          <nav class="settings-tabs" aria-label="Settings sections">
-            <button class="active" type="button" data-settings-section="system"><strong>System</strong><span>General controls</span></button>
-            <button type="button" data-settings-section="display"><strong>Display</strong><span>Screen and wallpapers</span></button>
-            <button type="button" data-settings-section="privacy"><strong>Privacy</strong><span>Privacy and security</span></button>
-            <button type="button" data-settings-section="alerts"><strong>Alerts</strong><span>Notifications</span></button>
-            <button type="button" data-settings-section="connect"><strong>Connect</strong><span>Connections</span></button>
-            <button type="button" data-settings-section="account"><strong>Account</strong><span>Your settings</span></button>
-            <button type="button" data-settings-section="about"><strong>About</strong><span>Neuro-Link info</span></button>
-          </nav>
-
-          <div class="settings-panels">
-            <section class="settings-panel active" data-settings-panel="system">
-              <h3>System</h3>
-              <button type="button" data-settings-action="refresh-sync"><strong>Refresh Sync</strong><span>Sync profile and local state</span></button>
-              <div class="settings-action-grid">
-                <button type="button" data-settings-action="export-data"><strong>Export Data</strong><span>Save a local backup</span></button>
-                <button type="button" data-settings-action="diagnostics"><strong>Diagnostics</strong><span>Run a quick status check</span></button>
-                <button type="button" data-settings-action="clear-cache"><strong>Clear Cache</strong><span>Clear temporary HUD data</span></button>
-                <button type="button" data-settings-action="reset-neuro"><strong>Reset Neuro-Link</strong><span>Reset display settings</span></button>
-              </div>
-            </section>
-
-            <section class="settings-panel" data-settings-panel="display">
-              <h3>Display</h3>
-              <label class="wallpaper-target">Apply wallpaper to
-                <select id="wallpaperTarget">
-                  <option value="all">All Screens</option>
-                  <option value="home">Home</option>
-                  <option value="profile">Profile</option>
-                  <option value="wallet">Wallet</option>
-                  <option value="health">Neuro / Stats</option>
-                  <option value="messages">Messages</option>
-                  <option value="connect">Connect</option>
-                  <option value="settings">Settings</option>
-                </select>
-              </label>
-              <section class="wallpaper-settings" aria-label="Wallpaper settings">
-                <h3>Wallpapers</h3>
-                <div class="wallpaper-grid">
-                  <button type="button" data-wallpaper="neuro-midnight"><span></span><strong>Neuro Midnight</strong></button>
-                  <button type="button" data-wallpaper="city-signal"><span></span><strong>City Signal</strong></button>
-                  <button type="button" data-wallpaper="black-gold"><span></span><strong>Black Gold</strong></button>
-                  <button type="button" data-wallpaper="velvet-night"><span></span><strong>Velvet Night</strong></button>
-                  <button type="button" data-wallpaper="burple-tide"><span></span><strong>Burple Tide</strong></button>
-                  <button type="button" data-wallpaper="emerald-horizon"><span></span><strong>Emerald Horizon</strong></button>
-                </div>
-              </section>
-            </section>
-
-            <section class="settings-panel" data-settings-panel="privacy">
-              <h3>Privacy</h3>
-              <button type="button" data-settings-toggle="privacyMode"><strong>Privacy Mode</strong><span>Hide personal details in shared spaces</span></button>
-              <button type="button" data-settings-toggle="localOnly"><strong>Local Only</strong><span>Keep changes on this device until sync</span></button>
-            </section>
-
-            <section class="settings-panel" data-settings-panel="alerts">
-              <h3>Alerts</h3>
-              <button type="button" data-settings-toggle="alertsEnabled"><strong>Neuro Alerts</strong><span>Notification count and reminders</span></button>
-              <button type="button" data-settings-toggle="quietMode"><strong>Quiet Mode</strong><span>Reduce non-critical alerts</span></button>
-            </section>
-
-            <section class="settings-panel" data-settings-panel="connect">
-              <h3>Connect</h3>
-              <button type="button" data-settings-action="refresh-media"><strong>Refresh Media</strong><span>Reload the current HUD page</span></button>
-              <button type="button" data-settings-action="bridge-status"><strong>Bridge Status</strong><span>Check SL media bridge mode</span></button>
-            </section>
-
-            <section class="settings-panel" data-settings-panel="account">
-              <h3>Account</h3>
-              <button type="button" data-target="profile"><strong>Open Profile</strong><span>Edit identity and bio</span></button>
-              <button type="button" data-target="wallet"><strong>Open Wallet</strong><span>View G-Coin wallet</span></button>
-            </section>
-
-            <section class="settings-panel" data-settings-panel="about">
-              <h3>About Neuro-Link</h3>
-              <dl class="device-info">
-                <div><dt>Device Name</dt><dd>Neuro-Link HUD</dd></div>
-                <div><dt>OS Version</dt><dd>Camden OS 2.4.7</dd></div>
-                <div><dt>Live URL</dt><dd>vrynos.github.io/Neuro</dd></div>
-              </dl>
-            </section>
-          </div>
-        </div>
-        <p class="settings-status" id="settingsStatus">Ready.</p>
-      </section>
-      <button class="bottom-home" type="button" data-target="home" aria-label="Home">
-        <span></span>
-      </button>
+        <footer class="form-actions">
+          <button type="submit">Save</button>
+          <button type="button" data-profile-action="refresh">Cancel</button>
+          <button type="button" data-profile-action="reset">Reset Setup</button>
+        </footer>
+      </form>
     </section>
-
   </main>
-
-  <script src="app.js?v=27"></script>
+  <script src="app.js?v=profile-reset-1"></script>
 </body>
 </html>

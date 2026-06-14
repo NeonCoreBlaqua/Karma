@@ -1,1537 +1,176 @@
-const views = Array.from(document.querySelectorAll(".view"));
-const routeButtons = Array.from(document.querySelectorAll("[data-target]"));
-const notificationBell = document.querySelector("#notificationBell");
-const notificationPopover = document.querySelector("#notificationPopover");
-const quickNotificationList = document.querySelector("#quickNotificationList");
-const alertHistoryList = document.querySelector("#alertHistoryList");
-const clearNotificationsButton = document.querySelector("#clearNotifications");
-const bottomHomeButton = document.querySelector(".bottom-home");
-const connectBridgeStatus = document.querySelector("#connectBridgeStatus");
-const profileForm = document.querySelector("#profileForm");
-const profileAvatar = document.querySelector("#profileAvatar img");
-const profileSummary = document.querySelector("#profileSummary");
-const editProfileButton = document.querySelector("#editProfileButton");
-const profileSyncStatus = document.querySelector("#profileSyncStatus");
-const profileHealthStatus = document.querySelector("#profileHealthStatus");
-const useSlProfileButton = document.querySelector("#useSlProfile");
-const resetProfileButton = document.querySelector("#resetProfile");
-const homeClock = document.querySelector("#homeClock");
-const homeDate = document.querySelector("#homeDate");
-const timeModeButtons = Array.from(document.querySelectorAll("[data-time-mode]"));
-const wallpaperButtons = Array.from(document.querySelectorAll("[data-wallpaper]"));
-const wallpaperTarget = document.querySelector("#wallpaperTarget");
-const settingsTabs = Array.from(document.querySelectorAll("[data-settings-section]"));
-const settingsPanels = Array.from(document.querySelectorAll("[data-settings-panel]"));
-const settingsStatus = document.querySelector("#settingsStatus");
-const settingsActionButtons = Array.from(document.querySelectorAll("[data-settings-action]"));
-const settingsToggleButtons = Array.from(document.querySelectorAll("[data-settings-toggle]"));
-const neuroSectionButtons = Array.from(document.querySelectorAll("[data-neuro-section]"));
-const neuroPanels = Array.from(document.querySelectorAll("[data-neuro-panel]"));
-const neuroPrimaryChoices = Array.from(document.querySelectorAll("[data-neuro-choice]"));
-const neuroFollowupChoices = document.querySelector("#neuroFollowupChoices");
-const neuroFollowupPrompt = document.querySelector("#neuroFollowupPrompt");
-const neuroLastCheckin = document.querySelector("#neuroLastCheckin");
-const neuroSuggestion = document.querySelector("#neuroSuggestion");
-const neuroSuggestionFull = document.querySelector("#neuroSuggestionFull");
-const neuroGreetingName = document.querySelector("#neuroGreetingName");
-const pulseEnergy = document.querySelector("#pulseEnergy");
-const pulseMood = document.querySelector("#pulseMood");
-const pulseHealth = document.querySelector("#pulseHealth");
-const neuroPulseSummary = document.querySelector("#neuroPulseSummary");
-const profileViewAvatar = document.querySelector("#profileViewAvatar");
-const profileViewTitle = document.querySelector("#profileViewTitle");
-const profileViewTitleDetail = document.querySelector("#profileViewTitleDetail");
-const profileViewName = document.querySelector("#profileViewName");
-const profileViewAge = document.querySelector("#profileViewAge");
-const profileViewSex = document.querySelector("#profileViewSex");
-const profileViewLocation = document.querySelector("#profileViewLocation");
-const profileViewLocationHero = document.querySelector("#profileViewLocationHero");
-const profileViewHealth = document.querySelector("#profileViewHealth");
-const profileViewBio = document.querySelector("#profileViewBio");
-const walletDisplayName = document.querySelector("#walletDisplayName");
-const walletChecking = document.querySelector("#walletChecking");
-const walletSavings = document.querySelector("#walletSavings");
-const walletSyncStatus = document.querySelector("#walletSyncStatus");
-const walletHistoryList = document.querySelector("#walletHistoryList");
-const walletActionTitle = document.querySelector("#walletActionTitle");
-const walletActionText = document.querySelector("#walletActionText");
-const walletActionButtons = Array.from(document.querySelectorAll("[data-wallet-action]"));
-const walletScreens = Array.from(document.querySelectorAll("[data-wallet-screen]"));
-const walletEyeButtons = Array.from(document.querySelectorAll("[data-wallet-eye]"));
-const walletBackButtons = Array.from(document.querySelectorAll("[data-wallet-back]"));
-const walletConfirmButtons = Array.from(document.querySelectorAll("[data-wallet-confirm]"));
-const walletSettingsButton = document.querySelector("#walletSettingsButton");
-const walletSettingsPanel = document.querySelector("#walletSettingsPanel");
-const walletAdminStatus = document.querySelector("#walletAdminStatus");
-const walletAdminActionButtons = Array.from(document.querySelectorAll("[data-wallet-admin-action]"));
-const walletTransferFrom = document.querySelector("#walletTransferFrom");
-const walletTransferTo = document.querySelector("#walletTransferTo");
-const walletTransferResident = document.querySelector("#walletTransferResident");
-const walletTransferAmount = document.querySelector("#walletTransferAmount");
-const walletTransferStatus = document.querySelector("#walletTransferStatus");
-const walletRequestResident = document.querySelector("#walletRequestResident");
-const walletRequestAmount = document.querySelector("#walletRequestAmount");
-const walletRequestReason = document.querySelector("#walletRequestReason");
-const walletRequestStatus = document.querySelector("#walletRequestStatus");
-const PROFILE_STORAGE_KEY = "neuroLinkProfile";
-const PROFILE_PENDING_SYNC_KEY = "neuroLinkProfilePendingSync";
-const HEALTH_STATUS_KEY = "neuroLinkHealthStatus";
-const PROFILE_ENDPOINT_KEY = "neuroLinkProfileEndpoint";
-const PROFILE_LOCATION_KEY = "neuroLinkProfileLocation";
-const TIME_MODE_KEY = "neuroLinkTimeMode";
-const WALLPAPER_KEY = "neuroLinkWallpaper";
-const WALLPAPER_MAP_KEY = "neuroLinkWallpaperMap";
-const SETTINGS_STATE_KEY = "neuroLinkSettingsState";
-const NOTIFICATION_STATE_KEY = "neuroLinkNotifications";
-const NEURO_STATE_KEY = "neuroLinkCareState";
-const GCOIN_WALLET_KEY = "neuroLinkGcoinWallet";
-const GCOIN_WALLET_VISIBILITY_KEY = "neuroLinkGcoinWalletVisibility";
-const QUICK_NOTIFICATION_TTL_MS = 60 * 60 * 1000;
-const DEFAULT_PROFILE_IMAGE = "images/Male Avatar.png";
-const DEFAULT_MALE_PROFILE_IMAGE = "images/Male Avatar.png";
-const DEFAULT_FEMALE_PROFILE_IMAGE = "images/Female Avatar.png";
-const VALID_LOCATIONS = ["Eden Palms", "Chi-Core"];
-const VALID_SEXES = ["Female", "Male", "Non-binary", "Private"];
-const HEALTH_EMOJIS = ["\uD83D\uDE01", "\uD83D\uDE14", "\uD83D\uDE37", "\uD83D\uDE10", "\uD83D\uDE12", "\uD83D\uDE03"];
-const CDF_DAY_MS = 4 * 60 * 60 * 1000;
-const WALLPAPERS = {
-  "neuro-midnight": "images/wallpapers/neuro-midnight.png",
-  "city-signal": "images/wallpapers/city-signal.png",
-  "black-gold": "images/wallpapers/black-gold.png",
-  "velvet-night": "images/wallpapers/velvet-night.png",
-  "burple-tide": "images/wallpapers/burple-tide.png",
-  "emerald-horizon": "images/wallpapers/emerald-horizon.png"
+const params = new URLSearchParams(window.location.search);
+const bridgeMode = params.get("profileBridge") || "";
+const endpoint = params.get("profileEndpoint") || "";
+
+const profile = {
+  uuid: params.get("uuid") || "",
+  agentName: params.get("agentName") || "Loading",
+  displayName: params.get("displayName") || "",
+  title: params.get("title") || "Resident",
+  location: params.get("location") || "Camden Falls",
+  avatarUrl: params.get("avatarUrl") || "images/neuro logo.png",
+  bio: params.get("bio") || "",
+  setup: params.get("setup") === "1"
 };
-const WALLPAPER_TARGETS = ["home", "profile", "health", "messages", "connect", "settings"];
-function defaultNotifications() {
-  const now = Date.now();
-  return [
-    { id: "health-vitamin", icon: "H", title: "Health", message: "Vitamin reminder ready.", createdAt: now - 2 * 60 * 1000, unread: true },
-    { id: "system-profile", icon: "S", title: "System", message: "Profile synced.", createdAt: now - 14 * 60 * 1000, unread: false },
-    { id: "alert-wellness", icon: "!", title: "Alert", message: "Low wellness status.", createdAt: now - 22 * 60 * 1000, unread: true }
-  ];
+
+const els = {
+  clock: document.querySelector("#clock"),
+  syncStatus: document.querySelector("#syncStatus"),
+  view: document.querySelector("#profileView"),
+  form: document.querySelector("#profileForm"),
+  avatarImage: document.querySelector("#avatarImage"),
+  displayName: document.querySelector("#displayName"),
+  agentName: document.querySelector("#agentName"),
+  titleText: document.querySelector("#titleText"),
+  locationText: document.querySelector("#locationText"),
+  statusText: document.querySelector("#statusText"),
+  bioText: document.querySelector("#bioText")
+};
+
+function tickClock() {
+  const now = new Date();
+  if (els.clock) {
+    els.clock.textContent = now.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit"
+    });
+  }
 }
 
-const urlParams = new URLSearchParams(location.search);
-const configuredEndpoint = urlParams.get("profileEndpoint") || localStorage.getItem(PROFILE_ENDPOINT_KEY) || "";
-const profileBridge = urlParams.get("profileBridge") || "";
-
-if (connectBridgeStatus) {
-  connectBridgeStatus.textContent = profileBridge === "sl" ? "SL Bridge Active" : "Web Mode";
+function setStatus(text) {
+  if (els.syncStatus) els.syncStatus.textContent = text;
 }
 
-function showView(name) {
-  closeNotifications();
-  if (name === "wallet") name = "home";
-  const viewName = views.some((view) => view.dataset.view === name) ? name : "home";
-
-  for (const view of views) {
-    view.classList.toggle("active", view.dataset.view === viewName);
-  }
-
-  for (const button of routeButtons) {
-    button.classList.toggle("active", button.dataset.target === viewName);
-  }
-
-  if (location.hash !== `#${viewName}`) {
-    history.replaceState(null, "", `#${viewName}`);
-  }
-
-  if (viewName === "wallet") renderWallet();
+function safeProfileValue(value, fallback) {
+  const clean = String(value || "").trim();
+  return clean || fallback;
 }
 
-const bridgePending = new Map();
+function renderProfile() {
+  const hasSetup = profile.setup || !!profile.displayName;
+  const avatar = safeProfileValue(profile.avatarUrl, "images/neuro logo.png");
 
-function sendSlBridgeOp(op, data = {}) {
-  if (!configuredEndpoint || profileBridge !== "sl") return false;
+  if (els.avatarImage) els.avatarImage.src = avatar;
+  if (els.displayName) els.displayName.textContent = hasSetup ? profile.displayName : "First Time Setup";
+  if (els.agentName) els.agentName.textContent = safeProfileValue(profile.agentName, "Loading");
+  if (els.titleText) els.titleText.textContent = safeProfileValue(profile.title, "Resident");
+  if (els.locationText) els.locationText.textContent = safeProfileValue(profile.location, "Camden Falls");
+  if (els.statusText) els.statusText.textContent = hasSetup ? "Synced to SL" : "Setup needed";
+  if (els.bioText) els.bioText.textContent = hasSetup ? safeProfileValue(profile.bio, "No bio set.") : "Open setup to create this profile.";
 
-  const tick = String(Date.now());
+  if (els.form) {
+    els.form.elements.displayName.value = profile.displayName || "";
+    els.form.elements.title.value = profile.title || "";
+    els.form.elements.location.value = profile.location || "";
+    els.form.elements.avatarUrl.value = profile.avatarUrl && profile.avatarUrl !== "images/neuro logo.png" ? profile.avatarUrl : "";
+    els.form.elements.bio.value = profile.bio || "";
+  }
+
+  setStatus(bridgeMode === "sl" ? "SL profile bridge active" : "Web preview mode");
+  if (!hasSetup) showEditor();
+}
+
+function showEditor() {
+  els.view?.classList.add("hidden");
+  els.form?.classList.remove("hidden");
+}
+
+function showViewer() {
+  els.form?.classList.add("hidden");
+  els.view?.classList.remove("hidden");
+}
+
+function sendProfileCommand(op, data = {}) {
   const payload = new URLSearchParams();
   payload.set("op", op);
-  payload.set("tick", tick);
+  payload.set("tick", String(Date.now()));
   for (const [key, value] of Object.entries(data)) {
-    if (value !== undefined && value !== null) payload.set(key, String(value));
+    payload.set(key, String(value ?? ""));
   }
 
   if (window.parent && window.parent !== window) {
-    window.parent.postMessage(`NEURO_BRIDGE|${payload.toString()}`, "*");
-    return tick;
+    window.parent.postMessage(`NL_PROFILE|${payload.toString()}`, "*");
+    return true;
   }
 
-  const separator = configuredEndpoint.includes("?") ? "&" : "?";
-  const ping = new Image();
-  ping.alt = "";
-  ping.src = `${configuredEndpoint}${separator}${payload.toString()}`;
-  window.__neuroLinkBridgePings = window.__neuroLinkBridgePings || [];
-  window.__neuroLinkBridgePings.push(ping);
-  window.setTimeout(() => window.__neuroLinkBridgePings.shift(), 8000);
-  return tick;
+  if (endpoint && endpoint !== "parent") {
+    const separator = endpoint.includes("?") ? "&" : "?";
+    const ping = new Image();
+    ping.alt = "";
+    ping.src = `${endpoint}${separator}${payload.toString()}`;
+    window.__profilePings = window.__profilePings || [];
+    window.__profilePings.push(ping);
+    window.setTimeout(() => window.__profilePings.shift(), 8000);
+    return true;
+  }
+
+  return false;
 }
 
-function trackBridgeCommand(tick, pending) {
-  if (!tick) return;
-  bridgePending.set(String(tick), pending);
-  window.setTimeout(() => {
-    const item = bridgePending.get(String(tick));
-    if (!item) return;
-    bridgePending.delete(String(tick));
-    setWalletAction(item.title || "Bridge", "No SL bridge confirmation received yet.");
-    if (item.statusElement) item.statusElement.textContent = "Waiting for SL bridge confirmation.";
-  }, 9000);
+function collectFormProfile() {
+  const form = els.form;
+  return {
+    displayName: form.elements.displayName.value.trim(),
+    title: form.elements.title.value.trim(),
+    location: form.elements.location.value.trim(),
+    avatarUrl: form.elements.avatarUrl.value.trim(),
+    bio: form.elements.bio.value.trim()
+  };
 }
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-profile-action]");
+  if (!button) return;
+
+  const action = button.dataset.profileAction;
+  if (action === "edit") {
+    showEditor();
+    return;
+  }
+
+  if (action === "refresh") {
+    setStatus(sendProfileCommand("profile.refresh") ? "Refresh requested" : "Refresh unavailable");
+    showViewer();
+    return;
+  }
+
+  if (action === "reset") {
+    setStatus(sendProfileCommand("profile.reset") ? "Reset requested" : "Reset unavailable");
+    return;
+  }
+
+  if (action === "close") {
+    setStatus(sendProfileCommand("profile.close") ? "Close requested" : "Close unavailable");
+  }
+});
+
+els.form?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const data = collectFormProfile();
+  if (!data.displayName) {
+    setStatus("Display name is required");
+    return;
+  }
+
+  Object.assign(profile, data, { setup: true });
+  renderProfile();
+  showViewer();
+  setStatus(sendProfileCommand("profile.save", data) ? "Save sent to SL" : "Save unavailable");
+});
 
 window.addEventListener("message", (event) => {
   const raw = String(event.data || "");
-  if (!raw.startsWith("NEURO_BRIDGE_ACK|")) return;
+  if (!raw.startsWith("NL_PROFILE_STATE|")) return;
 
-  const parts = raw.split("|");
-  const tick = parts[1] || "";
-  const status = Number(parts[2] || "0");
-  const item = bridgePending.get(tick);
-  if (!item) return;
-
-  bridgePending.delete(tick);
-  if (status >= 200 && status < 300) {
-    if (item.history) appendWalletHistory(item.history);
-    if (item.statusElement) item.statusElement.textContent = item.successText || "SL bridge confirmed.";
-    setWalletAction(item.title || "Wallet", item.successText || "SL bridge confirmed.");
-    pushNotification("G", "Wallet", item.successText || "SL bridge confirmed.");
-    renderWallet();
-    return;
+  const state = new URLSearchParams(raw.substring("NL_PROFILE_STATE|".length));
+  for (const key of ["uuid", "agentName", "displayName", "title", "location", "avatarUrl", "bio"]) {
+    if (state.has(key)) profile[key] = state.get(key) || "";
   }
-
-  const failure = "SL bridge rejected the command.";
-  if (item.statusElement) item.statusElement.textContent = failure;
-  setWalletAction(item.title || "Wallet", failure);
-  pushNotification("G", "Wallet", failure);
+  profile.setup = state.get("setup") === "1" || !!profile.displayName;
+  renderProfile();
+  showViewer();
 });
 
-function handleRouteButton(button) {
-  const target = button.dataset.target;
-  if (target === "health") sendSlBridgeOp("neuro-open");
-  showView(target);
-}
-
-for (const button of routeButtons) {
-  button.addEventListener("click", () => handleRouteButton(button));
-}
-
-function readNotifications() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(NOTIFICATION_STATE_KEY));
-    return normalizeNotifications(Array.isArray(saved) ? saved : defaultNotifications());
-  } catch (error) {
-    return normalizeNotifications(defaultNotifications());
-  }
-}
-
-function writeNotifications(notifications) {
-  localStorage.setItem(NOTIFICATION_STATE_KEY, JSON.stringify(notifications));
-}
-
-function pushNotification(icon, title, message, unread = true) {
-  const item = {
-    id: `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`,
-    icon,
-    title,
-    message,
-    createdAt: Date.now(),
-    unread
-  };
-  writeNotifications(normalizeNotifications([item, ...readNotifications()]).slice(0, 30));
-  renderQuickNotifications();
-  renderAlertHistory();
-  updateNotificationBadge();
-}
-
-function normalizeNotifications(notifications) {
-  const now = Date.now();
-  return notifications.map((item, index) => ({
-    id: item.id || `alert-${index}`,
-    icon: item.icon || item.title?.charAt(0) || "!",
-    title: item.title || "Alert",
-    message: item.message || "Notification ready.",
-    createdAt: Number(item.createdAt) || now - index * 6 * 60 * 1000,
-    unread: item.unread !== false
-  })).sort((a, b) => b.createdAt - a.createdAt);
-}
-
-function recentBellNotifications() {
-  const now = Date.now();
-  return readNotifications().filter((item) => item.unread && now - item.createdAt < QUICK_NOTIFICATION_TTL_MS);
-}
-
-function formatNotificationTime(createdAt) {
-  const minutes = Math.max(0, Math.floor((Date.now() - createdAt) / 60000));
-  if (minutes < 1) return "now";
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
-}
-
-function unreadNotificationCount() {
-  return recentBellNotifications().length;
-}
-
-function updateNotificationBadge() {
-  if (!notificationBell) return;
-  const badge = notificationBell.querySelector("span");
-  const count = unreadNotificationCount();
-  notificationBell.classList.toggle("has-unread", count > 0);
-  if (badge) badge.textContent = count > 0 ? String(count) : "";
-}
-
-function renderQuickNotifications() {
-  if (!quickNotificationList) return;
-  const notifications = recentBellNotifications();
-  quickNotificationList.innerHTML = notifications.length ? notifications.map((item) => `
-    <button type="button" data-notification-id="${item.id}" class="${item.unread ? "unread" : ""}">
-      <i>${item.icon}</i>
-      <span>
-        <strong>${item.title}</strong>
-        <small>${item.message}</small>
-      </span>
-      <em>${formatNotificationTime(item.createdAt)}</em>
-    </button>
-  `).join("") : `<p class="empty-notifications">No new alerts.</p>`;
-
-  for (const button of quickNotificationList.querySelectorAll("[data-notification-id]")) {
-    button.addEventListener("click", () => {
-      const updated = readNotifications().map((item) => (
-        item.id === button.dataset.notificationId ? { ...item, unread: false } : item
-      ));
-      writeNotifications(updated);
-      renderQuickNotifications();
-      renderAlertHistory();
-      updateNotificationBadge();
-    });
-  }
-}
-
-function renderAlertHistory() {
-  if (!alertHistoryList) return;
-  const notifications = readNotifications();
-  alertHistoryList.innerHTML = notifications.map((item) => `
-    <button type="button" data-alert-id="${item.id}" class="${item.unread ? "unread" : ""}">
-      <span>${item.title}</span>
-      <strong>${item.message}</strong>
-      <em>${formatNotificationTime(item.createdAt)}</em>
-    </button>
-  `).join("");
-
-  for (const button of alertHistoryList.querySelectorAll("[data-alert-id]")) {
-    button.addEventListener("click", () => {
-      const updated = readNotifications().map((item) => (
-        item.id === button.dataset.alertId ? { ...item, unread: false } : item
-      ));
-      writeNotifications(updated);
-      renderAlertHistory();
-      renderQuickNotifications();
-      updateNotificationBadge();
-    });
-  }
-}
-
-function openNotifications() {
-  if (!notificationPopover || !notificationBell) return;
-  renderQuickNotifications();
-  notificationPopover.hidden = false;
-  notificationPopover.classList.add("open");
-  notificationBell.setAttribute("aria-expanded", "true");
-}
-
-function closeNotifications() {
-  if (!notificationPopover || !notificationBell) return;
-  notificationPopover.classList.remove("open");
-  notificationPopover.hidden = true;
-  notificationBell.setAttribute("aria-expanded", "false");
-}
-
-notificationBell?.addEventListener("click", (event) => {
-  event.stopPropagation();
-  if (notificationPopover?.classList.contains("open")) {
-    closeNotifications();
-  } else {
-    openNotifications();
-  }
-});
-
-notificationPopover?.addEventListener("click", (event) => event.stopPropagation());
-
-document.addEventListener("click", () => {
-  closeNotifications();
-  closeWalletSettings();
-});
-
-bottomHomeButton?.addEventListener("click", () => closeNotifications());
-
-clearNotificationsButton?.addEventListener("click", () => {
-  writeNotifications(readNotifications().map((item) => ({ ...item, unread: false })));
-  renderQuickNotifications();
-  renderAlertHistory();
-  updateNotificationBadge();
-});
-
-function formatTwelveHour(hours, minutes) {
-  const period = hours >= 12 ? "PM" : "AM";
-  const displayHour = hours % 12 || 12;
-  return `${displayHour}:${String(minutes).padStart(2, "0")} ${period}`;
-}
-
-function currentCdfTime(now = new Date()) {
-  const localMidnight = new Date(now);
-  localMidnight.setHours(0, 0, 0, 0);
-  const elapsedToday = (now - localMidnight) % CDF_DAY_MS;
-  const cdfMinutes = Math.floor((elapsedToday / CDF_DAY_MS) * 24 * 60) % (24 * 60);
-  return {
-    hours: Math.floor(cdfMinutes / 60),
-    minutes: cdfMinutes % 60
-  };
-}
-
-function updateClock() {
-  if (!homeClock || !homeDate) return;
-
-  const mode = localStorage.getItem(TIME_MODE_KEY) === "cdf" ? "cdf" : "rl";
-  const now = new Date();
-
-  if (mode === "cdf") {
-    const cdf = currentCdfTime(now);
-    homeClock.textContent = formatTwelveHour(cdf.hours, cdf.minutes);
-    homeDate.textContent = "Camden Falls Time";
-  } else {
-    homeClock.textContent = formatTwelveHour(now.getHours(), now.getMinutes());
-    homeDate.textContent = now.toLocaleDateString(undefined, {
-      weekday: "long",
-      month: "short",
-      day: "numeric"
-    });
-  }
-
-  for (const button of timeModeButtons) {
-    const active = button.dataset.timeMode === mode;
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-pressed", String(active));
-  }
-}
-
-for (const button of timeModeButtons) {
-  button.addEventListener("click", () => {
-    localStorage.setItem(TIME_MODE_KEY, button.dataset.timeMode);
-    updateClock();
-  });
-}
-
-function readWallpaperMap() {
-  try {
-    return JSON.parse(localStorage.getItem(WALLPAPER_MAP_KEY)) || {};
-  } catch (error) {
-    return {};
-  }
-}
-
-function writeWallpaperMap(map) {
-  localStorage.setItem(WALLPAPER_MAP_KEY, JSON.stringify(map));
-}
-
-function wallpaperForTarget(target, map = readWallpaperMap()) {
-  return WALLPAPERS[map[target]] ? map[target] : localStorage.getItem(WALLPAPER_KEY) || "neuro-midnight";
-}
-
-function paintViewWallpaper(viewName, wallpaperName) {
-  const view = document.querySelector(`[data-view="${viewName}"]`);
-  if (view && WALLPAPERS[wallpaperName]) {
-    view.style.setProperty("--view-wallpaper", `url("${WALLPAPERS[wallpaperName]}")`);
-  }
-}
-
-function refreshWallpaperButtons() {
-  const target = wallpaperTarget?.value || "all";
-  const activeWallpaper = target === "all" ? localStorage.getItem(WALLPAPER_KEY) || "neuro-midnight" : wallpaperForTarget(target);
-
-  for (const button of wallpaperButtons) {
-    button.classList.toggle("active", button.dataset.wallpaper === activeWallpaper);
-  }
-}
-
-function applyWallpaper(name = localStorage.getItem(WALLPAPER_KEY) || "neuro-midnight", target = wallpaperTarget?.value || "all") {
-  const wallpaperName = WALLPAPERS[name] ? name : "neuro-midnight";
-  const map = readWallpaperMap();
-
-  if (target === "all") {
-    localStorage.setItem(WALLPAPER_KEY, wallpaperName);
-    for (const viewName of WALLPAPER_TARGETS) {
-      map[viewName] = wallpaperName;
-      paintViewWallpaper(viewName, wallpaperName);
-    }
-  } else {
-    map[target] = wallpaperName;
-    paintViewWallpaper(target, wallpaperName);
-  }
-
-  writeWallpaperMap(map);
-  refreshWallpaperButtons();
-  setSettingsStatus(`${wallpaperName.replace(/-/g, " ")} applied to ${target === "all" ? "all screens" : target}.`);
-}
-
-function loadWallpapers() {
-  const map = readWallpaperMap();
-  const fallback = localStorage.getItem(WALLPAPER_KEY) || "neuro-midnight";
-
-  for (const viewName of WALLPAPER_TARGETS) {
-    const wallpaperName = WALLPAPERS[map[viewName]] ? map[viewName] : fallback;
-    map[viewName] = wallpaperName;
-    paintViewWallpaper(viewName, wallpaperName);
-  }
-
-  writeWallpaperMap(map);
-  refreshWallpaperButtons();
-}
-
-for (const button of wallpaperButtons) {
-  button.addEventListener("click", () => applyWallpaper(button.dataset.wallpaper));
-}
-
-wallpaperTarget?.addEventListener("change", refreshWallpaperButtons);
-
-function setSettingsStatus(message) {
-  if (settingsStatus) settingsStatus.textContent = message;
-}
-
-for (const tab of settingsTabs) {
-  tab.addEventListener("click", () => {
-    const section = tab.dataset.settingsSection;
-    for (const button of settingsTabs) button.classList.toggle("active", button === tab);
-    for (const panel of settingsPanels) panel.classList.toggle("active", panel.dataset.settingsPanel === section);
-    setSettingsStatus(`${section} settings open.`);
-  });
-}
-
-function readSettingsState() {
-  try {
-    return JSON.parse(localStorage.getItem(SETTINGS_STATE_KEY)) || {};
-  } catch (error) {
-    return {};
-  }
-}
-
-function writeSettingsState(state) {
-  localStorage.setItem(SETTINGS_STATE_KEY, JSON.stringify(state));
-}
-
-function refreshToggleButtons() {
-  const state = readSettingsState();
-  for (const button of settingsToggleButtons) {
-    const enabled = !!state[button.dataset.settingsToggle];
-    button.classList.toggle("active", enabled);
-    button.dataset.state = enabled ? "On" : "Off";
-  }
-}
-
-for (const button of settingsToggleButtons) {
-  button.addEventListener("click", () => {
-    const state = readSettingsState();
-    const key = button.dataset.settingsToggle;
-    state[key] = !state[key];
-    writeSettingsState(state);
-    refreshToggleButtons();
-    setSettingsStatus(`${button.querySelector("strong")?.textContent || "Setting"} ${state[key] ? "enabled" : "disabled"}.`);
-  });
-}
-
-async function runSettingsAction(action) {
-  if (action === "refresh-sync") {
-    renderHealthStatus();
-    renderProfileSummary();
-    setSettingsStatus("Sync refreshed.");
-    return;
-  }
-
-  if (action === "export-data") {
-    const data = {
-      profile: localStorage.getItem(PROFILE_STORAGE_KEY),
-      wallpaperMap: readWallpaperMap(),
-      settings: readSettingsState(),
-      exportedAt: new Date().toISOString()
-    };
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
-    link.download = "neuro-link-backup.json";
-    link.click();
-    URL.revokeObjectURL(link.href);
-    setSettingsStatus("Backup exported.");
-    return;
-  }
-
-  if (action === "diagnostics") {
-    setSettingsStatus(`Diagnostics OK. Bridge: ${profileBridge === "sl" ? "SL media" : "local/web"}.`);
-    return;
-  }
-
-  if (action === "clear-cache") {
-    localStorage.removeItem(PROFILE_PENDING_SYNC_KEY);
-    setSettingsStatus("Temporary cache cleared.");
-    return;
-  }
-
-  if (action === "reset-neuro") {
-    localStorage.removeItem(WALLPAPER_KEY);
-    localStorage.removeItem(WALLPAPER_MAP_KEY);
-    localStorage.removeItem(TIME_MODE_KEY);
-    loadWallpapers();
-    updateClock();
-    setSettingsStatus("Display settings reset.");
-    return;
-  }
-
-  if (action === "refresh-media") {
-    setSettingsStatus("Refreshing media...");
-    location.reload();
-    return;
-  }
-
-  if (action === "bridge-status") {
-    setSettingsStatus(profileBridge === "sl" ? "SL bridge mode is active." : "SL bridge mode is not active.");
-  }
-}
-
-for (const button of settingsActionButtons) {
-  button.addEventListener("click", () => runSettingsAction(button.dataset.settingsAction));
-}
-
-const DEFAULT_WALLET_STATE = {
-  displayName: "",
-  agentName: "",
-  accountId: "",
-  admin: false,
-  checking: 0,
-  savings: 0,
-  updatedAt: "",
-  syncTick: "",
-  users: [],
-  history: []
-};
-
-function parseGcAmount(value) {
-  const clean = String(value ?? "")
-    .replace(/gc/gi, "")
-    .replace(/g\$/gi, "")
-    .replace(/,/g, "")
-    .trim();
-  const amount = Number(clean);
-  return Number.isFinite(amount) ? amount : 0;
-}
-
-function formatGc(value) {
-  const amount = parseGcAmount(value);
-  return `GC ${Math.round(amount).toLocaleString()}`;
-}
-
-function walletProfileName() {
-  try {
-    const profile = normalizeProfile(JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY) || "{}"));
-    return profile.displayName || "";
-  } catch (error) {
-    return "";
-  }
-}
-
-function readWalletState() {
-  try {
-    return { ...DEFAULT_WALLET_STATE, ...JSON.parse(localStorage.getItem(GCOIN_WALLET_KEY)) };
-  } catch (error) {
-    return { ...DEFAULT_WALLET_STATE };
-  }
-}
-
-function writeWalletState(state) {
-  localStorage.setItem(GCOIN_WALLET_KEY, JSON.stringify(state));
-}
-
-function readWalletVisibility() {
-  try {
-    return { checking: true, savings: true, ...JSON.parse(localStorage.getItem(GCOIN_WALLET_VISIBILITY_KEY)) };
-  } catch (error) {
-    return { checking: true, savings: true };
-  }
-}
-
-function writeWalletVisibility(state) {
-  localStorage.setItem(GCOIN_WALLET_VISIBILITY_KEY, JSON.stringify(state));
-}
-
-function decodeMaybeBase64(value = "") {
-  try {
-    return atob(value);
-  } catch (error) {
-    return value;
-  }
-}
-
-function parseWalletUsers(raw = "") {
-  return String(raw || "")
-    .split("|")
-    .map((row) => row.trim())
-    .filter(Boolean)
-    .map((row) => {
-      const parts = row.split(",");
-      const id = parts.shift() || "";
-      const label = decodeMaybeBase64(parts.join(",") || id);
-      return { id, label: label || id };
-    })
-    .filter((user) => user.id && user.label);
-}
-
-function normalizeWalletUsers(users = []) {
-  return users
-    .map((user) => ({
-      id: user.id || user.uuid || user.key || "",
-      label: user.label || user.displayName || user.name || user.id || ""
-    }))
-    .filter((user) => user.id && user.label)
-    .sort((a, b) => a.label.localeCompare(b.label));
-}
-
-function walletStateFromUrl() {
-  const checking = urlParams.get("gcChecking") || urlParams.get("checking") || urlParams.get("gcoinChecking");
-  const savings = urlParams.get("gcSavings") || urlParams.get("savings") || urlParams.get("gcoinSavings");
-  const total = urlParams.get("gcBalance") || urlParams.get("gcoinBalance");
-  const displayName = urlParams.get("gcDisplayName") || urlParams.get("walletDisplayName") || urlParams.get("displayName") || "";
-  const accountId = urlParams.get("gcAccount") || urlParams.get("accountId") || urlParams.get("uuid") || "";
-  const admin = urlParams.get("gcAdmin") || urlParams.get("admin") || "";
-  const usersRaw = urlParams.get("gcUsers") || urlParams.get("users") || "";
-  const syncTick = urlParams.get("gcSync") || urlParams.get("tick") || "";
-  const hasWalletData = checking !== null || savings !== null || total !== null || displayName !== "" || accountId !== "" || usersRaw !== "";
-
-  if (!hasWalletData) return null;
-
-  const existing = readWalletState();
-  const next = {
-    ...existing,
-    displayName: displayName || existing.displayName,
-    accountId: accountId || existing.accountId,
-    admin: admin ? admin === "1" || admin.toLowerCase() === "true" : false,
-    checking: checking !== null ? parseGcAmount(checking) : (total !== null ? parseGcAmount(total) : existing.checking),
-    savings: savings !== null ? parseGcAmount(savings) : existing.savings,
-    users: usersRaw ? parseWalletUsers(usersRaw) : normalizeWalletUsers(existing.users),
-    syncTick: syncTick || existing.syncTick,
-    updatedAt: new Date().toISOString()
-  };
-
-  if ((syncTick && syncTick !== existing.syncTick) || (!existing.updatedAt && hasWalletData)) {
-    pushNotification("G", "Wallet", "Wallet data synced from G-Coin Server.");
-  }
-
-  return next;
-}
-
-function normalizeWalletHistory(history = []) {
-  return history.slice(0, 8).map((item, index) => ({
-    id: item.id || `wallet-${index}`,
-    type: item.type || "Server",
-    title: item.title || "G-Coin update",
-    detail: item.detail || "Balance synced from server.",
-    amount: item.amount || "",
-    createdAt: item.createdAt || new Date().toISOString()
-  }));
-}
-
-function renderWalletUserOptions() {
-  const state = readWalletState();
-  const users = normalizeWalletUsers(state.users);
-  const html = [`<option value="">Choose resident</option>`, ...users.map((user) => `<option value="${user.id}">${user.label}</option>`)].join("");
-
-  if (walletTransferResident) walletTransferResident.innerHTML = html;
-  if (walletRequestResident) walletRequestResident.innerHTML = html;
-}
-
-function appendWalletHistory(entry) {
-  const state = readWalletState();
-  state.history = normalizeWalletHistory([entry, ...(state.history || [])]);
-  writeWalletState(state);
-}
-
-function currentWalletState() {
-  const fromUrl = walletStateFromUrl();
-  if (fromUrl) {
-    fromUrl.history = normalizeWalletHistory(fromUrl.history);
-    if (!fromUrl.history.length) {
-      fromUrl.history = normalizeWalletHistory([{
-        type: "Sync",
-        title: "Balance synced",
-        detail: "G-Coin Server balance received.",
-        amount: formatGc((fromUrl.checking || 0) + (fromUrl.savings || 0)),
-        createdAt: fromUrl.updatedAt
-      }]);
-    }
-    writeWalletState(fromUrl);
-    return fromUrl;
-  }
-
-  const saved = readWalletState();
-  return { ...saved, history: normalizeWalletHistory(saved.history) };
-}
-
-function renderWallet() {
-  const state = currentWalletState();
-  const visibility = readWalletVisibility();
-  const displayName = state.displayName || walletProfileName() || "Waiting for server";
-  const checking = parseGcAmount(state.checking);
-  const savings = parseGcAmount(state.savings);
-
-  if (walletDisplayName) walletDisplayName.textContent = displayName;
-  if (walletChecking) walletChecking.textContent = visibility.checking ? formatGc(checking) : "GC ••••";
-  if (walletSavings) walletSavings.textContent = visibility.savings ? formatGc(savings) : "GC ••••";
-  for (const button of walletEyeButtons) {
-    const account = button.dataset.walletEye;
-    const visible = visibility[account] !== false;
-    button.textContent = "";
-    button.classList.toggle("is-hidden", !visible);
-    button.setAttribute("aria-label", `${visible ? "Hide" : "Show"} ${account} balance`);
-  }
-  if (walletSyncStatus) {
-    walletSyncStatus.textContent = state.updatedAt
-      ? `Synced ${new Date(state.updatedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}. UUID stays internal.`
-      : "Waiting for G-Coin Server sync.";
-  }
-  if (walletSettingsPanel) walletSettingsPanel.classList.toggle("admin-ready", !!state.admin);
-  if (walletSettingsButton) walletSettingsButton.hidden = !state.admin;
-  if (walletSettingsPanel && !state.admin) closeWalletSettings();
-  if (walletAdminStatus) {
-    walletAdminStatus.textContent = state.admin
-      ? "Owner/Admin tools ready. Server still logs every action."
-      : "Owner/Admin tools require server permission.";
-  }
-  renderWalletUserOptions();
-
-  if (walletHistoryList) {
-    walletHistoryList.innerHTML = state.history.length ? state.history.map((item) => `
-      <article>
-        <span>${item.type}</span>
-        <strong>${item.title}</strong>
-        <em>${item.amount || ""}</em>
-        <small>${item.detail}</small>
-      </article>
-    `).join("") : `
-      <article>
-        <span>Server</span>
-        <strong>No activity loaded</strong>
-        <em></em>
-        <small>Recent G-Coin transactions will appear here after the bridge sends them.</small>
-      </article>
-    `;
-  }
-}
-
-function setWalletAction(title, text) {
-  if (walletActionTitle) walletActionTitle.textContent = title;
-  if (walletActionText) walletActionText.textContent = text;
-}
-
-function showWalletScreen(name = "home") {
-  const screenName = walletScreens.some((screen) => screen.dataset.walletScreen === name) ? name : "home";
-  for (const screen of walletScreens) {
-    screen.classList.toggle("active", screen.dataset.walletScreen === screenName);
-  }
-  closeWalletSettings();
-  renderWallet();
-}
-
-function closeWalletSettings() {
-  if (!walletSettingsPanel || !walletSettingsButton) return;
-  walletSettingsPanel.hidden = true;
-  walletSettingsPanel.classList.remove("open");
-  walletSettingsButton.setAttribute("aria-expanded", "false");
-}
-
-function toggleWalletSettings() {
-  if (!walletSettingsPanel || !walletSettingsButton) return;
-  const opening = walletSettingsPanel.hidden;
-  walletSettingsPanel.hidden = !opening;
-  walletSettingsPanel.classList.toggle("open", opening);
-  walletSettingsButton.setAttribute("aria-expanded", String(opening));
-  if (opening) renderWallet();
-}
-
-function handleWalletAction(action) {
-  if (action === "refresh") {
-    const sentBalance = sendSlBridgeOp("gcoin-balance");
-    const sentHistory = sendSlBridgeOp("gcoin-history");
-    renderWallet();
-    setWalletAction("Refresh", sentBalance || sentHistory ? "Latest balances and transaction history requested from the G-Coin Server." : "Refresh ready. Waiting for SL bridge connection.");
-    pushNotification("G", "Wallet", sentBalance || sentHistory ? "Wallet refresh requested." : "Wallet refresh waiting for SL bridge.");
-    return;
-  }
-
-  if (action === "transfer") {
-    showWalletScreen("transfer");
-    setWalletAction("Transfer", "Checking can send to residents. Savings can only move to checking.");
-    pushNotification("G", "Wallet", "Transfer screen opened.");
-    return;
-  }
-
-  if (action === "request") {
-    showWalletScreen("request");
-    setWalletAction("Request", "Create a server-backed payment request.");
-    pushNotification("G", "Wallet", "Request screen opened.");
-    return;
-  }
-
-  if (action === "history") {
-    const sent = sendSlBridgeOp("gcoin-history");
-    showWalletScreen("history");
-    setWalletAction("History", sent ? "Transaction history requested from the server." : "History will show server logs once the bridge sends them.");
-    pushNotification("G", "Wallet", sent ? "Transaction history requested." : "History opened.");
-  }
-}
-
-function validWalletAmount(input) {
-  const amount = parseGcAmount(input?.value);
-  return amount > 0 ? amount : 0;
-}
-
-function confirmWalletTransfer() {
-  const from = walletTransferFrom?.value || "checking";
-  const to = walletTransferTo?.value || "checking";
-  const resident = String(walletTransferResident?.value || "").trim();
-  const amount = validWalletAmount(walletTransferAmount);
-
-  if (!amount) {
-    if (walletTransferStatus) walletTransferStatus.textContent = "Enter an amount greater than 0.";
-    return;
-  }
-
-  if (from === to) {
-    if (walletTransferStatus) walletTransferStatus.textContent = "Choose two different accounts.";
-    return;
-  }
-
-  if (from === "savings" && to === "resident") {
-    if (walletTransferStatus) walletTransferStatus.textContent = "Savings cannot pay residents directly. Move savings to checking first.";
-    return;
-  }
-
-  if (to === "resident" && !resident) {
-    if (walletTransferStatus) walletTransferStatus.textContent = "Enter a resident for this transfer.";
-    return;
-  }
-
-  const sent = sendSlBridgeOp("gcoin-transfer", { from, to, resident, amount });
-  const residentLabel = walletTransferResident?.selectedOptions?.[0]?.textContent || resident;
-  const detail = to === "resident"
-    ? `Transfer request sent: ${formatGc(amount)} from checking to ${residentLabel}.`
-    : `Transfer request sent: ${formatGc(amount)} from ${from} to ${to}.`;
-  trackBridgeCommand(sent, {
-    title: "Transfer",
-    successText: detail,
-    statusElement: walletTransferStatus,
-    history: {
-      type: "Transfer",
-      title: to === "resident" ? "Money sent" : "Checking/Savings transfer",
-      detail,
-      amount: formatGc(amount),
-      createdAt: new Date().toISOString()
-    }
-  });
-  if (walletTransferStatus) walletTransferStatus.textContent = sent ? "Transfer sent to SL bridge. Waiting for confirmation." : "Transfer ready, but SL bridge is not connected.";
-  setWalletAction("Transfer", sent ? "Transfer sent to SL bridge. Waiting for confirmation." : "Transfer needs the SL G-Coin bridge.");
-  pushNotification("G", "Wallet", sent ? "Transfer sent to SL bridge." : "Transfer waiting for SL bridge.");
-  renderWallet();
-}
-
-function confirmWalletRequest() {
-  const resident = String(walletRequestResident?.value || "").trim();
-  const reason = String(walletRequestReason?.value || "").trim();
-  const amount = validWalletAmount(walletRequestAmount);
-
-  if (!resident) {
-    if (walletRequestStatus) walletRequestStatus.textContent = "Enter a resident for this request.";
-    return;
-  }
-
-  if (!amount) {
-    if (walletRequestStatus) walletRequestStatus.textContent = "Enter an amount greater than 0.";
-    return;
-  }
-
-  const sent = sendSlBridgeOp("gcoin-request", { resident, amount, reason });
-  const residentLabel = walletRequestResident?.selectedOptions?.[0]?.textContent || resident;
-  const detail = `Request sent: ${formatGc(amount)} from ${residentLabel}.`;
-  trackBridgeCommand(sent, {
-    title: "Request",
-    successText: reason ? `${detail} ${reason}` : detail,
-    statusElement: walletRequestStatus,
-    history: {
-      type: "Request",
-      title: "Money requested",
-      detail: reason ? `${detail} ${reason}` : detail,
-      amount: formatGc(amount),
-      createdAt: new Date().toISOString()
-    }
-  });
-  if (walletRequestStatus) walletRequestStatus.textContent = sent ? "Request sent to SL bridge. Waiting for confirmation." : "Request ready, but SL bridge is not connected.";
-  setWalletAction("Request", sent ? "Request sent to SL bridge. Waiting for confirmation." : "Request Money needs the SL G-Coin bridge.");
-  pushNotification("G", "Wallet", sent ? "Request sent to SL bridge." : "Request waiting for SL bridge.");
-  renderWallet();
-}
-
-function updateTransferResidentField() {
-  if (!walletTransferResident) return;
-  const show = walletTransferTo?.value === "resident";
-  walletTransferResident.closest("label")?.classList.toggle("hidden", !show);
-}
-
-function handleWalletAdminAction(action) {
-  const state = readWalletState();
-
-  if (action === "close") {
-    closeWalletSettings();
-    return;
-  }
-
-  if (!state.admin) {
-    setWalletAction("Admin Locked", "This wallet session is not marked Owner/Admin by the G-Coin Server.");
-    if (walletAdminStatus) walletAdminStatus.textContent = "Admin action blocked. Server permission required.";
-    return;
-  }
-
-  const bridgeOps = {
-    "admin-send": "gcoin-admin-send",
-    "add-money": "gcoin-add-money",
-    "set-balance": "gcoin-set-balance",
-    "clear-balance": "gcoin-clear-balance",
-    "transaction-logs": "gcoin-admin-logs"
-  };
-  const labels = {
-    "admin-send": "Admin Send",
-    "add-money": "Add Money",
-    "set-balance": "Set Balance",
-    "clear-balance": "Clear Balance",
-    "transaction-logs": "Transaction Logs"
-  };
-  const sent = sendSlBridgeOp(bridgeOps[action]);
-  setWalletAction(labels[action] || "Admin", sent ? `${labels[action]} requested. Server logging remains mandatory.` : `${labels[action]} needs the SL G-Coin bridge.`);
-}
-
-for (const button of walletActionButtons) {
-  button.addEventListener("click", () => handleWalletAction(button.dataset.walletAction));
-}
-
-for (const button of walletEyeButtons) {
-  button.addEventListener("click", () => {
-    const visibility = readWalletVisibility();
-    const account = button.dataset.walletEye;
-    visibility[account] = visibility[account] === false;
-    writeWalletVisibility(visibility);
-    renderWallet();
-    pushNotification("G", "Wallet", `${account === "checking" ? "Checking" : "Savings"} balance ${visibility[account] ? "shown" : "hidden"}.`, false);
-  });
-}
-
-for (const button of walletBackButtons) {
-  button.addEventListener("click", () => showWalletScreen("home"));
-}
-
-for (const button of walletConfirmButtons) {
-  button.addEventListener("click", () => {
-    if (button.dataset.walletConfirm === "transfer") confirmWalletTransfer();
-    if (button.dataset.walletConfirm === "request") confirmWalletRequest();
-  });
-}
-
-walletTransferTo?.addEventListener("change", updateTransferResidentField);
-
-walletSettingsButton?.addEventListener("click", (event) => {
-  event.stopPropagation();
-  toggleWalletSettings();
-});
-
-walletSettingsPanel?.addEventListener("click", (event) => event.stopPropagation());
-
-for (const button of walletAdminActionButtons) {
-  button.addEventListener("click", () => handleWalletAdminAction(button.dataset.walletAdminAction));
-}
-
-const NEURO_DEFAULT_STATE = {
-  energy: "Normal",
-  mood: "Chill",
-  health: "Normal",
-  food: "Not checked",
-  water: "Not checked",
-  rest: "Not checked",
-  rent: "Stable",
-  social: "Quiet",
-  stress: "Low",
-  lastCheckIn: ""
-};
-
-const NEURO_FOLLOWUPS = {
-  Focused: { prompt: "What are we focusing on first?", choices: ["Work", "Errands", "Creative", "Reset"] },
-  Tired: { prompt: "Need rest, water, or a slower pace?", choices: ["Rest", "Water", "Slow pace", "Not now"] },
-  Hungry: { prompt: "Need breakfast, coffee, or water first?", choices: ["Breakfast", "Coffee", "Water", "Not now"] },
-  Stressed: { prompt: "What would help lower the pressure?", choices: ["Breathe", "Quiet", "Talk", "Break"] },
-  Social: { prompt: "How social are we feeling?", choices: ["Active", "Low-key", "DMs", "Solo"] },
-  Skip: { prompt: "No check-in saved yet.", choices: ["Not now"] }
-};
-
-function readNeuroState() {
-  try {
-    return { ...NEURO_DEFAULT_STATE, ...JSON.parse(localStorage.getItem(NEURO_STATE_KEY)) };
-  } catch (error) {
-    return { ...NEURO_DEFAULT_STATE };
-  }
-}
-
-function writeNeuroState(state) {
-  localStorage.setItem(NEURO_STATE_KEY, JSON.stringify(state));
-}
-
-function showNeuroPanel(name = "home") {
-  const panelName = neuroPanels.some((panel) => panel.dataset.neuroPanel === name) ? name : "home";
-  for (const button of neuroSectionButtons) {
-    button.classList.toggle("active", button.dataset.neuroSection === panelName);
-  }
-  for (const panel of neuroPanels) {
-    panel.classList.toggle("active", panel.dataset.neuroPanel === panelName);
-  }
-}
-
-function neuroSuggestionFor(state) {
-  if (state.food === "Hungry" || state.food === "Breakfast") return "You marked food as a priority. A real meal and some water could help your energy stabilize.";
-  if (state.energy === "Low" || state.rest === "Needed") return "Your energy is low. A short rest, water, and a slower pace would be a good next move.";
-  if (state.stress === "High") return "Stress is running high. Try a quiet reset before taking on the next task.";
-  if (state.social === "Active") return "You are open socially. Check Camden Falls Online or send a DM when you are ready.";
-  if (state.mood === "Focused") return "You are focused. Pick one task and keep the next step small.";
-  return "Your pulse looks steady. Keep food, water, and rest balanced today.";
-}
-
-function renderNeuro() {
-  const state = readNeuroState();
-  let profile = {};
-  try {
-    profile = normalizeProfile(JSON.parse(localStorage.getItem(PROFILE_STORAGE_KEY) || "{}"));
-  } catch (error) {
-    profile = normalizeProfile({});
-  }
-  if (neuroGreetingName) neuroGreetingName.textContent = `${profile.displayName || "Xavion"}.`;
-  if (pulseEnergy) pulseEnergy.textContent = state.energy;
-  if (pulseMood) pulseMood.textContent = state.mood;
-  if (pulseHealth) pulseHealth.textContent = state.health;
-  if (neuroLastCheckin) {
-    neuroLastCheckin.textContent = state.lastCheckIn ? `Last check-in: ${new Date(state.lastCheckIn).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : "Last check-in: Not yet";
-  }
-  const suggestion = neuroSuggestionFor(state);
-  if (neuroSuggestion) neuroSuggestion.textContent = suggestion;
-  if (neuroSuggestionFull) neuroSuggestionFull.textContent = suggestion;
-  if (neuroPulseSummary) {
-    neuroPulseSummary.innerHTML = Object.entries(state).map(([key, value]) => `<div><span>${key}</span><strong>${value || "Not checked"}</strong></div>`).join("");
-  }
-}
-
-function saveNeuroChoice(primary, followup = "") {
-  const state = readNeuroState();
-  state.lastCheckIn = new Date().toISOString();
-
-  if (primary === "Focused") {
-    state.energy = "Good";
-    state.mood = "Focused";
-  } else if (primary === "Tired") {
-    state.energy = "Low";
-    state.rest = "Needed";
-  } else if (primary === "Hungry") {
-    state.food = followup || "Hungry";
-    if (followup === "Water") state.water = "Needed";
-  } else if (primary === "Stressed") {
-    state.stress = "High";
-    state.mood = "Stressed";
-  } else if (primary === "Social") {
-    state.social = followup || "Active";
-    state.mood = "Social";
-  }
-
-  if (followup === "Water") state.water = "Needed";
-  if (followup === "Rest") state.rest = "Needed";
-  if (followup === "Break" || followup === "Breathe" || followup === "Quiet") state.stress = "Moderate";
-
-  writeNeuroState(state);
-  renderNeuro();
-}
-
-for (const button of neuroSectionButtons) {
-  button.addEventListener("click", () => showNeuroPanel(button.dataset.neuroSection));
-}
-
-for (const button of neuroPrimaryChoices) {
-  button.addEventListener("click", () => {
-    const choice = button.dataset.neuroChoice;
-    const followup = NEURO_FOLLOWUPS[choice] || NEURO_FOLLOWUPS.Skip;
-    if (neuroFollowupPrompt) neuroFollowupPrompt.textContent = followup.prompt;
-    if (neuroFollowupChoices) {
-      neuroFollowupChoices.innerHTML = followup.choices.map((item) => `<button type="button" data-followup="${item}">${item}</button>`).join("");
-      for (const followupButton of neuroFollowupChoices.querySelectorAll("[data-followup]")) {
-        followupButton.addEventListener("click", () => saveNeuroChoice(choice, followupButton.dataset.followup));
-      }
-    }
-    if (choice === "Skip") saveNeuroChoice(choice, "Not now");
-  });
-}
-
-for (const button of document.querySelectorAll("[data-neuro-care]")) {
-  button.addEventListener("click", () => {
-    const state = readNeuroState();
-    const key = button.dataset.neuroCare;
-    if (key in NEURO_DEFAULT_STATE) {
-      state[key] = "Checked";
-    } else if (key === "meds" || key === "hygiene") {
-      state.health = "Checked";
-    } else if (key === "selfCare") {
-      state.mood = "Supported";
-    }
-    state.lastCheckIn = new Date().toISOString();
-    writeNeuroState(state);
-    renderNeuro();
-  });
-}
-
-for (const list of document.querySelectorAll("[data-neuro-list]")) {
-  const type = list.dataset.neuroList;
-  const items = {
-    health: ["Status: Normal", "Sickness: None", "Medication: None", "Pain / Discomfort: None"],
-    care: ["Food", "Water", "Rest", "Meds", "Hygiene", "Self-Care"],
-    lifestyle: ["Rent: Stable", "Social Life: Quiet", "Stress Level: Low", "Sleep Schedule: Normal"]
-  }[type] || [];
-  list.innerHTML = items.map((item) => `<button type="button">${item}</button>`).join("");
-}
-
-window.addEventListener("hashchange", () => {
-  showView(location.hash.replace("#", "") || "home");
-});
-
-showView(location.hash.replace("#", "") || "home");
-loadWallpapers();
-refreshToggleButtons();
-renderAlertHistory();
-updateNotificationBadge();
-renderWallet();
-updateTransferResidentField();
-renderNeuro();
-updateClock();
-window.setInterval(updateClock, 10000);
-
-function setProfileStatus(message) {
-  if (profileSyncStatus) profileSyncStatus.textContent = message;
-}
-
-function showProfileMode(mode) {
-  const isView = mode === "view";
-  profileSummary?.classList.toggle("hidden", !isView);
-  profileForm?.classList.toggle("hidden", isView);
-}
-
-function getProfileFormData() {
-  if (!profileForm) return {};
-
-  const data = Object.fromEntries(new FormData(profileForm).entries());
-  data.location = canonicalLocation(data.location) || localStorage.getItem(PROFILE_LOCATION_KEY) || "Eden Palms";
-  data.sex = VALID_SEXES.includes(data.sex) ? data.sex : "";
-  data.healthStatus = getHealthStatus();
-  data.profileImage = defaultProfileImage(data.sex);
-  data.updatedAt = new Date().toISOString();
-  return data;
-}
-
-function normalizeProfile(profile = {}) {
-  const location = canonicalLocation(profile.location) || localStorage.getItem(PROFILE_LOCATION_KEY) || "Eden Palms";
-
-  return {
-    title: cleanLoadedValue(profile.title, "Resident"),
-    displayName: cleanLoadedValue(profile.displayName, "Not set"),
-    age: cleanLoadedValue(profile.age, "Not set"),
-    sex: VALID_SEXES.includes(profile.sex) ? profile.sex : "",
-    location,
-    bio: cleanLoadedValue(profile.bio, "No bio set."),
-    healthStatus: healthEmoji(profile.healthStatus),
-    profileImage: defaultProfileImage(profile.sex),
-    updatedAt: profile.updatedAt || new Date().toISOString()
-  };
-}
-
-function cleanLoadedValue(value, placeholder) {
-  const clean = String(value || "").trim();
-  return clean === placeholder ? "" : clean;
-}
-
-function canonicalLocation(value = "") {
-  const clean = String(value || "")
-    .replace(/\+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  const compact = clean.toLowerCase().replace(/[^a-z]/g, "");
-
-  if (compact.includes("chicore") || compact.includes("chico") || compact === "chi") return "Chi-Core";
-  if (compact.includes("edenpalms")) return "Eden Palms";
-  return "";
-}
-
-function healthEmoji(value = "") {
-  const clean = String(value || "").trim();
-  if (HEALTH_EMOJIS.includes(clean)) return clean;
-
-  const lowered = clean.toLowerCase();
-  if (lowered.includes("happy") || lowered.includes("good") || lowered.includes("great")) return "\uD83D\uDE03";
-  if (lowered.includes("sad") || lowered.includes("low")) return "\uD83D\uDE14";
-  if (lowered.includes("sick") || lowered.includes("ill")) return "\uD83D\uDE37";
-  if (lowered.includes("annoy") || lowered.includes("mad")) return "\uD83D\uDE12";
-  if (lowered.includes("not") || lowered.includes("sync")) return "\uD83D\uDE10";
-  return "\uD83D\uDE10";
-}
-
-function defaultProfileImage(sex = "") {
-  const normalized = String(sex).toLowerCase();
-  if (normalized === "male") return DEFAULT_MALE_PROFILE_IMAGE;
-  if (normalized === "female") return DEFAULT_FEMALE_PROFILE_IMAGE;
-  return DEFAULT_PROFILE_IMAGE;
-}
-
-function getProfileFromUrl() {
-  const identityKeys = ["title", "displayName", "age", "sex", "location", "bio"];
-  const keys = [...identityKeys, "healthStatus"];
-  const profile = {};
-
-  for (const key of keys) {
-    const value = urlParams.get(key);
-    if (value !== null && value !== "") profile[key] = value;
-  }
-
-  const hasIdentity = identityKeys.some((key) => profile[key] && profile[key] !== "Not set" && profile[key] !== "No bio set.");
-  if (!hasIdentity) {
-    if (profile.healthStatus) localStorage.setItem(HEALTH_STATUS_KEY, profile.healthStatus);
-    return null;
-  }
-
-  profile.updatedAt = urlParams.get("updatedAt") || new Date().toISOString();
-  return normalizeProfile(profile);
-}
-
-function applyProfileData(profile) {
-  if (!profileForm || !profile) return;
-  const normalized = normalizeProfile(profile);
-  localStorage.setItem(PROFILE_LOCATION_KEY, normalized.location);
-
-  for (const [key, value] of Object.entries(normalized)) {
-    const field = profileForm.elements[key];
-    if (field && key !== "profileImage") field.value = value;
-  }
-
-  if (profileAvatar) profileAvatar.src = defaultProfileImage(normalized.sex);
-  renderHealthStatus();
-  renderProfileSummary(normalized);
-}
-
-function renderProfileSummary(profile = getProfileFormData()) {
-  profile = normalizeProfile(profile);
-  const fallback = "Not set";
-  const health = getHealthStatus();
-
-  if (profileViewAvatar) profileViewAvatar.src = defaultProfileImage(profile.sex);
-  if (profileViewTitle) profileViewTitle.textContent = profile.title || "Resident";
-  if (profileViewTitleDetail) profileViewTitleDetail.textContent = profile.title || "Resident";
-  if (profileViewName) profileViewName.textContent = profile.displayName || fallback;
-  if (profileViewAge) profileViewAge.textContent = profile.age || fallback;
-  if (profileViewSex) profileViewSex.textContent = profile.sex || fallback;
-  if (profileViewLocation) profileViewLocation.textContent = profile.location || "Eden Palms";
-  if (profileViewLocationHero) profileViewLocationHero.textContent = profile.location || "Eden Palms";
-  if (profileViewHealth) profileViewHealth.textContent = healthEmoji(health);
-  if (profileViewBio) profileViewBio.textContent = profile.bio || "No bio set.";
-  renderNeuro();
-}
-
-function getHealthStatus() {
-  const health = window.NeuroLinkHealth || {};
-  return healthEmoji(health.status || localStorage.getItem(HEALTH_STATUS_KEY) || "\uD83D\uDE10");
-}
-
-function renderHealthStatus() {
-  if (profileHealthStatus) profileHealthStatus.textContent = getHealthStatus();
-  if (profileViewHealth) profileViewHealth.textContent = getHealthStatus();
-}
-
-function loadProfile() {
-  try {
-    const urlProfile = getProfileFromUrl();
-    if (urlProfile) {
-      if (urlProfile.healthStatus) localStorage.setItem(HEALTH_STATUS_KEY, urlProfile.healthStatus);
-      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(urlProfile));
-      applyProfileData(urlProfile);
-      showProfileMode("view");
-      setProfileStatus("Loaded from Neuro server");
-      return;
-    }
-
-    const saved = localStorage.getItem(PROFILE_STORAGE_KEY);
-    if (saved) {
-      const profile = normalizeProfile(JSON.parse(saved));
-      applyProfileData(profile);
-      showProfileMode("view");
-      setProfileStatus("Local profile loaded");
-    } else {
-      showProfileMode("edit");
-    }
-  } catch (error) {
-    showProfileMode("edit");
-    setProfileStatus("Local profile could not load");
-  }
-}
-
-async function syncProfileToServer(profile) {
-  if (!configuredEndpoint) return { ok: false, skipped: true };
-
-  if (profileBridge === "sl") {
-    return syncProfileToSlBridge(profile);
-  }
-
-  const response = await fetch(configuredEndpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(profile)
-  });
-
-  return { ok: response.ok, skipped: false };
-}
-
-function syncProfileToSlBridge(profile, op = "save") {
-  const payload = new URLSearchParams();
-  payload.set("op", op);
-  payload.set("displayName", profile.displayName || "");
-  payload.set("age", profile.age || "");
-  payload.set("sex", profile.sex || "");
-  payload.set("location", profile.location || "");
-  payload.set("title", profile.title || "");
-  payload.set("bio", profile.bio || "");
-  payload.set("healthStatus", healthEmoji(getHealthStatus()));
-  payload.set("updatedAt", profile.updatedAt || new Date().toISOString());
-
-  const separator = configuredEndpoint.includes("?") ? "&" : "?";
-  const url = `${configuredEndpoint}${separator}${payload.toString()}`;
-  const ping = new Image();
-  ping.alt = "";
-  ping.src = url;
-  window.__neuroLinkProfilePings = window.__neuroLinkProfilePings || [];
-  window.__neuroLinkProfilePings.push(ping);
-  window.setTimeout(() => window.__neuroLinkProfilePings.shift(), 8000);
-
-  return Promise.resolve({ ok: true, skipped: false, beacon: true });
-}
-
-function clearProfileForm() {
-  if (profileForm) profileForm.reset();
-  localStorage.removeItem(PROFILE_STORAGE_KEY);
-  localStorage.removeItem(PROFILE_PENDING_SYNC_KEY);
-  if (profileAvatar) profileAvatar.src = DEFAULT_PROFILE_IMAGE;
-  renderHealthStatus();
-  renderProfileSummary({});
-  showProfileMode("edit");
-}
-
-async function resetProfile() {
-  clearProfileForm();
-  setProfileStatus("Profile reset locally. Clearing Neuro server...");
-
-  try {
-    if (configuredEndpoint && profileBridge === "sl") {
-      await syncProfileToSlBridge({}, "clear");
-      setProfileStatus("Profile reset. Save again to rebuild server profile.");
-    } else {
-      setProfileStatus("Profile reset locally.");
-    }
-  } catch (error) {
-    setProfileStatus("Profile reset locally. Server clear failed.");
-  }
-}
-
-async function saveProfile() {
-  const profile = getProfileFormData();
-  localStorage.setItem(PROFILE_LOCATION_KEY, profile.location);
-  localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile));
-  localStorage.setItem(PROFILE_PENDING_SYNC_KEY, JSON.stringify(profile));
-  renderProfileSummary(profile);
-  showProfileMode("view");
-  setProfileStatus("Saved locally. Neuro server sync pending.");
-
-  try {
-    const result = await syncProfileToServer(profile);
-    if (result.ok) {
-      if (!result.beacon) localStorage.removeItem(PROFILE_PENDING_SYNC_KEY);
-      setProfileStatus(result.beacon ? "Sent to SL Neuro server" : "Saved in Neuro server");
-    } else if (result.skipped) {
-      setProfileStatus("Saved locally. Connect Neuro server to sync.");
-    }
-  } catch (error) {
-    setProfileStatus("Saved locally. Neuro server offline.");
-  }
-}
-
-if (profileForm) {
-  profileForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    saveProfile();
-  });
-
-  profileForm.elements.sex?.addEventListener("change", () => {
-    const profile = getProfileFormData();
-    if (profileAvatar) profileAvatar.src = defaultProfileImage(profile.sex);
-    renderProfileSummary(profile);
-  });
-}
-
-useSlProfileButton?.addEventListener("click", () => {
-  const profile = getProfileFormData();
-  if (profileAvatar) profileAvatar.src = defaultProfileImage(profile.sex);
-  renderProfileSummary(profile);
-  setProfileStatus("Using default profile icon");
-});
-
-resetProfileButton?.addEventListener("click", () => {
-  resetProfile();
-});
-
-editProfileButton?.addEventListener("click", () => {
-  showProfileMode("edit");
-});
-
-loadProfile();
-renderHealthStatus();
-
-window.NeuroLink = {
-  showView,
-  getProfile: getProfileFormData,
-  saveProfile,
-  resetProfile,
-  syncProfileToServer,
-  setGcoinWallet(wallet) {
-    const existing = readWalletState();
-    const next = {
-      ...existing,
-      ...wallet,
-      checking: parseGcAmount(wallet?.checking ?? existing.checking),
-      savings: parseGcAmount(wallet?.savings ?? existing.savings),
-      updatedAt: wallet?.updatedAt || new Date().toISOString(),
-      history: normalizeWalletHistory(wallet?.history || existing.history)
-    };
-    writeWalletState(next);
-    renderWallet();
-  },
-  addGcoinHistory(entry) {
-    appendWalletHistory(entry);
-    renderWallet();
-  },
-  setHealthStatus(status) {
-    localStorage.setItem(HEALTH_STATUS_KEY, healthEmoji(status));
-    renderHealthStatus();
-    renderProfileSummary();
-  },
-  setProfileEndpoint(endpoint) {
-    localStorage.setItem(PROFILE_ENDPOINT_KEY, endpoint || "");
-  }
-};
+tickClock();
+window.setInterval(tickClock, 1000);
+renderProfile();
