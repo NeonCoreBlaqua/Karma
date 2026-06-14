@@ -42,6 +42,7 @@ string BACK_BTN = "Back";
 string NEXT_BTN = "Next";
 string HELP_BTN = "Help";
 integer USER_PAGE_SIZE = 8;
+integer MAX_BUTTON_CHARS = 24;
 
 // ---------- Server protocol ----------
 integer LM_REQ = 1000;   // HUD -> Server
@@ -125,16 +126,16 @@ string niceName(key id)
 string accountNumber(key id){ return llToUpper(llGetSubString((string)id, -6, -1)); }
 string shortKey(key id){ return accountNumber(id); }
 
-string dialogUserName(string name, key id)
+string dialogUserName(string name, integer slot)
 {
-    string suffix = " " + accountNumber(id);
-    integer maxName = 22 - llStringLength(suffix);
+    string prefix = (string)slot + " ";
+    integer maxName = MAX_BUTTON_CHARS - llStringLength(prefix);
     if (maxName < 8) maxName = 8;
     if (llStringLength(name) > maxName)
     {
         name = llGetSubString(name, 0, maxName - 1);
     }
-    return name + suffix;
+    return prefix + name;
 }
 
 integer hasAccess(key id)
@@ -516,6 +517,8 @@ showUserList(string title)
     list b = [];
     integer i;
     integer pageCount;
+    integer slot;
+    string label;
 
     userListTitle = title;
     pageUUIDs = [];
@@ -532,8 +535,10 @@ showUserList(string title)
     for (i = start; i <= end && i < total; ++i)
     {
         string nm = llList2String(userNames, i);
-        b += [nm];
-        pageNames += [nm];
+        slot = i - start + 1;
+        label = dialogUserName(nm, slot);
+        b += [label];
+        pageNames += [label];
         pageUUIDs += [llList2Key(userUUIDs, i)];
     }
 
@@ -702,7 +707,7 @@ handleServer(string str)
             if (startsWith(nm, "User-")) jump cont2;
 
             userUUIDs += [k];
-            userNames += [dialogUserName(nm, k)];
+            userNames += [nm];
 
 @cont2;
         }
@@ -1177,7 +1182,6 @@ default
         showMain();
     }
 }
-
 
 
 

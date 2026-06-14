@@ -26,6 +26,7 @@ integer BANK_CH = -777777;
 integer DIALOG_TIMEOUT = 60;
 integer USER_PAGE_SIZE = 6;
 integer MAX_USERS = 24;
+integer MAX_BUTTON_CHARS = 24;
 
 string BACK_BTN = "Back";
 string CLOSE_BTN = "Close";
@@ -101,15 +102,15 @@ string fallbackName(key id)
     return "User-" + shortAccount(id);
 }
 
-string dialogUserName(string name, key id)
+string dialogUserName(string name, integer slot)
 {
-    string suffix = " " + shortAccount(id);
-    integer maxName = 20 - llStringLength(suffix);
+    string prefix = (string)slot + " ";
+    integer maxName = MAX_BUTTON_CHARS - llStringLength(prefix);
 
     if (maxName < 8) maxName = 8;
     if (llStringLength(name) > maxName) name = llGetSubString(name, 0, maxName - 1);
 
-    return name + suffix;
+    return prefix + name;
 }
 
 integer makeMenuChannel(key user)
@@ -267,6 +268,7 @@ showUserList()
     integer i;
     integer pages;
     string label;
+    integer slot;
     list buttons = [];
 
     pageUUIDs = [];
@@ -287,7 +289,8 @@ showUserList()
 
     for (i = start; i <= end && i < total; ++i)
     {
-        label = llList2String(userNames, i);
+        slot = i - start + 1;
+        label = dialogUserName(llList2String(userNames, i), slot);
         buttons += [label];
         pageNames += [label];
         pageUUIDs += [llList2Key(userUUIDs, i)];
@@ -381,7 +384,7 @@ handleBankReply(string msg)
             if (!validName(residentName)) residentName = fallbackName(resident);
 
             userUUIDs += [resident];
-            userNames += [dialogUserName(residentName, resident)];
+            userNames += [residentName];
 
 @user_continue;
         }
