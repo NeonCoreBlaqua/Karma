@@ -1,11 +1,11 @@
 :root {
   color-scheme: dark;
   --bg: #020707;
-  --panel: rgba(7, 24, 25, 0.84);
-  --panel-strong: rgba(10, 36, 38, 0.94);
-  --line: rgba(76, 255, 224, 0.28);
+  --panel: rgba(2, 13, 14, 0.94);
+  --panel-strong: rgba(4, 22, 24, 0.98);
+  --line: rgba(76, 255, 224, 0.5);
   --text: #f4fbff;
-  --muted: #9ab0b3;
+  --muted: #c3d1d4;
   --cyan: #5ceaff;
   --leaf: #83ff9f;
 }
@@ -35,13 +35,15 @@ textarea {
 }
 
 button {
-  border: 1px solid var(--line);
+  border: 1px solid rgba(91, 238, 255, 0.5);
   border-radius: 8px;
   color: var(--text);
-  background: rgba(9, 35, 37, 0.88);
-  min-height: 44px;
-  padding: 0 16px;
+  background: rgba(8, 38, 42, 0.96);
+  min-height: 54px;
+  padding: 0 20px;
   cursor: pointer;
+  font-size: 18px;
+  font-weight: 800;
 }
 
 button:hover,
@@ -60,9 +62,9 @@ button:focus-visible {
 .screen {
   position: relative;
   overflow: hidden;
-  padding: 34px 42px 42px;
+  padding: 30px 36px 38px;
   background:
-    linear-gradient(90deg, rgba(1, 6, 7, 0.92), rgba(1, 8, 10, 0.68)),
+    linear-gradient(90deg, rgba(1, 5, 6, 0.97), rgba(1, 8, 10, 0.86)),
     url("images/wallpapers/neuro-midnight.png") center / cover;
 }
 
@@ -71,7 +73,9 @@ button:focus-visible {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 68% 20%, rgba(92, 234, 255, 0.12), transparent 34%);
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.5)),
+    radial-gradient(circle at 68% 20%, rgba(92, 234, 255, 0.08), transparent 34%);
 }
 
 .topbar,
@@ -82,12 +86,12 @@ button:focus-visible {
 }
 
 .topbar {
-  height: 58px;
+  height: 68px;
   display: flex;
   align-items: center;
   gap: 14px;
-  border-bottom: 1px solid rgba(76, 255, 224, 0.18);
-  margin-bottom: 28px;
+  border-bottom: 1px solid rgba(76, 255, 224, 0.36);
+  margin-bottom: 24px;
 }
 
 .topbar img {
@@ -103,7 +107,7 @@ button:focus-visible {
 }
 
 .topbar strong {
-  font-size: 22px;
+  font-size: 30px;
 }
 
 .topbar span,
@@ -112,7 +116,7 @@ button:focus-visible {
 .bio-card span {
   color: var(--cyan);
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 800;
   letter-spacing: 0;
 }
@@ -123,9 +127,9 @@ button:focus-visible {
 
 .profile-view {
   display: grid;
-  grid-template-columns: minmax(210px, 0.82fr) minmax(360px, 1.6fr);
-  gap: 28px;
-  height: calc(100% - 86px);
+  grid-template-columns: minmax(220px, 0.75fr) minmax(420px, 1.8fr);
+  gap: 22px;
+  height: calc(100% - 92px);
 }
 
 .avatar-panel,
@@ -135,43 +139,68 @@ button:focus-visible {
   background: var(--panel);
   backdrop-filter: blur(16px);
   border-radius: 12px;
-  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.34);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.58);
 }
 
 .avatar-panel {
-  padding: 20px;
+  padding: 18px;
   display: grid;
   grid-template-rows: 1fr auto auto;
   gap: 14px;
 }
 
 .avatar-frame {
-  min-height: 260px;
+  position: relative;
+  min-height: 300px;
   border-radius: 10px;
-  border: 1px solid rgba(92, 234, 255, 0.35);
-  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(92, 234, 255, 0.58);
+  background:
+    radial-gradient(circle at 50% 30%, rgba(91, 238, 255, 0.12), transparent 42%),
+    rgba(0, 0, 0, 0.64);
   display: grid;
   place-items: center;
   overflow: hidden;
 }
 
 .avatar-frame img {
+  position: relative;
+  z-index: 2;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+.avatar-frame img.is-hidden {
+  display: none;
+}
+
+.avatar-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #d9fff5;
+  font-size: 72px;
+  font-weight: 900;
+  text-shadow: 0 0 26px rgba(92, 234, 255, 0.5);
+}
+
+.avatar-fallback.is-hidden {
+  display: none;
+}
+
 .identity-panel {
-  padding: 30px;
+  padding: 32px;
   display: grid;
   align-content: start;
-  gap: 20px;
+  gap: 22px;
 }
 
 h1 {
   margin: 0;
-  font-size: clamp(46px, 8vw, 92px);
+  font-size: clamp(58px, 8.5vw, 104px);
   line-height: 0.95;
+  text-shadow: 0 4px 22px rgba(0, 0, 0, 0.72);
 }
 
 .identity-grid {
@@ -182,10 +211,10 @@ h1 {
 
 .identity-grid article,
 .bio-card {
-  border: 1px solid rgba(76, 255, 224, 0.18);
-  background: rgba(0, 9, 10, 0.48);
+  border: 1px solid rgba(76, 255, 224, 0.42);
+  background: rgba(0, 9, 10, 0.84);
   border-radius: 8px;
-  padding: 16px;
+  padding: 18px;
 }
 
 .identity-grid article {
@@ -195,18 +224,19 @@ h1 {
 }
 
 .identity-grid strong {
-  font-size: 20px;
+  font-size: 28px;
   overflow-wrap: anywhere;
 }
 
 .bio-card {
-  min-height: 142px;
+  min-height: 170px;
 }
 
 .bio-card p {
-  margin: 10px 0 0;
-  color: #d9eef2;
-  line-height: 1.5;
+  margin: 12px 0 0;
+  color: #eefcff;
+  font-size: 24px;
+  line-height: 1.45;
   overflow-wrap: anywhere;
 }
 
@@ -229,7 +259,7 @@ label {
   gap: 8px;
   color: var(--cyan);
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 800;
 }
 
@@ -240,16 +270,17 @@ label.wide {
 input,
 textarea {
   width: 100%;
-  border: 1px solid rgba(76, 255, 224, 0.24);
+  border: 1px solid rgba(76, 255, 224, 0.52);
   border-radius: 8px;
-  background: rgba(0, 9, 10, 0.72);
+  background: rgba(0, 9, 10, 0.92);
   color: var(--text);
   padding: 14px;
-  min-height: 46px;
+  min-height: 56px;
   outline: none;
   resize: none;
   text-transform: none;
   font-weight: 600;
+  font-size: 20px;
 }
 
 input:focus,

@@ -19,6 +19,7 @@ const els = {
   view: document.querySelector("#profileView"),
   form: document.querySelector("#profileForm"),
   avatarImage: document.querySelector("#avatarImage"),
+  avatarFallback: document.querySelector("#avatarFallback"),
   displayName: document.querySelector("#displayName"),
   agentName: document.querySelector("#agentName"),
   titleText: document.querySelector("#titleText"),
@@ -46,11 +47,31 @@ function safeProfileValue(value, fallback) {
   return clean || fallback;
 }
 
+function initialsFromName(name) {
+  const parts = safeProfileValue(name, "NL").split(/\s+/).filter(Boolean);
+  if (!parts.length) return "NL";
+  return parts.slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+}
+
+function showAvatarFallback(show) {
+  els.avatarImage?.classList.toggle("is-hidden", show);
+  els.avatarFallback?.classList.toggle("is-hidden", !show);
+}
+
 function renderProfile() {
   const hasSetup = profile.setup || !!profile.displayName;
-  const avatar = safeProfileValue(profile.avatarUrl, "images/neuro logo.png");
+  const avatar = String(profile.avatarUrl || "").trim();
 
-  if (els.avatarImage) els.avatarImage.src = avatar;
+  if (els.avatarFallback) els.avatarFallback.textContent = initialsFromName(profile.displayName || profile.agentName);
+  if (els.avatarImage) {
+    if (avatar) {
+      els.avatarImage.src = avatar;
+      showAvatarFallback(false);
+    } else {
+      els.avatarImage.removeAttribute("src");
+      showAvatarFallback(true);
+    }
+  }
   if (els.displayName) els.displayName.textContent = hasSetup ? profile.displayName : "First Time Setup";
   if (els.agentName) els.agentName.textContent = safeProfileValue(profile.agentName, "Loading");
   if (els.titleText) els.titleText.textContent = safeProfileValue(profile.title, "Resident");
@@ -142,6 +163,10 @@ document.addEventListener("click", (event) => {
   if (action === "close") {
     setStatus(sendProfileCommand("profile.close") ? "Close requested" : "Close unavailable");
   }
+});
+
+els.avatarImage?.addEventListener("error", () => {
+  showAvatarFallback(true);
 });
 
 els.form?.addEventListener("submit", (event) => {

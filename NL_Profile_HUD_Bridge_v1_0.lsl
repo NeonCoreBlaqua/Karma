@@ -36,6 +36,11 @@ string avatarUrl = "";
 string bio = "";
 integer setup = FALSE;
 
+string cacheKey()
+{
+    return "NL_PROFILE_CACHE:" + (string)activeUser;
+}
+
 string enc(string value)
 {
     return llEscapeURL(value);
@@ -49,6 +54,44 @@ string b64(string value)
 string ub64(string value)
 {
     return llBase64ToString(value);
+}
+
+string packCache()
+{
+    return llList2Json(JSON_OBJECT, [
+        "displayName", displayName,
+        "title", title,
+        "location", location,
+        "avatarUrl", avatarUrl,
+        "bio", bio,
+        "setup", (string)setup
+    ]);
+}
+
+saveCache()
+{
+    if (activeUser != NULL_KEY) llLinksetDataWrite(cacheKey(), packCache());
+}
+
+loadCache()
+{
+    string packed;
+
+    if (activeUser == NULL_KEY) return;
+    packed = llLinksetDataRead(cacheKey());
+    if (packed == "") return;
+
+    displayName = llJsonGetValue(packed, ["displayName"]);
+    title = llJsonGetValue(packed, ["title"]);
+    location = llJsonGetValue(packed, ["location"]);
+    avatarUrl = llJsonGetValue(packed, ["avatarUrl"]);
+    bio = llJsonGetValue(packed, ["bio"]);
+    setup = ((integer)llJsonGetValue(packed, ["setup"]) == TRUE);
+}
+
+clearCache()
+{
+    if (activeUser != NULL_KEY) llLinksetDataDelete(cacheKey());
 }
 
 integer mediaFace()
@@ -148,6 +191,15 @@ requestProfile()
 
 saveProfile(string body, key requestId)
 {
+    displayName = queryValue(body, "displayName");
+    title = queryValue(body, "title");
+    location = queryValue(body, "location");
+    avatarUrl = queryValue(body, "avatarUrl");
+    bio = queryValue(body, "bio");
+    setup = TRUE;
+    saveCache();
+    setMedia();
+
     pendingHttp = requestId;
     pendingStarted = llGetUnixTime();
     llSetTimerEvent(1.0);
@@ -156,16 +208,25 @@ saveProfile(string body, key requestId)
         "NL_PROFILE|SAVE|"
         + (string)activeUser + "|"
         + (string)llGetKey() + "|"
-        + b64(queryValue(body, "displayName")) + "|"
-        + b64(queryValue(body, "title")) + "|"
-        + b64(queryValue(body, "location")) + "|"
-        + b64(queryValue(body, "avatarUrl")) + "|"
-        + b64(queryValue(body, "bio"))
+        + b64(displayName) + "|"
+        + b64(title) + "|"
+        + b64(location) + "|"
+        + b64(avatarUrl) + "|"
+        + b64(bio)
     );
 }
 
 resetProfile(key requestId)
 {
+    displayName = "";
+    title = "Resident";
+    location = "Camden Falls";
+    avatarUrl = "";
+    bio = "";
+    setup = FALSE;
+    clearCache();
+    setMedia();
+
     pendingHttp = requestId;
     pendingStarted = llGetUnixTime();
     llSetTimerEvent(1.0);
@@ -176,6 +237,7 @@ openProfile()
 {
     activeUser = llGetOwner();
     open = TRUE;
+    loadCache();
 
     if (bridgeUrl == "")
     {
@@ -222,6 +284,11 @@ handleProfileReply(string msg)
         location = "Camden Falls";
         avatarUrl = "";
         bio = "";
+        clearCache();
+    }
+    else
+    {
+        saveCache();
     }
 
     if (pendingHttp != NULL_KEY)
@@ -272,6 +339,7 @@ default
     state_entry()
     {
         activeUser = llGetOwner();
+        loadCache();
         ensureListen();
         closeProfile();
         llOwnerSay(DISPLAY_TITLE + " online | Build " + (string)BUILD_NUMBER + " | closed by default");
@@ -280,6 +348,7 @@ default
     attach(key id)
     {
         activeUser = id;
+        if (id != NULL_KEY) loadCache();
         closeProfile();
     }
 
@@ -304,8 +373,9 @@ default
             if (method == URL_REQUEST_GRANTED)
             {
                 bridgeUrl = body;
-                requestProfile();
+                loadCache();
                 setMedia();
+                requestProfile();
                 return;
             }
 
