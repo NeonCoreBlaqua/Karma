@@ -3,7 +3,8 @@
 //
 // Drop into the Neuro-Link HUD/tablet linkset.
 // Talks to AtlasVault on BANK_CH and refreshes SL media
-// with wallet balances + display-name user list.
+// with wallet balances. User-list sync stays off the media URL
+// so SL does not reject long PRIM_MEDIA_CURRENT_URL values.
 //
 // Put this script directly inside the media screen prim.
 // It sets media on the same prim it is inside.
@@ -17,7 +18,7 @@ integer MEDIA_FACE = 4;
 
 integer BANK_CH = -777777;
 integer HTTP_TIMEOUT = 25;
-integer MAX_USERS = 40;
+integer MAX_USERS = 12;
 
 key activeUser = NULL_KEY;
 key httpRequestId = NULL_KEY;
@@ -51,7 +52,6 @@ string baseUrl()
         + "&gcSavings=" + enc(gcAmount(savings))
         + "&gcAdmin=" + (string)isAdmin
         + "&gcSync=" + (string)lastSync
-        + "&gcUsers=" + enc(usersPayload)
         + "#wallet";
 }
 
