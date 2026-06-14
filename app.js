@@ -2,14 +2,19 @@ const params = new URLSearchParams(window.location.search);
 const bridgeMode = params.get("profileBridge") || "";
 const endpoint = params.get("profileEndpoint") || "";
 
+function cleanStoredText(value) {
+  const text = String(value || "");
+  return text.includes("+") && !text.includes(" ") ? text.replace(/\+/g, " ") : text;
+}
+
 const profile = {
   uuid: params.get("uuid") || "",
-  agentName: params.get("agentName") || "Loading",
-  displayName: params.get("displayName") || "",
-  title: params.get("title") || "Resident",
-  location: params.get("location") || "Camden Falls",
+  agentName: cleanStoredText(params.get("agentName")) || "Loading",
+  displayName: cleanStoredText(params.get("displayName")),
+  title: cleanStoredText(params.get("title")) || "Resident",
+  location: cleanStoredText(params.get("location")) || "Camden Falls",
   avatarUrl: params.get("avatarUrl") || "images/neuro logo.png",
-  bio: params.get("bio") || "",
+  bio: cleanStoredText(params.get("bio")),
   setup: params.get("setup") === "1"
 };
 
@@ -189,7 +194,7 @@ window.addEventListener("message", (event) => {
 
   const state = new URLSearchParams(raw.substring("NL_PROFILE_STATE|".length));
   for (const key of ["uuid", "agentName", "displayName", "title", "location", "avatarUrl", "bio"]) {
-    if (state.has(key)) profile[key] = state.get(key) || "";
+    if (state.has(key)) profile[key] = key === "avatarUrl" || key === "uuid" ? state.get(key) || "" : cleanStoredText(state.get(key));
   }
   profile.setup = state.get("setup") === "1" || !!profile.displayName;
   renderProfile();

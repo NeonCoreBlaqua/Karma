@@ -56,6 +56,11 @@ string ub64(string value)
     return llBase64ToString(value);
 }
 
+string formDecode(string value)
+{
+    return llUnescapeURL(llDumpList2String(llParseStringKeepNulls(value, ["+"], []), " "));
+}
+
 string packCache()
 {
     return llList2Json(JSON_OBJECT, [
@@ -119,8 +124,8 @@ string queryValue(string body, string keyName)
         eq = llSubStringIndex(row, "=");
         if (eq != -1)
         {
-            k = llUnescapeURL(llGetSubString(row, 0, eq - 1));
-            if (k == keyName) return llUnescapeURL(llGetSubString(row, eq + 1, -1));
+            k = formDecode(llGetSubString(row, 0, eq - 1));
+            if (k == keyName) return formDecode(llGetSubString(row, eq + 1, -1));
         }
     }
     return "";
