@@ -38,6 +38,7 @@ integer MENU_CH;
 key hudOwner = NULL_KEY;
 key activeUser = NULL_KEY;
 key queuedTarget = NULL_KEY;
+string queuedTargetName = "";
 
 float checkingBal = 0.0;
 float savingsBal = 0.0;
@@ -65,6 +66,12 @@ string niceName(key id)
     if (dn == "") dn = llKey2Name(id);
     if (dn == "") dn = "User-" + accountNumber(id);
     return dn;
+}
+
+string targetName(key id)
+{
+    if (id == queuedTarget && queuedTargetName != "") return queuedTargetName;
+    return niceName(id);
 }
 
 integer hasAccess(key id)
@@ -196,6 +203,7 @@ cleanup(integer timedOut)
 
     activeUser = NULL_KEY;
     queuedTarget = NULL_KEY;
+    queuedTargetName = "";
     queuedAmt = 0.0;
     queuedCmd = "";
     queuedExtra = "";
@@ -255,6 +263,7 @@ showMain()
     queuedCmd = "";
     queuedExtra = "";
     queuedTarget = NULL_KEY;
+    queuedTargetName = "";
     queuedAmt = 0.0;
 
     list buttons = ["Balance", "Send", "Transfer", "Request"];
@@ -280,24 +289,25 @@ list presetButtons()
     return ["$10", "$20", "$50", "$100", "$1K", "$10K", "More", BACK_BTN, HELP_BTN, EXIT_BTN];
 }
 
-showAmountPicker(string title, string cmd, string extra, key target)
+showAmountPicker(string title, string cmd, string extra, key target, string targetLabel)
 {
     uiScreen = "AMOUNT";
     amtTitle = title;
     queuedCmd = cmd;
     queuedExtra = extra;
     queuedTarget = target;
+    queuedTargetName = targetLabel;
     queuedAmt = 0.0;
 
     string who = "";
-    if (target != NULL_KEY) who = "\nTarget: " + niceName(target);
+    if (target != NULL_KEY) who = "\nTarget: " + targetName(target);
     llDialog(activeUser, headerLine() + title + who + "\nPick amount.", presetButtons(), MENU_CH);
 }
 
 showFinalize()
 {
     string who = "";
-    if (queuedTarget != NULL_KEY) who = "\nTarget: " + niceName(queuedTarget);
+    if (queuedTarget != NULL_KEY) who = "\nTarget: " + targetName(queuedTarget);
     llDialog(activeUser,
         headerLine() + amtTitle + who + "\nSelected: " + formatMoney(queuedAmt) + "\nPress Finalize.",
         ["Finalize", BACK_BTN, HELP_BTN, EXIT_BTN],
@@ -318,7 +328,7 @@ float amountFromButton(string msg)
 printReceipt()
 {
     string out = DISPLAY_TITLE + "\n" + lastAction + " complete: " + formatMoney(queuedAmt) + "\n";
-    if (queuedTarget != NULL_KEY) out += "Target: " + niceName(queuedTarget) + "\n";
+    if (queuedTarget != NULL_KEY) out += "Target: " + targetName(queuedTarget) + "\n";
     out += "Checking: " + formatMoney(checkingBal) + "\nSavings: " + formatMoney(savingsBal);
     llRegionSayTo(activeUser, 0, out);
 }
@@ -381,36 +391,38 @@ handlePick(string str)
     if (llList2String(p, 0) != "PICKED") return;
     string mode = llList2String(p, 1);
     key target = (key)llList2String(p, 2);
+    string pickedName = "";
+    if (llGetListLength(p) > 4) pickedName = llBase64ToString(llList2String(p, 4));
     if (target == NULL_KEY) return;
 
     if (mode == "SEND_PICK")
     {
         lastAction = "Send";
-        showAmountPicker("Send", "SEND", "", target);
+        showAmountPicker("Send", "SEND", "", target, pickedName);
         return;
     }
     if (mode == "XFER_USER_PICK")
     {
         lastAction = "Transfer";
-        showAmountPicker("Transfer C>User", "XFER", "C>U", target);
+        showAmountPicker("Transfer C>User", "XFER", "C>U", target, pickedName);
         return;
     }
     if (mode == "REQ_PICK")
     {
         lastAction = "Request";
-        showAmountPicker("Request", "REQUEST_ONLY", "", target);
+        showAmountPicker("Request", "REQUEST_ONLY", "", target, pickedName);
         return;
     }
     if (mode == "ADMIN_SEND_PICK")
     {
         lastAction = "Admin Send";
-        showAmountPicker("Admin Send", "ADMIN_SEND", "", target);
+        showAmountPicker("Admin Send", "ADMIN_SEND", "", target, pickedName);
         return;
     }
     if (mode == "ADMIN_ADD_PICK")
     {
         lastAction = "Add Funds";
-        showAmountPicker("Add Funds", "ADDFUNDS", "", target);
+        showAmountPicker("Add Funds", "ADDFUNDS", "", target, pickedName);
     }
 }
 
@@ -533,13 +545,13 @@ handleButton(string msg)
     if (msg == "C>S")
     {
         lastAction = "Transfer";
-        showAmountPicker("Transfer C>S", "XFER", "C>S", NULL_KEY);
+        showAmountPicker("Transfer C>S", "XFER", "C>S", NULL_KEY, "");
         return;
     }
     if (msg == "S>C")
     {
         lastAction = "Transfer";
-        showAmountPicker("Transfer S>C", "XFER", "S>C", NULL_KEY);
+        showAmountPicker("Transfer S>C", "XFER", "S>C", NULL_KEY, "");
         return;
     }
     if (msg == "C>User")
@@ -551,7 +563,7 @@ handleButton(string msg)
     if (msg == "Add Funds")
     {
         lastAction = "Add Funds";
-        showAmountPicker("Add Funds", "ADDFUNDS", "", NULL_KEY);
+        showAmountPicker("Add Funds", "ADDFUNDS", "", NULL_KEY, "");
         return;
     }
     if (msg == "Admin Send")
@@ -562,13 +574,13 @@ handleButton(string msg)
     if (msg == "Withdraw Inv")
     {
         lastAction = "Withdraw";
-        showAmountPicker("Withdraw Inv", "ADMIN_WD_INV", "", NULL_KEY);
+        showAmountPicker("Withdraw Inv", "ADMIN_WD_INV", "", NULL_KEY, "");
         return;
     }
     if (msg == "Withdraw Sav")
     {
         lastAction = "Withdraw";
-        showAmountPicker("Withdraw Sav", "ADMIN_WD_SAV", "", NULL_KEY);
+        showAmountPicker("Withdraw Sav", "ADMIN_WD_SAV", "", NULL_KEY, "");
         return;
     }
 
@@ -587,7 +599,7 @@ handleButton(string msg)
         if (queuedCmd == "REQUEST_ONLY")
         {
             llInstantMessage(queuedTarget, niceName(activeUser) + " requested " + formatMoney(queuedAmt) + ".");
-            llRegionSayTo(activeUser, 0, DISPLAY_TITLE + ": request sent to " + niceName(queuedTarget) + ".");
+            llRegionSayTo(activeUser, 0, DISPLAY_TITLE + ": request sent to " + targetName(queuedTarget) + ".");
             showMain();
             return;
         }

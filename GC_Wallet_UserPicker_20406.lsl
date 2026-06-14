@@ -32,6 +32,7 @@ list userUUIDs;
 list userNames;
 list pageUUIDs;
 list pageNames;
+list pageDisplayNames;
 
 string accountNumber(key id)
 {
@@ -97,6 +98,7 @@ clearPicker()
     userNames = [];
     pageUUIDs = [];
     pageNames = [];
+    pageDisplayNames = [];
     llSetTimerEvent(0.0);
 }
 
@@ -109,6 +111,7 @@ showUserList()
     string body = "";
     pageUUIDs = [];
     pageNames = [];
+    pageDisplayNames = [];
 
     if (start >= total && userPage > 0)
     {
@@ -125,10 +128,11 @@ showUserList()
     {
         slot = i - start + 1;
         displayName = llList2String(userNames, i);
-        label = dialogUserName(displayName, slot);
+        label = (string)slot;
         body += (string)slot + ". " + displayName + "\n";
         buttons += [label];
         pageNames += [label];
+        pageDisplayNames += [displayName];
         pageUUIDs += [llList2Key(userUUIDs, i)];
     }
 
@@ -254,7 +258,8 @@ default
         if (idx != -1)
         {
             key picked = llList2Key(pageUUIDs, idx);
-            llMessageLinked(LINK_SET, LM_PICK, "PICKED|" + pickMode + "|" + (string)picked + "|" + msg, NULL_KEY);
+            string pickedName = llList2String(pageDisplayNames, idx);
+            llMessageLinked(LINK_SET, LM_PICK, "PICKED|" + pickMode + "|" + (string)picked + "|" + msg + "|" + llStringToBase64(pickedName), NULL_KEY);
             clearPicker();
         }
     }
